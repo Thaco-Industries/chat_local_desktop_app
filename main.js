@@ -10,8 +10,10 @@ function createMainWindow() {
     height: 600,
   });
 
+  mainWindow.webContents.openDevTools();
+
   const startUrl = url.format({
-    pathname: path.join(__dirname, 'index.html'),
+    pathname: path.join(__dirname, './app/build/index.html'),
     protocol: 'file',
   });
 
