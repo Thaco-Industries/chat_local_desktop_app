@@ -1,5 +1,5 @@
 // MessageList.tsx
-import React, { useEffect, forwardRef } from 'react';
+import React, { useEffect } from 'react';
 import MessageItem from './MessageItem';
 import { IMessageList } from '../../../interfaces/Message';
 import moment from 'moment';
@@ -29,7 +29,7 @@ const MessageList: React.FC<IMessageList> = ({
   }, {} as Record<string, IMessageList['messages']>);
 
   return (
-    <div className="flex flex-col gap-1 px-6 md:px-lg relative">
+    <div className="flex flex-col gap-1 px-6 md:px-lg relative ">
       {loading && <p>Loading more messages...</p>}
       <div id="endOfMessages" style={{ height: '1px' }}></div>
       {messages &&

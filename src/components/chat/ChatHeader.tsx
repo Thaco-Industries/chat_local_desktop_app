@@ -15,7 +15,7 @@ const ChatHeader: React.FC<IChatHeader> = ({
   setIsDesktopCollapsed,
 }) => {
   return (
-    <div className="w-full h-16 px-md md:px-lg py-xs bg-white border-b-[#DCDCDC] border-b-[0.5px] flex justify-between items-center ">
+    <div className="w-full h-16 px-md md:px-lg py-xs bg-white border-b-[#DCDCDC] border-b-[0.5px] flex justify-between items-center relative">
       <div className="flex gap-4">
         <button
           className="text-blue-500 block md:hidden"
@@ -29,15 +29,15 @@ const ChatHeader: React.FC<IChatHeader> = ({
           className="rounded-full w-11 h-11"
           alt="user-avatar"
         />
-        <div>
-          <p className="text-title">{roomInfo.room_name}</p>
+        <div className="">
+          <p className="text-title ">{roomInfo.room_name}</p>
           <div className="flex items-center gap-xs text-textBody text-sm">
             <div className="w-xs h-xs rounded-full bg-green-300"></div>
             Online
           </div>
         </div>
       </div>
-      <div className="flex h-full">
+      <div className="flex bg-white items-center h-full absolute right-0 top-0 bottom-0 z-10 px-1">
         <button
           title="tìm kiếm tin nhắn"
           className="w-10 h-10 p-xs hover:bg-[#CEE5FF80] flex justify-center items-center rounded-sm"

@@ -2,9 +2,10 @@ import React from 'react';
 import RoomItem from './RoomItem';
 import SearchAndAddToolbar from '../../common/SearchAndAddToolbar';
 import clsx from 'clsx';
-import { useFetchApi } from '../../../context/ApiContext';
+
 import { IRoom, IRoomList } from '../../../interfaces/Room';
 import { useChatContext } from '../../../context/ChatContext';
+import { useMarkAsReadService } from '../../../services/MarkAsReadService';
 
 export const RoomList: React.FC<IRoomList> = ({
   setRoomId,
@@ -15,16 +16,12 @@ export const RoomList: React.FC<IRoomList> = ({
 }) => {
   const { setMessages, setLastMessageId, setHasMoreData, setIsFirstLoad } =
     useChatContext();
-  const { apiRequest } = useFetchApi();
+  const { markAsReadMessage } = useMarkAsReadService();
 
-  const markAsReadMessage = async (room: IRoom) => {
+  const markAsRead = async (room: IRoom) => {
     try {
-      const response = await apiRequest(
-        'PUT',
-        `message/mark-as-read?roomId=${room.id}`
-      );
+      const response = await markAsReadMessage(room.id);
       if (response.status === 204) {
-        // getRoomData();
         setRoomList((prevRoomList) =>
           prevRoomList.map((r) =>
             r.id === room.id ? { ...r, number_message_not_read: 0 } : r
@@ -38,7 +35,7 @@ export const RoomList: React.FC<IRoomList> = ({
 
   const handleRoomClick = (room: IRoom) => {
     setRoomId(room.id);
-    markAsReadMessage(room);
+    markAsRead(room);
     setRoomInfo(room);
     setMessages([]);
     setLastMessageId('');

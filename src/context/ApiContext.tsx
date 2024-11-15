@@ -18,7 +18,7 @@ const API_CALL_BEGIN = 'API_CALL_BEGIN';
 const API_CALL_SUCCESS = 'API_CALL_SUCCESS';
 const API_CALL_FAILURE = 'API_CALL_FAILURE';
 
-axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+axios.defaults.baseURL = `${process.env.REACT_APP_API_URL}:${process.env.REACT_APP_API_PORT}/api/v1`;
 axios.defaults.headers.common['accept'] = 'application/json';
 axios.defaults.headers.common['x-client-id'] = getClientId();
 axios.defaults.headers.common['x-type-device'] = 'desktop';

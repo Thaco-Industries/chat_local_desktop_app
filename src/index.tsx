@@ -22,9 +22,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <BrowserRouter>
     <ApiProvider>
-      <SocketProvider>
-        <Routes>
-          <Route path="/login" element={<PublicRoute element={<Login />} />} />
+      <Routes>
+        <Route path="/login" element={<PublicRoute element={<Login />} />} />
+        <SocketProvider>
           <Route path="/" element={<ProtectedRoute element={<Layout />} />}>
             <Route path="/" element={<Message />} />
             <Route path="/room" element={<Room />} />
@@ -32,8 +32,8 @@ root.render(
             <Route path="/setting" element={<Setting />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
-        </Routes>
-      </SocketProvider>
+        </SocketProvider>
+      </Routes>
     </ApiProvider>
   </BrowserRouter>
 );

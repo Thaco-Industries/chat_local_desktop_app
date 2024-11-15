@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const EyeIcon = (props) => {
+export const EyeIcon = (props: any) => {
   return (
     <svg
       width="24"

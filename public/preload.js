@@ -10,11 +10,11 @@ const { contextBridge, ipcRenderer } = require('electron');
 //     ipcRenderer.on(channel, (event, ...args) => func(event, ...args)),
 // });
 
-contextBridge.exposeInMainWorld('electronAPI', {
-  showNotification: (title, message) => {
-    ipcRenderer.send('show-notification', { title, message });
-  },
-});
+// contextBridge.exposeInMainWorld('electronAPI', {
+//   showNotification: (title, message) => {
+//     ipcRenderer.send('show-notification', { title, message });
+//   },
+// });
 
 process.once('loaded', () => {
   contextBridge.exposeInMainWorld('versions', process.versions);

@@ -31,9 +31,9 @@ function createWindow() {
   mainWindow.loadURL(appURL);
 
   // Automatically open Chrome's DevTools in development mode.
-  if (!app.isPackaged) {
-    mainWindow.webContents.openDevTools();
-  }
+  // if (!app.isPackaged) {
+  mainWindow.webContents.openDevTools();
+  // }
 }
 
 // Setup a local proxy to adjust the paths of requested files when loading

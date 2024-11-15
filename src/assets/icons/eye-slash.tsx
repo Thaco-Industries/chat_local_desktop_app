@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-export const EyeSlashIcon = (props) => {
+export const EyeSlashIcon = (props: any) => {
   return (
     <svg
       width="24"

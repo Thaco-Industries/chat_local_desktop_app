@@ -26,7 +26,7 @@ interface SocketProviderProps {
   children: ReactNode;
 }
 
-const socketUrl = process.env.REACT_APP_SOCKET_URL;
+const socketUrl = `${process.env.REACT_APP_SOCKET_URL}:${process.env.REACT_APP_API_PORT}`;
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const [socket, setSocket] = useState<SocketContextType>(null);
@@ -36,11 +36,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   useEffect(() => {
     // Kiểm tra và tạo kết nối nếu chưa tồn tại
     if (!socketRef.current) {
-      socketRef.current = io(`${socketUrl}/person-chat`, {
-        extraHeaders: {
-          authorization: `Bearer ${userAuth?.token.accessToken}`,
-        },
-      });
+      socketRef.current = io(
+        `${socketUrl}/${process.env.REACT_APP_SOCKET_CHANNEL}`,
+        {
+          extraHeaders: {
+            authorization: `Bearer ${userAuth?.token.accessToken}`,
+          },
+        }
+      );
       setSocket(socketRef.current);
     }
 

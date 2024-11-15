@@ -10,6 +10,7 @@ import ViewImageModal from './ViewImageModal';
 import { useFetchApi } from '../../context/ApiContext';
 import { useSocket } from '../../context/SocketContext';
 import { useChatContext } from '../../context/ChatContext';
+import { useMarkAsReadService } from '../../services/MarkAsReadService';
 
 const ChatScreen: React.FC<IChatScreen> = ({
   roomId,
@@ -24,6 +25,8 @@ const ChatScreen: React.FC<IChatScreen> = ({
 }) => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState<boolean>(false);
+  const showScrollToBottomRef = useRef(showScrollToBottom);
+  const [numberMessageUnread, setNumberMessageUnread] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const observer = useRef<IntersectionObserver | null>(null);
   const pageSize = 20;
@@ -31,6 +34,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
   const messageListRef = useRef<HTMLDivElement>(null);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const { apiRequest } = useFetchApi();
+  const { markAsReadMessage } = useMarkAsReadService();
 
   const {
     messages,
@@ -44,8 +48,12 @@ const ChatScreen: React.FC<IChatScreen> = ({
   } = useChatContext();
 
   useEffect(() => {
-    getMessageListData();
+    if (!messages) getMessageListData();
   }, [roomId]);
+
+  useEffect(() => {
+    showScrollToBottomRef.current = showScrollToBottom;
+  }, [showScrollToBottom]);
 
   useEffect(() => {
     if (isFirstLoad && messages.length > 0) {
@@ -59,6 +67,10 @@ const ChatScreen: React.FC<IChatScreen> = ({
 
     socket.on(`new-message/${roomId}`, (message: any) => {
       setMessages((prev) => [message, ...prev]);
+
+      if (showScrollToBottomRef.current) {
+        setNumberMessageUnread((prev) => prev + 1);
+      }
     });
 
     return () => {
@@ -85,6 +97,17 @@ const ChatScreen: React.FC<IChatScreen> = ({
       if (observer.current) observer.current.disconnect();
     };
   }, [lastMessageId, hasMoreData, loading]);
+
+  const markAsRead = async (roomId: string) => {
+    try {
+      const response = await markAsReadMessage(roomId);
+      if (response.status === 204) {
+        setNumberMessageUnread(0);
+      }
+    } catch (err) {
+      console.error('API call failed: ', err);
+    }
+  };
 
   const getMessageListData = async () => {
     if (!hasMoreData || loading) return;
@@ -140,13 +163,20 @@ const ChatScreen: React.FC<IChatScreen> = ({
       behavior: smooth ? 'smooth' : 'auto',
     });
     setShowScrollToBottom(false);
+    if (numberMessageUnread > 0) {
+      markAsRead(roomId);
+    }
   };
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const element = event.currentTarget;
     const scrollPercentage =
       (element.scrollTop / (element.scrollHeight - element.clientHeight)) * 100;
-    setShowScrollToBottom(scrollPercentage <= 95);
+    if (scrollPercentage <= -20) {
+      setShowScrollToBottom(true);
+    } else {
+      setShowScrollToBottom(false);
+    }
   };
 
   const onClose = () => {
@@ -169,17 +199,19 @@ const ChatScreen: React.FC<IChatScreen> = ({
         setImageView={setImageView}
       />
       <div
-        className="flex flex-col flex-1 overflow-y-auto scrollbar mb-2"
+        className="flex flex-col-reverse flex-1  mb-2 overflow-y-auto scrollbar"
         onScroll={handleScroll}
         ref={messageListRef}
       >
-        <MessageList
-          messages={messages}
-          setImageView={setImageView}
-          setVisible={setVisible}
-          loading={loading}
-        />
-        <div ref={messageEndRef} />
+        <div className="flex flex-col justify-end ">
+          <MessageList
+            messages={messages}
+            setImageView={setImageView}
+            setVisible={setVisible}
+            loading={loading}
+          />
+          <div ref={messageEndRef} />
+        </div>
       </div>
       {showScrollToBottom && (
         <div
@@ -187,9 +219,11 @@ const ChatScreen: React.FC<IChatScreen> = ({
           className="absolute right-7 md:right-14 bottom-24 cursor-pointer"
         >
           <div className="indicator">
-            <span className="indicator-item indicator-start badge badge-sm bg-red-600 top-1 left-1 border-red-600 text-white">
-              9
-            </span>
+            {numberMessageUnread !== 0 && (
+              <span className="indicator-item indicator-start badge badge-sm bg-red-600 top-1 left-1 border-red-600 text-white">
+                {numberMessageUnread}
+              </span>
+            )}
             <ScrollBottomIcon />
           </div>
         </div>

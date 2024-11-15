@@ -4,9 +4,10 @@ import { Formik, Field, Form, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import { useFetchApi } from '../../context/ApiContext';
 import { useNavigate } from 'react-router-dom';
+
+import axios from 'axios';
 import { EyeSlashIcon } from '../../assets/icons/eye-slash';
 import { EyeIcon } from '../../assets/icons/eye';
-import axios from 'axios';
 
 interface LoginFormValues {
   username: string;

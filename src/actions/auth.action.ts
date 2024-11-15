@@ -58,7 +58,7 @@ export const getClientId = () => {
   let clientId = Cookies.get('x-client-id');
   if (!clientId) {
     clientId = uuidv4();
-    Cookies.set('x-client-id', clientId, { expires: 365 }); // Lưu trong 1 năm
+    Cookies.set('x-client-id', clientId);
   }
   return clientId;
 };
