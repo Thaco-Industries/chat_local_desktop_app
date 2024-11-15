@@ -24,15 +24,20 @@ root.render(
     <ApiProvider>
       <Routes>
         <Route path="/login" element={<PublicRoute element={<Login />} />} />
-        <SocketProvider>
-          <Route path="/" element={<ProtectedRoute element={<Layout />} />}>
-            <Route path="/" element={<Message />} />
-            <Route path="/room" element={<Room />} />
-            <Route path="/group" element={<Group />} />
-            <Route path="/setting" element={<Setting />} />
-            <Route path="/profile" element={<Profile />} />
-          </Route>
-        </SocketProvider>
+        <Route
+          path="/"
+          element={
+            <SocketProvider>
+              <ProtectedRoute element={<Layout />} />
+            </SocketProvider>
+          }
+        >
+          <Route path="/" element={<Message />} />
+          <Route path="/room" element={<Room />} />
+          <Route path="/group" element={<Group />} />
+          <Route path="/setting" element={<Setting />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
       </Routes>
     </ApiProvider>
   </BrowserRouter>

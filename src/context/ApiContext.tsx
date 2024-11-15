@@ -76,7 +76,7 @@ export default function ApiProvider({ children }: ApiProviderProps) {
 
   const isTokenExpired = (): boolean => {
     const userAuth = getAuthCookie();
-    if (!userAuth || !userAuth.expiredTime) return true;
+    if (!userAuth) return true;
     return false;
   };
 
@@ -87,7 +87,10 @@ export default function ApiProvider({ children }: ApiProviderProps) {
   };
 
   useEffect(() => {
-    if (isTokenExpired()) {
+    const tokenExpired = isTokenExpired();
+    console.log(tokenExpired);
+
+    if (tokenExpired) {
       handleLogout();
     }
   }, [location.pathname]);
@@ -133,9 +136,10 @@ export default function ApiProvider({ children }: ApiProviderProps) {
         data,
         headers: {
           ...customHeaders,
-          Authorization: userAuth
-            ? `Bearer ${userAuth.token.accessToken}`
-            : undefined,
+          Authorization:
+            url !== 'auth/login' && userAuth
+              ? `Bearer ${userAuth.token.accessToken}`
+              : undefined,
         },
       });
       dispatch({ type: API_CALL_SUCCESS, payload: response.data });

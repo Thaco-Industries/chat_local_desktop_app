@@ -1,12 +1,13 @@
 // MessageItem.tsx
 import clsx from 'clsx';
-import React from 'react';
+import React, { useState } from 'react';
 import { IMessageItem } from '../../../interfaces/Message';
 import moment from 'moment';
 import { getAuthCookie } from '../../../actions/auth.action';
 import FileInfo from './components/FileInfor';
 import PlayButton from './components/PlayButton';
 import ImagePreview from './components/ImagePreview';
+import { useFetchApi } from '../../../context/ApiContext';
 
 const MessageItem: React.FC<IMessageItem> = ({
   message,
@@ -16,10 +17,20 @@ const MessageItem: React.FC<IMessageItem> = ({
 }) => {
   const userId = getAuthCookie()?.user.id || '';
   const isUserMessage = message.sender_id === userId;
+  const [showMessageOption, setShowMessageOption] = useState(false);
+  const { apiRequest } = useFetchApi();
 
   const handleClickMedia = (url: string) => {
     setImageView(url);
     setVisible(true);
+  };
+
+  const handleRecallMessage = async (roomId: string) => {
+    try {
+      await apiRequest('PUT', `message/recall-message?messageId=${roomId}`);
+    } catch (err) {
+      console.error('API call failed: ', err);
+    }
   };
 
   const renderMediaContent = () => {
@@ -100,13 +111,34 @@ const MessageItem: React.FC<IMessageItem> = ({
 
         {message.message_display && (
           <div
-            className={`max-w-xs p-3 rounded-lg text-[#252525] ${
-              isUserMessage ? 'bg-[#91CFFB80]' : 'bg-white'
-            }`}
+            className={`flex gap-3 ${isUserMessage && 'flex-row-reverse'}`}
+            onMouseEnter={() => setShowMessageOption(true)}
+            onMouseLeave={() => setShowMessageOption(false)}
           >
-            <p className="whitespace-pre-wrap break-words">
-              {message.message_display}
-            </p>
+            <div
+              className={`max-w-xs p-3 rounded-lg text-[#252525] ${
+                isUserMessage ? 'bg-[#91CFFB80]' : 'bg-white'
+              }`}
+            >
+              <p className="whitespace-pre-wrap break-words">
+                {message.message_display}
+              </p>
+            </div>
+            <div
+              className={`join shadow min-h-[35px] h-[35px] ${
+                showMessageOption ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <button className="btn join-item bg-white text-textBody text-sm min-h-[35px] h-[35px]">
+                Trả lời
+              </button>
+              <button
+                className="btn join-item bg-white text-textBody text-sm min-h-[35px] h-[35px]"
+                onClick={() => handleRecallMessage(message.id)}
+              >
+                Thu hồi
+              </button>
+            </div>
           </div>
         )}
 

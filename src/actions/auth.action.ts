@@ -32,7 +32,9 @@ interface UserAuth {
 // Hàm tạo cookie
 export const createAuthCookie = (value: UserAuth): void => {
   const cookieValue = JSON.stringify(value);
-  Cookies.set('userAuth', cookieValue, { secure: true });
+  Cookies.set('userAuth', cookieValue, {
+    secure: window.location.protocol === 'https:',
+  });
 };
 
 // Hàm lấy cookie

@@ -72,9 +72,24 @@ const ChatScreen: React.FC<IChatScreen> = ({
         setNumberMessageUnread((prev) => prev + 1);
       }
     });
+    socket.on(`recall-message/${roomId}`, (message: any) => {
+      setMessages((prevMessages) => {
+        const index = prevMessages.findIndex((msg) => msg.id === message.id);
+        if (index !== -1) {
+          // Nếu id đã tồn tại, thay thế message
+          return prevMessages.map((msg) =>
+            msg.id === message.id ? message : msg
+          );
+        } else {
+          // Nếu id chưa tồn tại, thêm message mới
+          return [...prevMessages, message];
+        }
+      });
+    });
 
     return () => {
       socket.off(`new-message/${roomId}`);
+      socket.off(`recall-message/${roomId}`);
     };
   }, [socket, roomId]);
 
