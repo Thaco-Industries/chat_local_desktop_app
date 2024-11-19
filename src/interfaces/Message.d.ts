@@ -1,4 +1,5 @@
 import { IModalImageSetData } from './common';
+import { IUserInRoomInfo } from './User';
 
 export interface IMessage {
   // id: string;
@@ -13,7 +14,9 @@ export interface IMessage {
   created_at: string;
   room_id: string;
   sender_id: string;
-  message_type: 'TEXT' | 'FILE';
+  sender?: IUserInRoomInfo | null;
+  message_type: 'TEXT' | 'FILE' | 'RECALLED';
+  reply_id: IMessageReply;
   file_id?: IFileMessage;
   seen_by: string[];
   deleted_by: [];
@@ -23,6 +26,11 @@ export interface IMessage {
   id: string;
 }
 
+export interface IMessageReply {
+  created_at: string;
+  message_display: string;
+  id: string;
+}
 export interface IFileMessage {
   created_at: string;
   file_name: string;

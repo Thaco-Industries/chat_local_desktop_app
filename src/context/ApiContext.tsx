@@ -87,8 +87,9 @@ export default function ApiProvider({ children }: ApiProviderProps) {
   };
 
   useEffect(() => {
+    console.log(location.pathname);
+
     const tokenExpired = isTokenExpired();
-    console.log(tokenExpired);
 
     if (tokenExpired) {
       handleLogout();

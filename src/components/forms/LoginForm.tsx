@@ -15,8 +15,8 @@ interface LoginFormValues {
 }
 
 const validationSchema = Yup.object({
-  username: Yup.string().required('Hãy điền tên đăng nhập'),
-  password: Yup.string().required('Hãy điền mật khẩu'),
+  username: Yup.string().required('Tên đăng nhập không được để trống!'),
+  password: Yup.string().required('Mật khẩu không được để trống!'),
 });
 
 const LoginForm = () => {
@@ -45,10 +45,10 @@ const LoginForm = () => {
 
         if (error.response && error.response.status === 404) {
           setErrors({
-            password: 'Tên đăng nhập hoặc mật khẩu không đúng',
+            password: 'Tên đăng nhập hoặc mật khẩu không đúng!',
           });
         } else {
-          setErrors({ password: 'Đã xảy ra lỗi không xác định' });
+          setErrors({ password: 'Đã xảy ra lỗi không xác định!' });
         }
       } else {
         console.error('Đã xảy ra lỗi không xác định:', error);
@@ -61,8 +61,8 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <h1 className="mb-5 text-[32px] font-medium text-center">
+    <div className="w-full md:w-[70%] mx-auto">
+      <h1 className="mb-5 text-[25px] md:text-[32px] font-medium text-center">
         Đăng nhập tài khoản
       </h1>
       <Formik
@@ -72,24 +72,26 @@ const LoginForm = () => {
       >
         {({ values, handleChange, handleBlur }) => (
           <Form>
-            <div className="flex flex-col gap-[10px]">
+            <div className="flex flex-col gap-[10px] mb-2">
               <label
                 htmlFor="username"
                 className="block text-base font-medium text-text mt-5 text-start"
               >
                 Tên đăng nhập
               </label>
-              <Field
-                name="username"
-                type="text"
-                className="!rounded-lg !bg-background-500 !text-[#00000080] h-12 px-10 transition-none w-full"
-                placeholder="Nhập vào tên đăng nhập"
-              />
-              <ErrorMessage
-                name="username"
-                component="div"
-                className="text-red-500 text-sm mt-2 text-start"
-              />
+              <div className="relative">
+                <Field
+                  name="username"
+                  type="text"
+                  className="!rounded-lg !bg-background-500 !text-[#00000080] h-xl md:h-[60px] outline-none px-10 transition-none w-full"
+                  placeholder="Nhập vào tên đăng nhập"
+                />
+                <ErrorMessage
+                  name="username"
+                  component="div"
+                  className="absolute text-red-500 text-sm mt-1 left-0"
+                />
+              </div>
             </div>
 
             <div className="flex flex-col gap-[10px]">
@@ -103,7 +105,7 @@ const LoginForm = () => {
                 <Field
                   name="password"
                   type={passwordVisible ? 'text' : 'password'}
-                  className="!rounded-lg !bg-background-500 !text-[#00000080] h-12 px-10 transition-none w-full"
+                  className="!rounded-lg !bg-background-500 !text-[#00000080] h-xl md:h-[60px] outline-none px-10 transition-none w-full"
                   placeholder="Nhập vào mật khẩu"
                 />
                 <div
@@ -116,17 +118,17 @@ const LoginForm = () => {
                     <EyeIcon className="w-5 h-5" />
                   )}
                 </div>
+                <ErrorMessage
+                  name="password"
+                  component="div"
+                  className="absolute text-red-500 text-sm mt-1 left-0"
+                />
               </div>
-              <ErrorMessage
-                name="password"
-                component="div"
-                className="text-red-500 text-sm mt-2 text-start"
-              />
             </div>
 
             <button
               type="submit"
-              className="!mt-12 h-12 !w-full !justify-center items-center !py-3 !bg-primary hover:!bg-primary rounded-md text-[16px] text-white font-semibold"
+              className="!mt-12 h-xl md:h-[60px] !w-full !justify-center items-center !py-3 !bg-primary hover:!bg-primary rounded-md text-[16px] text-white font-semibold"
               disabled={loading}
             >
               {loading ? 'Loading...' : 'Đăng nhập'}

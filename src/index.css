@@ -25,6 +25,7 @@
 /* Firefox */
 * {
   scrollbar-width: thin;
+  font-size: 14px;
   /* scrollbar-color: var(--secondary) var(--primary); */
 }
 

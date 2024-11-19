@@ -5,6 +5,8 @@ import VideoCameraIcon from '../../assets/icons/VideoCamera';
 import CollapsdMessageIcon from '../../assets/icons/collapse-message';
 import MessageSearchIcon from '../../assets/icons/message-search';
 import { IChatHeader } from '../../interfaces/ChatScreen';
+import getUserShortName from '../../util/getUserShortName';
+import getColorBackround from '../../util/getColorBackground';
 
 const ChatHeader: React.FC<IChatHeader> = ({
   roomInfo,
@@ -14,6 +16,11 @@ const ChatHeader: React.FC<IChatHeader> = ({
   isDesktopCollapsed,
   setIsDesktopCollapsed,
 }) => {
+  const backgroundColor = getColorBackround(
+    roomInfo.is_group ? roomInfo.id : roomInfo.userRoom[0].user_id
+  );
+  const shortName = getUserShortName(roomInfo.room_name);
+
   return (
     <div className="w-full h-16 px-md md:px-lg py-xs bg-white border-b-[#DCDCDC] border-b-[0.5px] flex justify-between items-center relative">
       <div className="flex gap-4">
@@ -24,11 +31,20 @@ const ChatHeader: React.FC<IChatHeader> = ({
         >
           <ArrowLeft />
         </button>
-        <img
-          src={roomInfo.avatar_url}
-          className="rounded-full w-11 h-11"
-          alt="user-avatar"
-        />
+        {roomInfo.avatar_url ? (
+          <img
+            src={roomInfo.avatar_url}
+            className="rounded-full w-11 h-11"
+            alt="user-avatar"
+          />
+        ) : (
+          <div
+            style={{ background: backgroundColor }}
+            className={`rounded-full w-11 h-11 flex justify-center items-center text-white font-semibold border border-white`}
+          >
+            {shortName}
+          </div>
+        )}
         <div className="">
           <p className="text-title ">{roomInfo.room_name}</p>
           <div className="flex items-center gap-xs text-textBody text-sm">

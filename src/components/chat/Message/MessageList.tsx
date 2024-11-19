@@ -3,6 +3,8 @@ import React, { useEffect } from 'react';
 import MessageItem from './MessageItem';
 import { IMessageList } from '../../../interfaces/Message';
 import moment from 'moment';
+import { useRoomService } from '../../../services/RoomService';
+import { getDateLabel } from '../../../util/getDateLabel';
 
 const MessageList: React.FC<IMessageList> = ({
   messages,
@@ -10,17 +12,6 @@ const MessageList: React.FC<IMessageList> = ({
   setVisible,
   loading,
 }) => {
-  // Group messages by date
-  const getDateLabel = (created_at: string) => {
-    const messageDate = moment(created_at, 'YYYY-MM-DD HH:mm');
-    const today = moment();
-    const yesterday = moment().subtract(1, 'days');
-
-    if (messageDate.isSame(today, 'day')) return 'Hôm nay';
-    if (messageDate.isSame(yesterday, 'day')) return 'Hôm qua';
-    return messageDate.format('DD/MM/YYYY');
-  };
-
   const groupedMessages = messages.reduce((acc, message) => {
     const dateLabel = getDateLabel(message.created_at);
     if (!acc[dateLabel]) acc[dateLabel] = [];

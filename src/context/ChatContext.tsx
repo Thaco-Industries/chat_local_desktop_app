@@ -1,6 +1,12 @@
 // ChatContext.tsx
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { IMessage } from '../interfaces';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useRef,
+} from 'react';
+import { IMessage, IUserInRoomInfo } from '../interfaces';
 
 interface ChatContextProps {
   messages: IMessage[];
@@ -11,6 +17,15 @@ interface ChatContextProps {
   setHasMoreData: React.Dispatch<React.SetStateAction<boolean>>;
   isFirstLoad: boolean;
   setIsFirstLoad: React.Dispatch<React.SetStateAction<boolean>>;
+  isReplyMessage: boolean;
+  setIsReplyMessage: React.Dispatch<React.SetStateAction<boolean>>;
+  messageReply: IMessage | null;
+  setMessageReply: React.Dispatch<React.SetStateAction<IMessage | null>>;
+  listMember: Record<string, IUserInRoomInfo> | null;
+  setListMember: React.Dispatch<
+    React.SetStateAction<Record<string, IUserInRoomInfo> | null>
+  >;
+  textareaRef: React.RefObject<HTMLTextAreaElement>;
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
@@ -22,7 +37,13 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
   const [lastMessageId, setLastMessageId] = useState<string>('');
   const [hasMoreData, setHasMoreData] = useState<boolean>(true);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
-
+  const [isReplyMessage, setIsReplyMessage] = useState<boolean>(false);
+  const [messageReply, setMessageReply] = useState<IMessage | null>(null);
+  const [listMember, setListMember] = useState<Record<
+    string,
+    IUserInRoomInfo
+  > | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   return (
     <ChatContext.Provider
       value={{
@@ -34,6 +55,13 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
         setHasMoreData,
         isFirstLoad,
         setIsFirstLoad,
+        isReplyMessage,
+        setIsReplyMessage,
+        messageReply,
+        setMessageReply,
+        listMember,
+        setListMember,
+        textareaRef,
       }}
     >
       {children}

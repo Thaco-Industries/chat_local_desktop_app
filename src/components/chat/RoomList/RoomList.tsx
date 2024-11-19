@@ -5,7 +5,8 @@ import clsx from 'clsx';
 
 import { IRoom, IRoomList } from '../../../interfaces/Room';
 import { useChatContext } from '../../../context/ChatContext';
-import { useMarkAsReadService } from '../../../services/MarkAsReadService';
+import { useMessageService } from '../../../services/MessageService';
+import { useRoomService } from '../../../services/RoomService';
 
 export const RoomList: React.FC<IRoomList> = ({
   setRoomId,
@@ -16,7 +17,9 @@ export const RoomList: React.FC<IRoomList> = ({
 }) => {
   const { setMessages, setLastMessageId, setHasMoreData, setIsFirstLoad } =
     useChatContext();
-  const { markAsReadMessage } = useMarkAsReadService();
+  const { markAsReadMessage } = useMessageService();
+  const { getMemberInRoom } = useRoomService();
+  const { setListMember } = useChatContext();
 
   const markAsRead = async (room: IRoom) => {
     try {
@@ -33,12 +36,20 @@ export const RoomList: React.FC<IRoomList> = ({
     }
   };
 
+  const getListMember = async (roomId: string) => {
+    const response = await getMemberInRoom(roomId);
+    if (response.status === 200) {
+      setListMember(response.data);
+    }
+  };
+
   const handleRoomClick = (room: IRoom) => {
     setRoomId(room.id);
     markAsRead(room);
     setRoomInfo(room);
     setMessages([]);
     setLastMessageId('');
+    getListMember(room.id);
     setHasMoreData(true);
     setIsFirstLoad(true);
   };

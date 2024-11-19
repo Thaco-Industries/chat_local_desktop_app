@@ -1,4 +1,3 @@
-import Cookies from 'js-cookie';
 import { v4 as uuidv4 } from 'uuid';
 
 // Định nghĩa kiểu dữ liệu cho giá trị xác thực người dùng
@@ -32,19 +31,23 @@ interface UserAuth {
 // Hàm tạo cookie
 export const createAuthCookie = (value: UserAuth): void => {
   const cookieValue = JSON.stringify(value);
-  Cookies.set('userAuth', cookieValue, {
-    secure: window.location.protocol === 'https:',
-  });
+  // Cookies.set('userAuth', cookieValue, {
+  //   path: '/',
+  //   secure: false,
+  //   sameSite: 'Lax',
+  //   expires: 3,
+  // });
+  localStorage.setItem('userAuth', cookieValue);
 };
 
 // Hàm lấy cookie
 export const getAuthCookie = (): UserAuth | null => {
-  const token = Cookies.get('userAuth');
+  const userAuth = localStorage.getItem('userAuth');
 
-  if (!token) return null;
+  if (!userAuth) return null;
 
   try {
-    return JSON.parse(token) as UserAuth;
+    return JSON.parse(userAuth) as UserAuth;
   } catch (error) {
     console.error('Cookie không hợp lệ:', error);
     return null; // Hoặc có thể thực hiện thêm các hành động như xóa cookie không hợp lệ
@@ -53,14 +56,14 @@ export const getAuthCookie = (): UserAuth | null => {
 
 // Hàm xóa cookie
 export const deleteAuthCookie = (): void => {
-  Cookies.remove('userAuth');
+  localStorage.removeItem('userAuth');
 };
 
 export const getClientId = () => {
-  let clientId = Cookies.get('x-client-id');
+  let clientId = localStorage.getItem('x-client-id');
   if (!clientId) {
     clientId = uuidv4();
-    Cookies.set('x-client-id', clientId);
+    localStorage.setItem('x-client-id', clientId);
   }
   return clientId;
 };

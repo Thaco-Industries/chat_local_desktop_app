@@ -1,7 +1,7 @@
 // src/index.tsx
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { HashRouter, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import Message from './pages/message/Message';
 import Room from './pages/room/Room';
@@ -19,8 +19,10 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
+const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+
 root.render(
-  <BrowserRouter>
+  <HashRouter>
     <ApiProvider>
       <Routes>
         <Route path="/login" element={<PublicRoute element={<Login />} />} />
@@ -32,7 +34,7 @@ root.render(
             </SocketProvider>
           }
         >
-          <Route path="/" element={<Message />} />
+          {/* <Route path="/" element={<Message />} /> */}
           <Route path="/room" element={<Room />} />
           <Route path="/group" element={<Group />} />
           <Route path="/setting" element={<Setting />} />
@@ -40,5 +42,5 @@ root.render(
         </Route>
       </Routes>
     </ApiProvider>
-  </BrowserRouter>
+  </HashRouter>
 );
