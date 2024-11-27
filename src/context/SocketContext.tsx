@@ -26,7 +26,7 @@ interface SocketProviderProps {
   children: ReactNode;
 }
 
-const socketUrl = `${process.env.REACT_APP_SOCKET_URL}:${process.env.REACT_APP_API_PORT}`;
+const socketUrl = process.env.REACT_APP_SOCKET_URL;
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const [socket, setSocket] = useState<SocketContextType>(null);

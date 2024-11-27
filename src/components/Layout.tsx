@@ -1,16 +1,14 @@
-import React, { useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Outlet } from 'react-router-dom';
 import { SideBar } from './SideBar';
-import Message from '../pages/message/Message';
 
 export const Layout: React.FC = () => {
-  const location = useLocation();
   return (
     <div className="font-nunito w-screen h-screen flex">
       <SideBar />
-
+      {/* Outlet chỉ render nội dung của route con */}
       <div className="flex-1 overflow-hidden w-full bg-background-500">
-        {location.pathname === '/' ? <Message /> : <Outlet />}
+        <Outlet />
       </div>
     </div>
   );

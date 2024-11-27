@@ -34,11 +34,12 @@ root.render(
             </SocketProvider>
           }
         >
-          {/* <Route path="/" element={<Message />} /> */}
-          <Route path="/room" element={<Room />} />
-          <Route path="/group" element={<Group />} />
-          <Route path="/setting" element={<Setting />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route index element={<Message />} />
+
+          <Route path="room" element={<Room />} />
+          <Route path="group" element={<Group />} />
+          <Route path="setting" element={<Setting />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
     </ApiProvider>

@@ -6,14 +6,20 @@ import AddFriendIcon from '../../assets/icons/add-friend';
 function SearchAndAddToolbar() {
   return (
     <div className="w-full flex px-5 pt-5 items-center gap-4 mb-5">
-      <label className="input h-10 flex flex-1 items-center gap-2 bg-lightGrey text-navyGrey rounded-[22px] focus:border-none focus-within:border-none focus:outline-none focus-within:outline-none min-w-[110px]">
-        <SearchIcon />
-        <input
-          type="text"
-          className="grow min-w-[110px]"
-          placeholder="Tìm kiếm"
-        />
-      </label>
+      <form className="flex flex-1 items-center">
+        <label className="sr-only">Search</label>
+        <div className="relative w-full">
+          <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+            <SearchIcon />
+          </div>
+          <input
+            type="text"
+            className="bg-lightGrey border border-gray-300 text-navyGrey text-sm rounded-[22px] block w-full ps-10 p-2.5 focus:ring-0 focus:border-gray-300"
+            placeholder="Tìm kiếm"
+            required
+          />
+        </div>
+      </form>
       <div className="flex gap-xs">
         <button className="btn btn-square btn-ghost btn-sm" title="Thêm bạn">
           <AddFriendIcon />

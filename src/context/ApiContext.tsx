@@ -18,7 +18,7 @@ const API_CALL_BEGIN = 'API_CALL_BEGIN';
 const API_CALL_SUCCESS = 'API_CALL_SUCCESS';
 const API_CALL_FAILURE = 'API_CALL_FAILURE';
 
-axios.defaults.baseURL = `${process.env.REACT_APP_API_URL}:${process.env.REACT_APP_API_PORT}/api/v1`;
+axios.defaults.baseURL = `${process.env.REACT_APP_API_URL}/api/v1`;
 axios.defaults.headers.common['accept'] = 'application/json';
 axios.defaults.headers.common['x-client-id'] = getClientId();
 axios.defaults.headers.common['x-type-device'] = 'desktop';
@@ -87,8 +87,6 @@ export default function ApiProvider({ children }: ApiProviderProps) {
   };
 
   useEffect(() => {
-    console.log(location.pathname);
-
     const tokenExpired = isTokenExpired();
 
     if (tokenExpired) {
@@ -110,7 +108,6 @@ export default function ApiProvider({ children }: ApiProviderProps) {
       );
 
       const newAuth = response.data;
-      console.log(newAuth);
 
       createAuthCookie(newAuth);
       return newAuth.token.accessToken;
@@ -130,19 +127,22 @@ export default function ApiProvider({ children }: ApiProviderProps) {
 
     const userAuth = getAuthCookie();
 
+    const headers = {
+      ...customHeaders,
+      Authorization:
+        url !== 'auth/login' && userAuth
+          ? `Bearer ${userAuth.token.accessToken}`
+          : undefined,
+    };
+
     try {
       const response = await axios({
         method,
         url,
         data,
-        headers: {
-          ...customHeaders,
-          Authorization:
-            url !== 'auth/login' && userAuth
-              ? `Bearer ${userAuth.token.accessToken}`
-              : undefined,
-        },
+        headers,
       });
+
       dispatch({ type: API_CALL_SUCCESS, payload: response.data });
       return response;
     } catch (error: any) {

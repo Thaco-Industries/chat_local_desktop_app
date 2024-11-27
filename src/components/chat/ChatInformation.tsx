@@ -15,8 +15,6 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
   };
 
   const handleViewImageClick = (url: string) => {
-    console.log(url);
-
     setVisible(true);
     setImageView(url);
   };
@@ -43,6 +41,7 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
                     <button
                       className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white w-8 h-8 bg-[#0000001A] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
                       onClick={() => handleViewImageClick(photo.id)}
+                      title="phát"
                     >
                       <PlayIcon />
                     </button>

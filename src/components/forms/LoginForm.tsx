@@ -83,7 +83,7 @@ const LoginForm = () => {
                 <Field
                   name="username"
                   type="text"
-                  className="!rounded-lg !bg-background-500 !text-[#00000080] h-xl md:h-[60px] outline-none px-10 transition-none w-full"
+                  className="!rounded-lg !bg-background-500 !text-[#00000080] h-xl md:h-[60px] outline-none px-10 transition-none w-full border-none focus:ring-0"
                   placeholder="Nhập vào tên đăng nhập"
                 />
                 <ErrorMessage
@@ -105,7 +105,7 @@ const LoginForm = () => {
                 <Field
                   name="password"
                   type={passwordVisible ? 'text' : 'password'}
-                  className="!rounded-lg !bg-background-500 !text-[#00000080] h-xl md:h-[60px] outline-none px-10 transition-none w-full"
+                  className="!rounded-lg !bg-background-500 !text-[#00000080] h-xl md:h-[60px] px-10 transition-none w-full border-none outline-none focus:ring-0"
                   placeholder="Nhập vào mật khẩu"
                 />
                 <div

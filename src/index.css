@@ -26,6 +26,9 @@
 * {
   scrollbar-width: thin;
   font-size: 14px;
+  scrollbar-base-color: #e2e2e2;
+  scrollbar-color: #e2e2e2;
+
   /* scrollbar-color: var(--secondary) var(--primary); */
 }
 
@@ -39,7 +42,7 @@
   background: none;
 }
 
-*::-webkit-scrollbar-thumb {
+.scrollbar::-webkit-scrollbar-thumb {
   background: #e2e2e2;
   border-radius: 100vh;
 }

@@ -39,19 +39,29 @@ export const RoomList: React.FC<IRoomList> = ({
   const getListMember = async (roomId: string) => {
     const response = await getMemberInRoom(roomId);
     if (response.status === 200) {
-      setListMember(response.data);
+      const updatedList = response.data;
+      setListMember(updatedList);
     }
   };
 
   const handleRoomClick = (room: IRoom) => {
-    setRoomId(room.id);
-    markAsRead(room);
-    setRoomInfo(room);
-    setMessages([]);
-    setLastMessageId('');
-    getListMember(room.id);
-    setHasMoreData(true);
-    setIsFirstLoad(true);
+    // debugger;
+    let newRoomId = room.id;
+    setRoomId((prevRoomId) => {
+      if (newRoomId === prevRoomId) {
+        return prevRoomId;
+      }
+      setListMember(null);
+      markAsRead(room);
+      setRoomInfo(room);
+      setMessages([]);
+      setLastMessageId('');
+      getListMember(room.id);
+      setHasMoreData(true);
+      setIsFirstLoad(true);
+
+      return newRoomId;
+    });
   };
 
   return (
@@ -62,7 +72,7 @@ export const RoomList: React.FC<IRoomList> = ({
           roomList.map((room) => (
             <li
               key={room.id}
-              className={clsx('cursor-pointer hover:bg-gray-200', {
+              className={clsx('cursor-pointer', {
                 'bg-[#91CFFB33]': room.id === roomId,
               })}
               onClick={() => handleRoomClick(room)}

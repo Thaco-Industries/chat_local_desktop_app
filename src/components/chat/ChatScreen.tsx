@@ -29,7 +29,9 @@ const ChatScreen: React.FC<IChatScreen> = ({
   const [loading, setLoading] = useState(false);
   const messageListRef = useRef<HTMLDivElement>(null);
   const messageEndRef = useRef<HTMLDivElement>(null);
-  const observer = useRef<IntersectionObserver | null>(null);
+  // const observer = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const listMemberRef = useRef<Record<string, IUserInRoomInfo> | null>(null);
 
   const {
     listMember,
@@ -38,6 +40,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
     lastMessageId,
     setLastMessageId,
     hasMoreData,
+    setHasMoreData,
     setMessageReply,
     setIsReplyMessage,
   } = useChatContext();
@@ -70,73 +73,164 @@ const ChatScreen: React.FC<IChatScreen> = ({
 
   const handleRecallMessage = useCallback(
     (message: IMessage) => {
-      setMessages((prevMessages) => {
-        const index = prevMessages.findIndex((msg) => msg.id === message.id);
-        if (index !== -1) {
-          // Nếu id đã tồn tại, thay thế message
-          return prevMessages.map((msg) =>
-            msg.id === message.id ? message : msg
+      if (messages) {
+        setMessages((prevMessages) => {
+          console.log(prevMessages);
+
+          // Tìm vị trí của tin nhắn hiện tại theo `id`
+
+          const updatedMessages = prevMessages.map((msg) => {
+            if (msg.reply_id?.id === message.id) {
+              return {
+                ...msg,
+                reply_id: {
+                  ...msg.reply_id,
+                  message_display: message.message_display,
+                },
+              };
+            }
+            return msg;
+          });
+
+          const index = updatedMessages.findIndex(
+            (msg) => msg.id === message.id
           );
-        } else {
-          // Nếu id chưa tồn tại, thêm message mới
-          return [...prevMessages, message];
-        }
-      });
+          // Nếu tin nhắn đã tồn tại, thay thế nó
+          if (index !== -1) {
+            return updatedMessages.map((msg) =>
+              msg.id === message.id ? message : msg
+            );
+          }
+
+          // Nếu tin nhắn chưa tồn tại, thêm mới
+          return [...updatedMessages, message];
+        });
+      }
     },
-    [listMember, setMessages, showScrollToBottom]
+    [listMember, messages, setMessages, showScrollToBottom]
   );
+
+  useEffect(() => {
+    if (listMember) {
+      listMemberRef.current = listMember; // Không còn lỗi
+    }
+  }, [listMember]);
 
   const handleNewMessage = useCallback(
     (message: IMessage) => {
-      const senderInfo = listMember?.[message.sender_id] || null;
-      setMessages((prev) => [{ ...message, sender: senderInfo }, ...prev]);
-      if (showScrollToBottom) {
-        setNumberMessageUnread((prev) => prev + 1);
+      console.log(message);
+
+      if (listMemberRef.current) {
+        const currentListMember = listMemberRef.current;
+        const senderInfo = currentListMember?.[message.sender_id] || null;
+
+        setMessages((prev) => {
+          // Tìm chỉ số tin nhắn trùng ID
+          const existingMessageIndex = prev.findIndex(
+            (msg) => msg.id === message.id
+          );
+
+          // Nếu tin nhắn đã có
+          if (existingMessageIndex !== -1) {
+            const existingMessage = prev[existingMessageIndex];
+
+            // Nếu trạng thái mới là SENT và cũ là DELIVERED -> thay thế tin nhắn cũ
+            if (
+              existingMessage.status === 'DELIVERED' &&
+              message.status === 'SENT'
+            ) {
+              const updatedMessages = [...prev];
+              updatedMessages[existingMessageIndex] = {
+                ...existingMessage,
+                ...message,
+                sender: senderInfo,
+              };
+              return updatedMessages; // Trả về danh sách đã thay thế
+            }
+
+            // Nếu trạng thái mới là DELIVERED -> giữ nguyên tin nhắn
+            if (message.status === 'DELIVERED') {
+              return prev; // Không thay đổi gì, giữ nguyên tin nhắn hiện tại
+            }
+
+            // Nếu tin nhắn có trạng thái khác, vẫn giữ nguyên (không thay đổi)
+            return prev;
+          }
+
+          // Nếu tin nhắn không trùng ID, thêm mới vào danh sách
+          return [{ ...message, sender: senderInfo }, ...prev]; // Thêm vào đầu danh sách
+        });
+
+        // Nếu tin nhắn trong room hiện tại, đánh dấu là đã đọc
+        if (message.room_id === roomId) {
+          markAsRead();
+        }
+
+        // Tăng số lượng tin nhắn chưa đọc
+        if (showScrollToBottom) {
+          setNumberMessageUnread((prev) => prev + 1);
+        }
       }
     },
-    [listMember, setMessages, showScrollToBottom]
+    [listMember, setMessages, showScrollToBottom, roomId]
   );
 
   const getMessageListData = useCallback(async () => {
-    if (loading || !hasMoreData) return;
+    if (loading || !hasMoreData || !listMember) return;
     setLoading(true);
 
-    // Lưu vị trí `scrollTop` trước khi tải dữ liệu
     const previousScrollTop = messageListRef.current?.scrollTop || 0;
+    const currentLastMessageId = lastMessageId; // Lưu lại giá trị hiện tại
 
     try {
-      const response = await getMessageByRoom(roomId, 20, lastMessageId);
-      if (response.data?.length && listMember) {
-        const messageList = response.data;
-        setLastMessageId(messageList[messageList.length - 1].id);
-        const newMessages = response.data.map((msg: IMessage) => ({
-          ...msg,
-          sender: listMember?.[msg.sender_id] || null,
-        }));
+      if (listMemberRef.current) {
+        const currentListMember = listMemberRef.current;
 
-        setMessages((prev) => {
-          const map = new Map(
-            [...prev, ...newMessages].map((msg) => [msg.id, msg])
-          );
-          return Array.from(map.values());
-        });
+        const response = await getMessageByRoom(
+          roomId,
+          20,
+          currentLastMessageId
+        );
+        if (response.data?.length) {
+          const messageList = response.data;
+          setLastMessageId(messageList[messageList.length - 1]?.id); // Cập nhật chính xác id mới nhất
+          const newMessages = messageList.map((msg: IMessage) => ({
+            ...msg,
+            sender: currentListMember?.[msg.sender_id],
+          }));
 
-        setTimeout(() => {
-          if (messageListRef.current) {
-            // Giữ vị trí cuộn bằng cách cộng thêm sự chênh lệch chiều cao mới
-            messageListRef.current.scrollTop = previousScrollTop;
-          }
-        }, 0);
+          setMessages((prev) => {
+            const map = new Map(
+              [...prev, ...newMessages].map((msg) => [msg.id, msg])
+            );
+            return Array.from(map.values());
+          });
+
+          setTimeout(() => {
+            if (messageListRef.current) {
+              messageListRef.current.scrollTop = previousScrollTop;
+            }
+          }, 0);
+        } else {
+          setHasMoreData(false);
+        }
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [roomId, lastMessageId, listMember, loading, hasMoreData, setMessages]);
 
   useEffect(() => {
     if (messages.length === 0 && listMember) getMessageListData();
   }, [roomId, listMember, getMessageListData]);
+
+  useEffect(() => {
+    //Xóa tin nhắn reply khi thay đổi phòng
+    setIsReplyMessage(false);
+    setMessageReply(null);
+  }, [roomId]);
 
   useEffect(() => {
     if (socket) {
@@ -150,20 +244,25 @@ const ChatScreen: React.FC<IChatScreen> = ({
   }, [socket, roomId, handleNewMessage]);
 
   useEffect(() => {
-    if (observer.current) observer.current.disconnect();
+    if (hasMoreData) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          // kiểm tra element có nằm trong viewport không?
+          getMessageListData();
+        }
+      });
 
-    if (listMember) {
-      observer.current = new IntersectionObserver(
-        (entries) => entries[0].isIntersecting && getMessageListData(),
-        { root: null, rootMargin: '20px', threshold: 0.5 }
-      );
+      if (loadMoreRef.current) {
+        observer.observe(loadMoreRef.current);
+      }
 
-      const target = document.getElementById('endOfMessages');
-
-      if (target) observer.current.observe(target);
+      return () => {
+        if (loadMoreRef.current) {
+          observer.unobserve(loadMoreRef.current);
+        }
+      };
     }
-    return () => observer.current?.disconnect();
-  }, [listMember, getMessageListData]);
+  }, [listMember, hasMoreData, getMessageListData]);
 
   const handleScroll = useCallback((e: any) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
@@ -222,6 +321,8 @@ const ChatScreen: React.FC<IChatScreen> = ({
             setImageView={setImageView}
             setVisible={setVisible}
             loading={loading}
+            hasMoreData={hasMoreData}
+            ref={loadMoreRef}
           />
           <div ref={messageEndRef} />
         </div>
@@ -241,7 +342,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
           </div>
         </div>
       )}
-      <ChatInput onSendMessage={handleSendMessage} />
+      <ChatInput onSendMessage={handleSendMessage} roomId={roomId} />
       <ChatDrawer
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
@@ -253,8 +354,8 @@ const ChatScreen: React.FC<IChatScreen> = ({
       <ViewImageModal
         title="Hình ảnh"
         visible={visible}
+        setVisible={setVisible}
         imageView={imageView}
-        onClose={() => setVisible(false)}
       />
     </div>
   );

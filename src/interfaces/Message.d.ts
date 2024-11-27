@@ -15,12 +15,20 @@ export interface IMessage {
   room_id: string;
   sender_id: string;
   sender?: IUserInRoomInfo | null;
-  message_type: 'TEXT' | 'FILE' | 'RECALLED';
+
+  message_type:
+    | 'TEXT'
+    | 'FILE'
+    | 'RECALLED'
+    | 'EMOJI'
+    | 'STICKER'
+    | 'NOTIFICATION'
+    | 'TEXT_TAG';
   reply_id: IMessageReply;
   file_id?: IFileMessage;
   seen_by: string[];
   deleted_by: [];
-  status: 'ERROR' | 'SENT';
+  status: 'ERROR' | 'SENT' | 'DELIVERED';
   reactions: [];
   message_display: string;
   id: string;
@@ -36,6 +44,8 @@ export interface IFileMessage {
   file_name: string;
   file_size: string;
   uploaded_by: string;
+  thumbnail_url_display: string;
+  id_file: string;
   file_type: 'IMAGE' | 'FILE' | 'VIDEO';
   room_id: string;
   url_display: string;
@@ -50,4 +60,5 @@ export interface IMessageItem extends IModalImageSetData {
 export interface IMessageList extends IModalImageSetData {
   messages: IMessage[];
   loading: boolean;
+  hasMoreData: boolean;
 }

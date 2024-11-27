@@ -21,12 +21,8 @@ function createWindow() {
   // by the Create React App build process.
   // In development, set it to localhost to allow live/hot-reloading.
   const appURL = app.isPackaged
-    ? url.format({
-        pathname: path.join(__dirname, 'index.html'),
-        protocol: 'file:',
-        slashes: true,
-      })
-    : 'http://localhost:3000';
+    ? `file://${path.join(__dirname, '../build/index.html')}#/`
+    : 'http://localhost:3000/#/';
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL(appURL);
 

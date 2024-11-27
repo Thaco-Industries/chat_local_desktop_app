@@ -26,6 +26,8 @@ interface ChatContextProps {
     React.SetStateAction<Record<string, IUserInRoomInfo> | null>
   >;
   textareaRef: React.RefObject<HTMLTextAreaElement>;
+  uploadProgress: number;
+  setUploadProgress: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
@@ -39,11 +41,13 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
   const [isReplyMessage, setIsReplyMessage] = useState<boolean>(false);
   const [messageReply, setMessageReply] = useState<IMessage | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [listMember, setListMember] = useState<Record<
     string,
     IUserInRoomInfo
   > | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   return (
     <ChatContext.Provider
       value={{
@@ -62,6 +66,8 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
         listMember,
         setListMember,
         textareaRef,
+        uploadProgress,
+        setUploadProgress,
       }}
     >
       {children}

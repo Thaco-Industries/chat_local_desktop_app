@@ -59,7 +59,7 @@ const Message: React.FC = () => {
     <ChatProvider>
       <div className="flex h-full w-full md:gap-[2px]">
         <div
-          className={clsx('w-full md:w-1/5 min-w-[340px] h-full bg-white', {
+          className={clsx('w-full md:w-1/5 min-w-[330px] h-full bg-white', {
             'hidden md:block': roomId,
           })}
         >

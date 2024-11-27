@@ -70,7 +70,11 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
         <div className="w-full flex flex-col items-start justify-between bg-white gap-xs p-5 pb-0 border border-[#0000000F]">
           <div className="flex justify-between w-full">
             <div className="flex gap-xs items-center">
-              <button onClick={handleBackClick} className="text-primary">
+              <button
+                onClick={handleBackClick}
+                className="text-primary"
+                title="trở về"
+              >
                 <ArrowLeft />
               </button>
               <p className="text-title text-[16px] font-semibold">
