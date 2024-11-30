@@ -7,10 +7,10 @@ import { getAuthCookie } from '../../../actions/auth.action';
 import { useMessageService } from '../../../services/MessageService';
 import { useChatContext } from '../../../context/ChatContext';
 import { ReplyMessageIcon } from '../../../assets/icons/reply-icon';
-import getColorBackround from '../../../util/getColorBackground';
-import getUserShortName from '../../../util/getUserShortName';
 import MediaMessage from './components/MediaMessage';
 import ActionButton from './components/ActionButton';
+import PlayButton from './components/PlayButton';
+import UserAvatar from '../../common/UserAvatar';
 
 const MessageItem: React.FC<IMessageItem> = ({
   message,
@@ -43,9 +43,6 @@ const MessageItem: React.FC<IMessageItem> = ({
     }
   }, [listMember, message]);
 
-  const backgroundColor = getColorBackround(message.sender_id);
-  const shortName = getUserShortName(message.sender?.infor.full_name ?? '');
-
   const handleClickMedia = (url: string) => {
     setImageView(url);
     setVisible(true);
@@ -73,33 +70,60 @@ const MessageItem: React.FC<IMessageItem> = ({
     );
   }
 
+  const { file_name, url_display, thumbnail_url_display } =
+    message?.reply_id?.file_id || {};
+
+  const fileExtension = file_name?.split('.').pop()?.toLocaleLowerCase() || '';
+  const isVideo = ['mp4', 'mov', 'avi', 'mkv'].includes(fileExtension);
+  const isImage = ['png', 'jpg', 'jpeg', 'gif', 'svf'].includes(fileExtension);
+
+  const renderReplyMedia = () => {
+    if (isImage && url_display) {
+      return (
+        <img
+          src={`${process.env.REACT_APP_API_URL}/api/v1/media/view/${url_display}`}
+          alt="reply image"
+          className="w-[120px] h-[120px] object-cover"
+        />
+      );
+    }
+
+    if (isVideo && thumbnail_url_display) {
+      return (
+        <div className="relative">
+          <img
+            className="w-[120px] h-[120px] object-cover"
+            src={`${process.env.REACT_APP_API_URL}/api/v1/media/view/${thumbnail_url_display}`}
+            alt="reply video"
+          />
+          <PlayButton />
+        </div>
+      );
+    }
+
+    return (
+      <p className="text-[#252525] text-base truncate">
+        {message.reply_id?.message_display || 'Nội dung không khả dụng'}
+      </p>
+    );
+  };
+
   return (
     <div className={`flex gap-xs my-[2.5px]`}>
-      {!isUserMessage &&
-        (message.sender?.infor.avt_url ? (
-          <img
-            src={message.sender?.infor.avt_url}
-            className="rounded-full w-11 h-11"
-            alt="user-avatar"
-          />
-        ) : (
-          <div
-            style={{ background: backgroundColor }}
-            className={clsx(
-              'rounded-full w-11 h-11 flex justify-center items-center text-white font-semibold border border-white relative',
-              { 'opacity-0': !showSenderInfo }
-            )}
-          >
-            <div className="absolute inset-0 bg-black bg-opacity-15 rounded-full"></div>
-            {shortName}
-          </div>
-        ))}
+      {!isUserMessage && (
+        <UserAvatar
+          fullName={message.sender?.infor.full_name}
+          senderId={message.sender_id}
+          showSenderInfo={showSenderInfo}
+          url={message.sender?.infor.avt_url}
+        />
+      )}
 
       <div className="flex flex-col flex-1">
         {showSenderInfo && (
           <div
             className={`flex items-center gap-xs mb-xxs ${
-              isUserMessage ? 'justify-end' : ''
+              isUserMessage ? 'flex-row-reverse ' : ''
             }`}
           >
             <p>
@@ -136,9 +160,7 @@ const MessageItem: React.FC<IMessageItem> = ({
               {message.reply_id && message.message_type !== 'RECALLED' && (
                 <div className="join-item p-3 rounded-lg text-textBody italic gap-5 border-b border-border grid grid-cols-[20px_auto] items-start">
                   <ReplyMessageIcon fill="#7B87A1" />
-                  <p className={'truncate whitespace-wrap'}>
-                    {message.reply_id.message_display}
-                  </p>
+                  {renderReplyMedia()}
                 </div>
               )}
               {message.message_display && message.message_type !== 'FILE' && (

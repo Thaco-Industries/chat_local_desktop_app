@@ -50,10 +50,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
 
   const markAsRead = async () => {
     try {
-      const response = await markAsReadMessage(roomId);
-      if (response.status === 204) {
-        setNumberMessageUnread(0);
-      }
+      await markAsReadMessage(roomId);
     } catch (err) {
       console.error('API call failed: ', err);
     }
@@ -66,6 +63,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
       });
       if (numberMessageUnread > 0) {
         markAsRead();
+        setNumberMessageUnread((prev) => (prev !== 0 ? 0 : prev));
       }
     },
     [numberMessageUnread, roomId, markAsRead]
@@ -75,8 +73,6 @@ const ChatScreen: React.FC<IChatScreen> = ({
     (message: IMessage) => {
       if (messages) {
         setMessages((prevMessages) => {
-          console.log(prevMessages);
-
           // Tìm vị trí của tin nhắn hiện tại theo `id`
 
           const updatedMessages = prevMessages.map((msg) => {
@@ -118,11 +114,21 @@ const ChatScreen: React.FC<IChatScreen> = ({
 
   const handleNewMessage = useCallback(
     (message: IMessage) => {
-      console.log(message);
-
       if (listMemberRef.current) {
         const currentListMember = listMemberRef.current;
         const senderInfo = currentListMember?.[message.sender_id] || null;
+
+        let modifiedMessage = message.message_display;
+        Object.keys(currentListMember).forEach((memberKey) => {
+          const fullName = currentListMember[memberKey]?.infor?.full_name;
+          if (fullName) {
+            const placeholder = `<#${memberKey}>`;
+            modifiedMessage = modifiedMessage.replace(placeholder, fullName);
+          }
+        });
+
+        // Cập nhật nội dung tin nhắn đã thay thế
+        const updatedMessage = { ...message, message_display: modifiedMessage };
 
         setMessages((prev) => {
           // Tìm chỉ số tin nhắn trùng ID
@@ -137,7 +143,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
             // Nếu trạng thái mới là SENT và cũ là DELIVERED -> thay thế tin nhắn cũ
             if (
               existingMessage.status === 'DELIVERED' &&
-              message.status === 'SENT'
+              updatedMessage.status === 'SENT'
             ) {
               const updatedMessages = [...prev];
               updatedMessages[existingMessageIndex] = {
@@ -149,7 +155,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
             }
 
             // Nếu trạng thái mới là DELIVERED -> giữ nguyên tin nhắn
-            if (message.status === 'DELIVERED') {
+            if (updatedMessage.status === 'DELIVERED') {
               return prev; // Không thay đổi gì, giữ nguyên tin nhắn hiện tại
             }
 
@@ -158,11 +164,11 @@ const ChatScreen: React.FC<IChatScreen> = ({
           }
 
           // Nếu tin nhắn không trùng ID, thêm mới vào danh sách
-          return [{ ...message, sender: senderInfo }, ...prev]; // Thêm vào đầu danh sách
+          return [{ ...updatedMessage, sender: senderInfo }, ...prev]; // Thêm vào đầu danh sách
         });
 
         // Nếu tin nhắn trong room hiện tại, đánh dấu là đã đọc
-        if (message.room_id === roomId) {
+        if (message.room_id === roomId && !showScrollToBottom) {
           markAsRead();
         }
 
@@ -241,7 +247,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
         socket.off(`recall-message/${roomId}`);
       };
     }
-  }, [socket, roomId, handleNewMessage]);
+  }, [socket, roomId, handleNewMessage, handleRecallMessage]);
 
   useEffect(() => {
     if (hasMoreData) {
@@ -332,14 +338,13 @@ const ChatScreen: React.FC<IChatScreen> = ({
           onClick={() => scrollToBottom(true)}
           className="absolute right-7 md:right-14 bottom-24 cursor-pointer"
         >
-          <div className="indicator">
-            {numberMessageUnread !== 0 && (
-              <span className="indicator-item indicator-start badge badge-sm bg-red-600 top-1 left-1 border-red-600 text-white">
-                {numberMessageUnread}
-              </span>
-            )}
-            <ScrollBottomIcon />
-          </div>
+          {numberMessageUnread !== 0 && (
+            <span className=" inline-flex items-center justify-center text-[12px] leading-[16px] font-bold p-1 min-w-7 h-7 text-white bg-red-500 border-2 border-white rounded-full absolute -top-2 -left-1">
+              {numberMessageUnread > 99 ? '99+' : numberMessageUnread}
+            </span>
+          )}
+
+          <ScrollBottomIcon />
         </div>
       )}
       <ChatInput onSendMessage={handleSendMessage} roomId={roomId} />

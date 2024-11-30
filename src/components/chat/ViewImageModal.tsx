@@ -41,16 +41,16 @@ const ViewImageModal: React.FC<Props> = ({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal content */}
-            <div className="relative flex flex-col bg-white rounded-lg shadow w-full h-full">
+            <div className="relative flex flex-col bg-[#0a0a0a] rounded-lg shadow w-full h-full">
               {/* Modal header */}
-              <div className="flex items-center justify-between p-4 border-b rounded-t">
-                <h3 className="text-xl font-semibold text-textBody">
+              <div className="flex items-center justify-between p-4 border-b border-b-[#7a7a7a54] rounded-t">
+                <h3 className="text-xl font-semibold text-[#F1F5F9]">
                   Hình ảnh, video
                 </h3>
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="text-gray-400 bg-transparent hover:bg-borborder-border hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-autoborder-border inline-flex justify-center items-center"
+                  className="text-[#F1F5F9] bg-transparent rounded-lg text-sm w-8 h-8 ms-autoborder-border inline-flex justify-center items-center"
                 >
                   <svg
                     className="w-3 h-3"
@@ -90,13 +90,13 @@ const ViewImageModal: React.FC<Props> = ({
                 )}
               </div>
               {/* Modal footer */}
-              <div className="flex items-center justify-center p-4 border-t border-border rounded-b">
+              <div className="flex items-center justify-center p-4 border-t border-t-[#7a7a7a54] rounded-b">
                 <div
-                  className="border-border cursor-pointer"
+                  className="border-[#7a7a7a54] cursor-pointer"
                   onClick={() => handleDownload(imageView, '')}
                   title="Tải"
                 >
-                  <DownloadOutlineIcon />
+                  <DownloadOutlineIcon color="#F1F5F9" />
                 </div>
               </div>
             </div>

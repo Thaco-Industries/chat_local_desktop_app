@@ -108,7 +108,11 @@ const MediaMessage: React.FC<Props> = ({
             'justify-end': isUserMessage,
           })}
         >
-          <FileInfo url={urlFile} fileSize={file_size} file_name={file_name} />
+          <FileInfo
+            url={url_display}
+            fileSize={file_size}
+            file_name={file_name}
+          />
         </div>
       )}
 

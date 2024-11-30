@@ -25,10 +25,9 @@
 /* Firefox */
 * {
   scrollbar-width: thin;
-  font-size: 14px;
   scrollbar-base-color: #e2e2e2;
   scrollbar-color: #e2e2e2;
-
+  font-size: 14px;
   /* scrollbar-color: var(--secondary) var(--primary); */
 }
 

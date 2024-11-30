@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { IFileMessage } from './Message';
 
 export interface IRoom {
   // id: string;
@@ -19,6 +20,7 @@ export interface IRoom {
 
 export interface IRoomItem {
   room: IRoom;
+  keyword: string;
 }
 export interface IRoomList {
   roomList: IRoom[];
@@ -26,6 +28,7 @@ export interface IRoomList {
   roomId: string;
   setRoomId: Dispatch<SetStateAction<string>>;
   setRoomInfo: Dispatch<SetStateAction<IRoom>>;
+  getRoomData: () => Promise<void>;
 }
 
 export interface ILastMessage {
@@ -33,12 +36,13 @@ export interface ILastMessage {
   created_at: string;
   room_id: string;
   sender_id: string;
+  file_id?: IFileMessage;
   message_type: string;
   seen_by: string[];
   deleted_by: [];
   status: string;
   reactions: [];
-  message_display: string;
+  message_display: string | ReactNode;
 }
 
 export interface IUserRoom {
@@ -47,4 +51,5 @@ export interface IUserRoom {
   user_id: string;
   room_id: string;
   permission: string;
+  user: any;
 }

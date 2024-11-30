@@ -79,11 +79,11 @@ const LoginForm = () => {
               >
                 Tên đăng nhập
               </label>
-              <div className="relative">
+              <div className="relative ">
                 <Field
                   name="username"
                   type="text"
-                  className="!rounded-lg !bg-background-500 !text-[#00000080] h-xl md:h-[60px] outline-none px-10 transition-none w-full border-none focus:ring-0"
+                  className="!rounded-lg !bg-background-500 !text-text h-xl md:h-[60px] outline-none px-[20px] transition-none w-full border-none focus:ring-0 shadow-md"
                   placeholder="Nhập vào tên đăng nhập"
                 />
                 <ErrorMessage
@@ -105,11 +105,11 @@ const LoginForm = () => {
                 <Field
                   name="password"
                   type={passwordVisible ? 'text' : 'password'}
-                  className="!rounded-lg !bg-background-500 !text-[#00000080] h-xl md:h-[60px] px-10 transition-none w-full border-none outline-none focus:ring-0"
+                  className="!rounded-lg !bg-background-500 !text-text h-xl md:h-[60px] px-[20px] transition-none w-full border-none outline-none focus:ring-0 shadow-md"
                   placeholder="Nhập vào mật khẩu"
                 />
                 <div
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+                  className="absolute inset-y-0 right-0 flex items-center pr-[20px] cursor-pointer"
                   onClick={togglePasswordVisibility}
                 >
                   {passwordVisible ? (

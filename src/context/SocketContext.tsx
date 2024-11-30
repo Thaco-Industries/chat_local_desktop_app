@@ -39,9 +39,13 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       socketRef.current = io(
         `${socketUrl}/${process.env.REACT_APP_SOCKET_CHANNEL}`,
         {
-          extraHeaders: {
-            authorization: `Bearer ${userAuth?.token.accessToken}`,
+          // extraHeaders: {
+          //   authorization: `Bearer ${userAuth?.token.accessToken}`,
+          // },
+          auth: {
+            Authorization: `Bearer ${userAuth?.token.accessToken}`,
           },
+          transports: ['websocket', 'polling'],
         }
       );
       setSocket(socketRef.current);

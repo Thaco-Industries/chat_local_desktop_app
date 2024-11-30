@@ -38,6 +38,7 @@ export interface IMessageReply {
   created_at: string;
   message_display: string;
   id: string;
+  file_id: IFileMessage;
 }
 export interface IFileMessage {
   created_at: string;
@@ -61,4 +62,28 @@ export interface IMessageList extends IModalImageSetData {
   messages: IMessage[];
   loading: boolean;
   hasMoreData: boolean;
+}
+
+export interface INotificationNewMessage {
+  message: IMessage;
+  sender: {
+    id: string;
+    userName: string;
+    role: 'ADMIN' | 'USER';
+    is_locked: boolean;
+    infor: {
+      avt_url: string;
+      ban: string;
+      msnv: string;
+      nhom: string;
+      email: string;
+      avt_url: string;
+      bo_phan: string;
+      cap_bac: string;
+      full_name: string;
+      phong_phu: string;
+      dien_thoai: string;
+      phong_chinh: string;
+    };
+  };
 }

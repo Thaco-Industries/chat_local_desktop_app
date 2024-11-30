@@ -14,6 +14,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/login/Login';
 import PublicRoute from './components/PublicRoute';
 import { SocketProvider } from './context/SocketContext';
+import ToastContent from './helper/notifyMessageHelper';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -24,6 +25,8 @@ const isElectron = navigator.userAgent.toLowerCase().includes('electron');
 root.render(
   <HashRouter>
     <ApiProvider>
+      <ToastContent />
+
       <Routes>
         <Route path="/login" element={<PublicRoute element={<Login />} />} />
         <Route

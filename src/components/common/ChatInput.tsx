@@ -10,8 +10,10 @@ import CloseIcon from '../../assets/icons/close-icon';
 import { useChatContext } from '../../context/ChatContext';
 import moment from 'moment';
 import { FileHandle } from '../../util/downloadFile';
-import { v4 as uuidv4 } from 'uuid';
 import EmojiPickerPopover from './EmojiPickerPopover';
+import PlayButton from '../chat/Message/components/PlayButton';
+import { notify } from '../../helper/notify';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ChatInputProps {
   onSendMessage: (
@@ -54,10 +56,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
     setUploadProgress,
   } = useChatContext();
 
-  const { uploadFileInChunks } = FileHandle();
+  const { uploadFileInChunks, checkFileBeforeUpload } = FileHandle();
 
   useEffect(() => {
     setText('');
+    textareaRef.current?.focus();
   }, [roomId]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -71,23 +74,40 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
     if (!files || files.length === 0) return;
 
     for (const file of files) {
+      let fileSize = file.size / 1024 / 1024;
       try {
-        const onProgress = (progress: number) => {
-          setUploadProgress(progress);
-        };
+        const response = await checkFileBeforeUpload(fileSize);
+        if (response.status === 201) {
+          await handleUploadFie(file);
+        }
+      } catch (error: any) {
+        // Lấy thông tin lỗi chi tiết
+        const errorMessage = error?.response?.data?.message || error.message;
+        console.log(errorMessage);
 
-        await uploadFileInChunks(file, {
-          fileId: uuidv4(),
-          replyId: messageReply?.id || '',
-          roomId: roomId,
-          onProgress: onProgress,
-        }); // Gọi hàm upload từng file
-      } catch (error) {
-        console.error(`Failed to upload file ${file.name}`, error);
-        alert(`Error uploading file: ${file.name}`);
+        // console.error('Error message:', errorMessage);
+        notify(errorMessage);
       }
     }
     e.target.value = ''; // Reset input sau khi tải lên
+  };
+
+  const handleUploadFie = async (file: File) => {
+    try {
+      const onProgress = (progress: number) => {
+        setUploadProgress(progress);
+      };
+
+      await uploadFileInChunks(file, {
+        fileId: uuidv4(),
+        replyId: messageReply?.id || '',
+        roomId: roomId,
+        onProgress: onProgress,
+      }); // Gọi hàm upload từng file
+    } catch (error) {
+      console.error(`Failed to upload file ${file.name}`, error);
+      alert(`Error uploading file: ${file.name}`);
+    }
   };
 
   const adjustTextareaHeight = (message: string) => {
@@ -97,7 +117,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
 
       textareaRef.current.style.height = `${newHeight}px`;
       textareaRef.current.style.overflowY =
-        newHeight > 140 ? 'scroll' : 'hidden';
+        newHeight > 130 ? 'scroll' : 'hidden';
       setFormHeight(newHeight);
     }
 
@@ -135,6 +155,44 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
     return messageDate.format('DD/MM/YYYY');
   };
 
+  const { file_name, url_display, thumbnail_url_display } =
+    messageReply?.file_id || {};
+
+  const fileExtension = file_name?.split('.').pop()?.toLocaleLowerCase() || '';
+  const isVideo = ['mp4', 'mov', 'avi', 'mkv'].includes(fileExtension);
+  const isImage = ['png', 'jpg', 'jpeg', 'gif', 'svf'].includes(fileExtension);
+
+  const renderReplyMedia = () => {
+    if (isImage && url_display) {
+      return (
+        <img
+          src={`${process.env.REACT_APP_API_URL}/api/v1/media/view/${url_display}`}
+          alt="reply image"
+          className="w-[120px] h-[120px] object-cover"
+        />
+      );
+    }
+
+    if (isVideo && thumbnail_url_display) {
+      return (
+        <div className="relative w-[120px] h-[120px]">
+          <img
+            className="w-full h-full object-cover"
+            src={`${process.env.REACT_APP_API_URL}/api/v1/media/view/${thumbnail_url_display}`}
+            alt="reply video"
+          />
+          <PlayButton />
+        </div>
+      );
+    }
+
+    return (
+      <p className="text-[#252525] text-base truncate">
+        {messageReply?.message_display}
+      </p>
+    );
+  };
+
   return (
     <Formik
       initialValues={{ message: '' }}
@@ -149,16 +207,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
       }}
     >
       {({ submitForm }) => (
-        <div className="join join-vertical mb-5 mx-lg shadow-sm drop-shadow-md gap-[1px]">
+        <div className="join join-vertical mb-5 mx-lg drop-shadow-md gap-[1px]">
           {isReplyMessage && messageReply && (
             <div className="join-item bg-white px-6 py-5 grid grid-cols-[40px_1fr_auto] items-start border-b border-b-border">
               <div>
                 <ReplyMessageIcon />
               </div>
               <div className="min-w-0">
-                <p className="text-[#252525] text-base truncate">
-                  {messageReply.message_display}
-                </p>
+                {renderReplyMedia()}
                 <p className="text-sm text-lightText truncate">
                   {messageReply.sender?.infor.full_name},
                   {` ${moment(messageReply.created_at).format(
@@ -230,9 +286,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
               onKeyDown={(e) => handleKeyDown(e, submitForm)}
               ref={textareaRef}
               value={text}
-              className="block resize-none p-2.5 w-full text-[#252525]  border-0 focus:ring-0 max-h-[140px] scrollbar rounded-s-[10px]"
+              className="block resize-none p-2.5 w-full text-[#252525]  border-0 focus:ring-0 max-h-[130px] scrollbar rounded-s-[10px]"
               placeholder="Nhập tin nhắn"
-            ></textarea>
+            />
             <div className="relative">
               <button
                 type="button"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ChatScreen from '../../components/chat/ChatScreen';
 import clsx from 'clsx';
 import { RoomList } from '../../components/chat/RoomList/RoomList';
@@ -40,11 +40,7 @@ const Message: React.FC = () => {
 
   const { apiRequest } = useFetchApi();
 
-  useEffect(() => {
-    getRoomData();
-  }, []);
-
-  const getRoomData = async () => {
+  const getRoomData = async (): Promise<void> => {
     try {
       const response = await apiRequest('GET', 'room');
       if (response.data) {
@@ -69,6 +65,7 @@ const Message: React.FC = () => {
             setRoomList={setRoomList}
             roomList={roomList}
             setRoomInfo={setRoomInfo}
+            getRoomData={getRoomData}
           />
         </div>
         <div className={clsx('flex-1 bg-white')}>

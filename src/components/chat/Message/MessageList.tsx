@@ -29,11 +29,11 @@ const MessageList = forwardRef<HTMLDivElement, IMessageList>(
             .map(([dateLabel, dayMessages]) => (
               <React.Fragment key={dateLabel}>
                 <div className="flex items-center my-3">
-                  <div className="flex-grow border-t border-lightText"></div>
+                  <div className="flex-grow border-t border-lightText opacity-50"></div>
                   <div className="px-4 text-center text-lightText">
                     {dateLabel}
                   </div>
-                  <div className="flex-grow border-t border-lightText"></div>
+                  <div className="flex-grow border-t border-lightText opacity-50"></div>
                 </div>
 
                 {dayMessages

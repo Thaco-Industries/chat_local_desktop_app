@@ -1,5 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect } from 'react';
-import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
+import React from 'react';
 
 import ChatDrawerDetail from './ChatDrawerDetail';
 import { IChatDrawer } from '../../../interfaces/ChatDrawer';
