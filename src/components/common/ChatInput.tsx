@@ -61,7 +61,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
   useEffect(() => {
     setText('');
     textareaRef.current?.focus();
-  }, [roomId]);
+  }, [roomId, textareaRef]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -166,8 +166,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
     if (isImage && url_display) {
       return (
         <img
-          src={`${process.env.REACT_APP_API_URL}/api/v1/media/view/${url_display}`}
-          alt="reply image"
+          src={`${process.env.REACT_APP_API_URL}/media/view/${url_display}`}
+          alt="reply"
           className="w-[120px] h-[120px] object-cover"
         />
       );
@@ -178,7 +178,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
         <div className="relative w-[120px] h-[120px]">
           <img
             className="w-full h-full object-cover"
-            src={`${process.env.REACT_APP_API_URL}/api/v1/media/view/${thumbnail_url_display}`}
+            src={`${process.env.REACT_APP_API_URL}/media/view/${thumbnail_url_display}`}
             alt="reply video"
           />
           <PlayButton />

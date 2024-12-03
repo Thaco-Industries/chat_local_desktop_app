@@ -81,7 +81,7 @@ const MessageItem: React.FC<IMessageItem> = ({
     if (isImage && url_display) {
       return (
         <img
-          src={`${process.env.REACT_APP_API_URL}/api/v1/media/view/${url_display}`}
+          src={`${process.env.REACT_APP_API_URL}/media/view/${url_display}`}
           alt="reply image"
           className="w-[120px] h-[120px] object-cover"
         />
@@ -93,7 +93,7 @@ const MessageItem: React.FC<IMessageItem> = ({
         <div className="relative">
           <img
             className="w-[120px] h-[120px] object-cover"
-            src={`${process.env.REACT_APP_API_URL}/api/v1/media/view/${thumbnail_url_display}`}
+            src={`${process.env.REACT_APP_API_URL}/media/view/${thumbnail_url_display}`}
             alt="reply video"
           />
           <PlayButton />

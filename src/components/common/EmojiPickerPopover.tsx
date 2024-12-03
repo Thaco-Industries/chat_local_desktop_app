@@ -1,5 +1,5 @@
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 
 interface Props {
   setText: Dispatch<SetStateAction<string>>;

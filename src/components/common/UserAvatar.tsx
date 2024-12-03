@@ -8,21 +8,39 @@ type Props = {
   senderId: string;
   showSenderInfo?: boolean;
   fullName: string | undefined;
+  size?: number;
 };
 
-function UserAvatar({ url, senderId, showSenderInfo = true, fullName }: Props) {
+function UserAvatar({
+  url,
+  senderId,
+  showSenderInfo = true,
+  fullName,
+  size,
+}: Props) {
   const backgroundColor = getColorBackround(senderId);
   const shortName = getUserShortName(fullName ?? '');
-
+  const logoSize = {
+    width: size || 45,
+    height: size || 45,
+  };
   return (
     <div>
       {url ? (
-        <img src={url} className="rounded-full w-11 h-11" alt="user-avatar" />
+        <img
+          style={logoSize}
+          src={url}
+          className={`rounded-full`}
+          alt="user-avatar"
+        />
       ) : (
         <div
-          style={{ background: backgroundColor }}
+          style={{
+            background: backgroundColor,
+            ...logoSize,
+          }}
           className={clsx(
-            'rounded-full w-11 h-11 flex justify-center items-center text-white font-semibold border border-white relative',
+            'rounded-full flex justify-center items-center text-white font-semibold border border-white relative',
             { 'opacity-0': !showSenderInfo }
           )}
         >

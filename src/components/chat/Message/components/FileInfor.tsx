@@ -47,7 +47,7 @@ export default function FileInfo({ url, fileSize, file_name }: Props) {
       <div className="flex-1">
         <div className="text-title text-sm font-semibold flex">
           {/* Cắt ngắn tên file */}
-          <p className="truncate max-w-[180px] lg:max-w-[300px]">
+          <p className="truncate max-w-[160px] lg:max-w-[280px]">
             {removeExtensionFileName(file_name)}
           </p>
           <span>.{getFileExtension(file_name)}</span>

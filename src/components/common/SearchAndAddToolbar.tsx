@@ -6,7 +6,7 @@ import { useFetchApi } from '../../context/ApiContext';
 import { IRoom } from '../../interfaces';
 import _ from 'lodash';
 import AddFriendModal from '../chat/Friend/AddFriendModal';
-import { boolean } from 'yup';
+import AddRoomModal from '../chat/RoomList/AddRoomModal';
 
 interface SearchProps {
   keyword: string;
@@ -23,6 +23,7 @@ function SearchAndAddToolbar({
 }: SearchProps) {
   const { apiRequest } = useFetchApi();
   const [openAddFriendModal, setOpenAddFriendModal] = useState<boolean>(false);
+  const [openAddRoomModal, setOpenAddRoomModal] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSearch = _.debounce(async (search: string) => {
@@ -94,6 +95,7 @@ function SearchAndAddToolbar({
         <button
           className="btn btn-square btn-ghost btn-sm"
           title="Tạo nhóm chat"
+          onClick={() => setOpenAddRoomModal(true)}
         >
           <AddGroupIcon />
         </button>
@@ -101,6 +103,10 @@ function SearchAndAddToolbar({
       <AddFriendModal
         openAddFriendModal={openAddFriendModal}
         setOpenAddFriendModal={setOpenAddFriendModal}
+      />
+      <AddRoomModal
+        openAddRoomModal={openAddRoomModal}
+        setOpenAddRoomModal={setOpenAddRoomModal}
       />
     </div>
   );

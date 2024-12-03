@@ -4,8 +4,8 @@ import { File, Photo } from './common';
 
 export interface ITabItemsProps {
   activeTab: 'photos' | 'files' | null;
-  photos: Photo[];
-  files: File[];
+  photos: IFileInfor[];
+  files: IFileInfor[];
   isDelete: boolean;
   fileSelected: string[];
   setFileSelected: React.Dispatch<React.SetStateAction<string[]>>;
@@ -14,14 +14,14 @@ export interface ITabItemsProps {
 }
 
 export interface IPhotoTabContentProps {
-  groupedPhotos: { [key: string]: Photo[] };
+  groupedPhotos: { [key: string]: IFileInfor[] };
   handleFileChoosen: (id: string, url: string | null) => void;
   isDelete: boolean;
   fileSelected: string[];
 }
 
 export interface IFileTabContentProps {
-  groupedFiles: { [key: string]: File[] };
+  groupedFiles: { [key: string]: IFileInfor[] };
   handleFileChoosen: (id: string) => void;
   isDelete: boolean;
   fileSelected: string[];

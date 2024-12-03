@@ -11,6 +11,7 @@ const ChatDrawer: React.FC<IChatDrawer> = ({
   setVisible,
   imageView,
   setImageView,
+  roomId,
 }) => {
   const closeDrawer = () => {
     setIsCollapsed(false);
@@ -35,6 +36,7 @@ const ChatDrawer: React.FC<IChatDrawer> = ({
             setVisible={setVisible}
             imageView={imageView}
             setImageView={setImageView}
+            roomId={roomId}
           />
         </div>
       )}

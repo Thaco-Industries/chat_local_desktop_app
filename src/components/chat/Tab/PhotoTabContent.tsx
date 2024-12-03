@@ -10,7 +10,7 @@ export const PhotoTabContent: React.FC<IPhotoTabContentProps> = ({
 }) => {
   return (
     <div>
-      {Object.keys(groupedPhotos).map((date, dateIndex) => (
+      {/* {Object.keys(groupedPhotos).map((date, dateIndex) => (
         <div
           key={date}
           className={clsx('bg-white p-5', {
@@ -60,7 +60,7 @@ export const PhotoTabContent: React.FC<IPhotoTabContentProps> = ({
             ))}
           </div>
         </div>
-      ))}
+      ))} */}
     </div>
   );
 };

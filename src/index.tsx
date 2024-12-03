@@ -26,7 +26,6 @@ root.render(
   <HashRouter>
     <ApiProvider>
       <ToastContent />
-
       <Routes>
         <Route path="/login" element={<PublicRoute element={<Login />} />} />
         <Route

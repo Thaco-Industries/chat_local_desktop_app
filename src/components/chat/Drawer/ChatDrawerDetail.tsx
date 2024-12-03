@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ArrowLeft from '../../../assets/icons/arrow-left';
 import ChatInformation from '../ChatInformation';
 import TabList from '../Tab/TabList';
@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import DeleteIcon from '../../../assets/icons/delete-icon';
 import moment from 'moment';
 import { IChatDrawerDetail } from '../../../interfaces';
+import { useFileService } from '../../../services/FileService';
 
 const photos = [
   {
@@ -28,22 +29,46 @@ const photos = [
   })),
 ];
 
-const files = Array.from({ length: 30 }, (_, i) => ({
-  id: `${i}`,
-  name: `Báo cáo phương án vận hành ${i}.pptx`,
-  size: `${i}00 MB`,
-  date: moment().subtract(i, 'days').format('DD/MM/YYYY'),
-}));
+// const files = Array.from({ length: 30 }, (_, i) => ({
+//   id: `${i}`,
+//   name: `Báo cáo phương án vận hành ${i}.pptx`,
+//   size: `${i}00 MB`,
+//   date: moment().subtract(i, 'days').format('DD/MM/YYYY'),
+// }));
 
 const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
   setVisible,
   setImageView,
+  roomId,
 }) => {
+  const { getAllFilesInRoom } = useFileService();
+
   const [activeTab, setActiveTab] = useState<'photos' | 'files' | null>(null);
   const [isDelete, setIsDelete] = useState<boolean>(false);
   const [fileSelected, setFileSelected] = useState<string[]>([]);
+  const [mediaFileList, setMediaFileList] = useState<IFileInfor[]>([]);
+  const [otherFileList, setOtherFileList] = useState<IFileInfor[]>([]);
 
   const activeTabStyle = 'border-b-2 border-[#1890FF] text-[#1890FF]';
+
+  useEffect(() => {
+    getOtherFileInRoom();
+  }, [roomId]);
+
+  const getMediaFileInRoom = async () => {
+    try {
+      // const video = await getAllFilesInRoom(roomId, 'video');
+      // const video = await getAllFilesInRoom(roomId, 'video');
+    } catch (error) {}
+  };
+  const getOtherFileInRoom = async () => {
+    try {
+      const response = await getAllFilesInRoom(roomId, 'other');
+      setOtherFileList(response.data.data);
+
+      // const video = await getAllFilesInRoom(roomId, 'video');
+    } catch (error) {}
+  };
 
   const handleBackClick = () => {
     setActiveTab(null);
@@ -104,11 +129,11 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
         </div>
       )}
 
-      <div className="relative flex-1 overflow-y-auto scrollbar">
+      <div className="relative flex-1 overflow-y-auto scrollbar overflow-x-hidden">
         {activeTab ? (
           <TabList
-            photos={photos}
-            files={files}
+            photos={mediaFileList}
+            files={otherFileList}
             activeTab={activeTab}
             isDelete={isDelete}
             fileSelected={fileSelected}
@@ -119,7 +144,7 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
         ) : (
           <ChatInformation
             setActiveTab={setActiveTab}
-            files={files}
+            files={otherFileList}
             photos={photos}
             setImageView={setImageView}
             setVisible={setVisible}

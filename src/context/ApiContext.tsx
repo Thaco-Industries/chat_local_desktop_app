@@ -18,7 +18,7 @@ const API_CALL_BEGIN = 'API_CALL_BEGIN';
 const API_CALL_SUCCESS = 'API_CALL_SUCCESS';
 const API_CALL_FAILURE = 'API_CALL_FAILURE';
 
-axios.defaults.baseURL = `${process.env.REACT_APP_API_URL}/api/v1`;
+axios.defaults.baseURL = `${process.env.REACT_APP_API_URL}`;
 axios.defaults.headers.common['accept'] = 'application/json';
 axios.defaults.headers.common['x-client-id'] = getClientId();
 axios.defaults.headers.common['x-type-device'] = 'desktop';
@@ -34,9 +34,11 @@ interface ApiAction {
   payload?: any;
 }
 
+type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+
 interface ApiContextProps extends ApiState {
   apiRequest: (
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    method: HttpMethod,
     url: string,
     data?: any,
     customHeaders?: Record<string, string>
@@ -118,7 +120,7 @@ export default function ApiProvider({ children }: ApiProviderProps) {
   };
 
   const apiRequest = async (
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
+    method: HttpMethod,
     url: string,
     data: any = null,
     customHeaders: Record<string, string> = {}

@@ -63,7 +63,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
       });
       if (numberMessageUnread > 0) {
         markAsRead();
-        setNumberMessageUnread((prev) => (prev !== 0 ? 0 : prev));
+        setNumberMessageUnread(0);
       }
     },
     [numberMessageUnread, roomId, markAsRead]
@@ -71,7 +71,9 @@ const ChatScreen: React.FC<IChatScreen> = ({
 
   const handleRecallMessage = useCallback(
     (message: IMessage) => {
-      if (messages) {
+      if (messages && listMemberRef.current) {
+        const currentListMember = listMemberRef.current;
+        const senderInfo = currentListMember?.[message.sender_id] || null;
         setMessages((prevMessages) => {
           // Tìm vị trí của tin nhắn hiện tại theo `id`
 
@@ -82,6 +84,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
                 reply_id: {
                   ...msg.reply_id,
                   message_display: message.message_display,
+                  sender: senderInfo,
                 },
               };
             }
@@ -94,12 +97,19 @@ const ChatScreen: React.FC<IChatScreen> = ({
           // Nếu tin nhắn đã tồn tại, thay thế nó
           if (index !== -1) {
             return updatedMessages.map((msg) =>
-              msg.id === message.id ? message : msg
+              msg.id === message.id ? { ...message, sender: senderInfo } : msg
             );
           }
+          console.log([...updatedMessages, message]);
 
           // Nếu tin nhắn chưa tồn tại, thêm mới
-          return [...updatedMessages, message];
+          return [
+            ...updatedMessages,
+            {
+              ...message,
+              sender: senderInfo, // Gắn thông tin người gửi vào tin nhắn mới
+            },
+          ];
         });
       }
     },
@@ -270,12 +280,21 @@ const ChatScreen: React.FC<IChatScreen> = ({
     }
   }, [listMember, hasMoreData, getMessageListData]);
 
-  const handleScroll = useCallback((e: any) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    const scrollPercentage = (scrollTop / (scrollHeight - clientHeight)) * 100;
+  const handleScroll = useCallback(
+    (e: any) => {
+      const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+      const scrollPercentage =
+        (scrollTop / (scrollHeight - clientHeight)) * 100;
 
-    setShowScrollToBottom(scrollPercentage <= -20);
-  }, []);
+      setShowScrollToBottom(scrollPercentage <= -20);
+
+      if (scrollTop === 0 && numberMessageUnread > 0) {
+        markAsRead(); // Gọi hàm đánh dấu đã đọc
+        setNumberMessageUnread(0); // Reset số lượng tin nhắn chưa đọc
+      }
+    },
+    [numberMessageUnread, markAsRead]
+  );
 
   const handleSendMessage = async (
     message: string,
@@ -355,6 +374,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
         setVisible={setVisible}
         imageView={imageView}
         setImageView={setImageView}
+        roomId={roomId}
       />
       <ViewImageModal
         title="Hình ảnh"

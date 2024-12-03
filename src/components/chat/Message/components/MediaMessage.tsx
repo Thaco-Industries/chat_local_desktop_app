@@ -39,9 +39,9 @@ const MediaMessage: React.FC<Props> = ({
     fileExtension || ''
   );
 
-  const urlFile = `${process.env.REACT_APP_API_URL}/api/v1/media/view/${url_display}`;
+  const urlFile = `${process.env.REACT_APP_API_URL}/media/view/${url_display}`;
 
-  const urlVideoThumbnail = `${process.env.REACT_APP_API_URL}/api/v1/media/view/${thumbnail_url_display}`;
+  const urlVideoThumbnail = `${process.env.REACT_APP_API_URL}/media/view/${thumbnail_url_display}`;
 
   if (uploadProgress < 100 && message.status === 'DELIVERED' && isUserMessage) {
     return (
@@ -50,7 +50,7 @@ const MediaMessage: React.FC<Props> = ({
           <div className="relative w-[350px] h-[350px] bg-white rounded overflow-hidden flex items-center justify-center">
             {/* Hình ảnh full nằm dưới spinner */}
             <img
-              src={`${process.env.REACT_APP_API_URL}/api/v1/media/view/${message.file_id?.thumbnail_url_display}`}
+              src={`${process.env.REACT_APP_API_URL}/media/view/${message.file_id?.thumbnail_url_display}`}
               className="absolute inset-0 w-full h-full object-contain"
               alt="uploading file"
             />

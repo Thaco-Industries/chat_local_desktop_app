@@ -2,6 +2,8 @@ import React from 'react';
 import DownloadOutlineIcon from '../../assets/icons/download-outline';
 import { IChatInformationProps } from '../../interfaces/ChatInformation';
 import PlayIcon from '../../assets/icons/play';
+import DownloadButton from './Message/components/DownloadButton';
+import { FileHandle } from '../../util/downloadFile';
 
 const ChatInformation: React.FC<IChatInformationProps> = ({
   setActiveTab,
@@ -10,6 +12,8 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
   setVisible,
   setImageView,
 }) => {
+  const { handleFileDownload } = FileHandle();
+
   const handleViewAllClick = (section: 'photos' | 'files') => {
     setActiveTab(section);
   };
@@ -17,6 +21,35 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
   const handleViewImageClick = (url: string) => {
     setVisible(true);
     setImageView(url);
+  };
+
+  const getFileExtension = (fileName: string) => {
+    const index = fileName.lastIndexOf('.');
+    return index !== -1 ? fileName.slice(index + 1) : '';
+  };
+
+  const removeExtensionFileName = (fileName: string) => {
+    const index = fileName.lastIndexOf('.');
+    return index !== -1 ? fileName.slice(0, index) : '';
+  };
+
+  const convertFileSize = (fileSize: number | undefined) => {
+    if (!fileSize) return;
+    const changeFileSizeToNumber = fileSize;
+    if (changeFileSizeToNumber < 1) {
+      return `${(changeFileSizeToNumber * 1024).toFixed(0)} KB`;
+    } else {
+      return `${changeFileSizeToNumber} MB`;
+    }
+  };
+
+  const handleDownload = async (
+    e: React.MouseEvent<HTMLDivElement>,
+    url: string,
+    file_name: string
+  ) => {
+    e.stopPropagation();
+    handleFileDownload(url, file_name);
   };
 
   return (
@@ -67,21 +100,28 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
       <div className="bg-white flex-1 p-5">
         <h1 className="text-title font-semibold mb-xs">File</h1>
         <div className="flex flex-col gap-xs">
-          {files.slice(0, 3).map((file, index) => (
-            <div
-              key={index}
-              className="w-full rounded-[2px] border border-primary p-xs relative"
-            >
-              <p className="text-sm text-title truncate">{file.name}</p>
-              <p className="text-sm text-lightText">{file.size}</p>
-              <button
-                title="tải về"
-                className="rounded-sm absolute bottom-xs right-xs bg-white border border-border w-6 h-6"
+          {files.slice(0, 3).map((file, index) => {
+            const { url_display, file_name, file_size } = file;
+
+            return (
+              <div
+                key={index}
+                className="rounded-[2px] border border-primary p-xs relative cursor-pointer"
+                onClick={(e) => handleDownload(e, url_display, file_name)}
               >
-                <DownloadOutlineIcon />
-              </button>
-            </div>
-          ))}
+                <div className="flex justify-between">
+                  <p className="truncate lg:max-w-[190px]">
+                    {removeExtensionFileName(file_name)}
+                  </p>
+                  <span>.{getFileExtension(file_name)}</span>
+                </div>
+                <p className="text-sm text-lightText">
+                  {convertFileSize(file_size)}
+                </p>
+                <DownloadButton url={url_display} file_name={file_name} />
+              </div>
+            );
+          })}
         </div>
         <p
           className="text-center text-primary cursor-pointer mt-sm"

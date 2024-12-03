@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { EyeSlashIcon } from '../../assets/icons/eye-slash';
 import { EyeIcon } from '../../assets/icons/eye';
+import { Spinner } from 'flowbite-react';
 
 interface LoginFormValues {
   username: string;
@@ -20,7 +21,7 @@ const validationSchema = Yup.object({
 });
 
 const LoginForm = () => {
-  const { apiRequest, setToken, loading, error } = useFetchApi();
+  const { apiRequest, setToken, loading } = useFetchApi();
   const navigate = useNavigate();
   const [passwordVisible, setPasswordVisible] = useState(false);
 
@@ -62,7 +63,7 @@ const LoginForm = () => {
 
   return (
     <div className="w-full md:w-[70%] mx-auto">
-      <h1 className="mb-5 text-[25px] md:text-[32px] font-medium text-center">
+      <h1 className="mb-5 text-[24px] font-medium text-center">
         Đăng nhập tài khoản
       </h1>
       <Formik
@@ -75,7 +76,7 @@ const LoginForm = () => {
             <div className="flex flex-col gap-[10px] mb-2">
               <label
                 htmlFor="username"
-                className="block text-base font-medium text-text mt-5 text-start"
+                className="block text-[16px] font-medium text-textBody mt-5 text-start"
               >
                 Tên đăng nhập
               </label>
@@ -83,13 +84,13 @@ const LoginForm = () => {
                 <Field
                   name="username"
                   type="text"
-                  className="!rounded-lg !bg-background-500 !text-text h-xl md:h-[60px] outline-none px-[20px] transition-none w-full border-none focus:ring-0 shadow-md"
+                  className="!rounded-lg !bg-background-500 !text-textBody h-xl md:h-[60px] outline-none px-[20px] transition-none w-full border-none focus:ring-0 shadow-md"
                   placeholder="Nhập vào tên đăng nhập"
                 />
                 <ErrorMessage
                   name="username"
                   component="div"
-                  className="absolute text-red-500 text-sm mt-1 left-0"
+                  className="absolute text-red-500 mt-1 left-0"
                 />
               </div>
             </div>
@@ -97,7 +98,7 @@ const LoginForm = () => {
             <div className="flex flex-col gap-[10px]">
               <label
                 htmlFor="password"
-                className="block text-base font-medium text-text mt-5 text-start"
+                className="block text-[16px] font-medium text-textBody mt-5 text-start"
               >
                 Mật khẩu
               </label>
@@ -105,7 +106,7 @@ const LoginForm = () => {
                 <Field
                   name="password"
                   type={passwordVisible ? 'text' : 'password'}
-                  className="!rounded-lg !bg-background-500 !text-text h-xl md:h-[60px] px-[20px] transition-none w-full border-none outline-none focus:ring-0 shadow-md"
+                  className="!rounded-lg !bg-background-500 !text-textBody h-xl md:h-[60px] px-[20px] transition-none w-full border-none outline-none focus:ring-0 shadow-md"
                   placeholder="Nhập vào mật khẩu"
                 />
                 <div
@@ -113,15 +114,15 @@ const LoginForm = () => {
                   onClick={togglePasswordVisibility}
                 >
                   {passwordVisible ? (
-                    <EyeSlashIcon className="w-5 h-5" />
-                  ) : (
                     <EyeIcon className="w-5 h-5" />
+                  ) : (
+                    <EyeSlashIcon className="w-5 h-5" />
                   )}
                 </div>
                 <ErrorMessage
                   name="password"
                   component="div"
-                  className="absolute text-red-500 text-sm mt-1 left-0"
+                  className="absolute text-red-500 mt-1 left-0"
                 />
               </div>
             </div>
@@ -131,7 +132,7 @@ const LoginForm = () => {
               className="!mt-12 h-xl md:h-[60px] !w-full !justify-center items-center !py-3 !bg-primary hover:!bg-primary rounded-md text-[16px] text-white font-semibold"
               disabled={loading}
             >
-              {loading ? 'Loading...' : 'Đăng nhập'}
+              {loading ? <Spinner /> : 'Đăng nhập'}
             </button>
           </Form>
         )}

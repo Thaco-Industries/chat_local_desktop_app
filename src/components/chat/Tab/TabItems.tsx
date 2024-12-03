@@ -2,10 +2,11 @@ import React from 'react';
 import { PhotoTabContent } from './PhotoTabContent';
 import { FileTabContent } from './FileTabContent';
 import { ITabItemsProps, Item } from '../../../interfaces';
+import moment from 'moment';
 
-const groupItemsByDate = <T extends Item>(items: T[]) => {
+const groupItemsByDate = <T extends IFileInfor>(items: T[]) => {
   return items.reduce((groups, item) => {
-    const date = item.date;
+    const date = moment(item.created_at).format('DD/MM/YYYY');
     if (!groups[date]) {
       groups[date] = [];
     }
@@ -43,12 +44,13 @@ const TabItems: React.FC<ITabItemsProps> = ({
   return (
     <div>
       {activeTab === 'photos' && (
-        <PhotoTabContent
-          fileSelected={fileSelected}
-          groupedPhotos={groupedPhotos}
-          handleFileChoosen={handleFileChoosen}
-          isDelete={isDelete}
-        />
+        <></>
+        // <PhotoTabContent
+        //   fileSelected={fileSelected}
+        //   groupedPhotos={groupedPhotos}
+        //   handleFileChoosen={handleFileChoosen}
+        //   isDelete={isDelete}
+        // />
       )}
       {activeTab === 'files' && (
         <FileTabContent

@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useRef } from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import DownloadOutlineIcon from '../../assets/icons/download-outline';
 import { FileHandle } from '../../util/downloadFile';
 

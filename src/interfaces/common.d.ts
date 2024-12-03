@@ -21,6 +21,7 @@ export interface IModalImageSetData {
 export interface IChatDrawerDetail extends IModalImageSetData {
   visible: boolean;
   imageView: string;
+  roomId: string;
 }
 
 declare global {
