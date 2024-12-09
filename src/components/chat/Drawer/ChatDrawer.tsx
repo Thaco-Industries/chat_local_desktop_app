@@ -12,6 +12,9 @@ const ChatDrawer: React.FC<IChatDrawer> = ({
   imageView,
   setImageView,
   roomId,
+  roomInfo,
+  setRoomId,
+  setRoomInfo,
 }) => {
   const closeDrawer = () => {
     setIsCollapsed(false);
@@ -26,7 +29,7 @@ const ChatDrawer: React.FC<IChatDrawer> = ({
         <div
           id="drawer-right-example"
           className={clsx(
-            'fixed top-0 right-0 z-40 h-screen overflow-y-auto bg-white w-80 transition-transform duration-500',
+            'fixed top-0 right-0 z-40 h-screen overflow-y-auto bg-white w-[310px] transition-transform duration-500',
             { 'translate-x-0': isCollapsed }
           )}
           aria-labelledby="drawer-right-label"
@@ -37,6 +40,10 @@ const ChatDrawer: React.FC<IChatDrawer> = ({
             imageView={imageView}
             setImageView={setImageView}
             roomId={roomId}
+            roomInfo={roomInfo}
+            setRoomId={setRoomId}
+            setIsCollapsed={setIsCollapsed}
+            setRoomInfo={setRoomInfo}
           />
         </div>
       )}

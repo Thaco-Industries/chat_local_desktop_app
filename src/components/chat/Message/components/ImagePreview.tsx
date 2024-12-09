@@ -19,7 +19,7 @@ function ImagePreview({ url, onClick, file_name, isUserMessage }: Props) {
         <img
           src={url}
           alt="sent image"
-          className="md:max-w-full max-h-[350px] rounded cursor-pointer"
+          className="tablet:max-w-full max-h-[350px] rounded cursor-pointer"
           onClick={onClick}
         />
       </div>

@@ -11,6 +11,9 @@ import MediaMessage from './components/MediaMessage';
 import ActionButton from './components/ActionButton';
 import PlayButton from './components/PlayButton';
 import UserAvatar from '../../common/UserAvatar';
+import FriendInfoModal from '../Friend/FriendInfoModal';
+import { IFriendInfo } from '../../../interfaces/Friend';
+import { useFriendService } from '../../../services/FriendService';
 
 const MessageItem: React.FC<IMessageItem> = ({
   message,
@@ -19,12 +22,51 @@ const MessageItem: React.FC<IMessageItem> = ({
   showSenderInfo,
 }) => {
   const userId = getAuthCookie()?.user.id || '';
-  const isUserMessage = message.sender_id === userId;
-  const [showMessageOption, setShowMessageOption] = useState(false);
-  const [updatedMessage, setUpdatedMessage] = useState('');
+  const { recallMessage } = useMessageService();
   const { setMessageReply, setIsReplyMessage, textareaRef, listMember } =
     useChatContext();
-  const { recallMessage } = useMessageService();
+  const { sendFriendRequest, cancelSendFriendRequest, actionRequestFriend } =
+    useFriendService();
+
+  const isUserMessage = message.sender_id === userId;
+
+  const [showMessageOption, setShowMessageOption] = useState<boolean>(false);
+  const [updatedMessage, setUpdatedMessage] = useState('');
+  const [openFriendInfoModal, setOpenFriendInfoModal] =
+    useState<boolean>(false);
+  const [friendInfo, setFriendInfo] = useState<IFriendInfo>();
+
+  const [isRequest, setIsRequest] = useState<boolean>(false);
+  // friendItem.status === 'SENT_REQUEST'
+  const [isShowButton, setIsShowButton] = useState<boolean>(false);
+  // friendItem.status !== 'FRIEND'
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleAddFriendClick = async (userId: string) => {
+    setIsRequest((prev) => !prev);
+    setIsLoading(true);
+    try {
+      if (isRequest) {
+        const response = await cancelSendFriendRequest(userId);
+        if (response.status !== 204) {
+          // Nếu API lỗi, hoàn nguyên trạng thái
+          setIsRequest(true);
+        }
+      } else {
+        const response = await sendFriendRequest(userId);
+        if (response.status !== 201) {
+          // Nếu API lỗi, hoàn nguyên trạng thái
+          setIsRequest(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      // Hoàn nguyên trạng thái nếu xảy ra lỗi
+      setIsRequest(!isRequest);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (listMember && message.message_display) {
@@ -64,7 +106,7 @@ const MessageItem: React.FC<IMessageItem> = ({
 
   if (message.message_type === 'NOTIFICATION') {
     return (
-      <div className="text-center text-textBody px-4 py-2 w-[350px] sm:w-max break-words self-center">
+      <div className="text-center text-textBody px-4 py-2 w-[350px] tablet:w-[300px] lg:w-max break-words self-center">
         {updatedMessage}
       </div>
     );
@@ -108,15 +150,41 @@ const MessageItem: React.FC<IMessageItem> = ({
     );
   };
 
+  const handleClickUserInRoom = () => {
+    setOpenFriendInfoModal(true);
+    console.log(message.sender);
+  };
+
+  const handleAcceptRequestClick = async (userId: string) => {
+    setIsLoading(true);
+    try {
+      const payload = {
+        id: userId,
+        status: 'ACCEPTED',
+      };
+      const response = await actionRequestFriend(userId, payload);
+      console.log(response);
+      if (response.status === 204) {
+        setIsShowButton(false);
+      }
+    } catch (error) {
+      console.error('Error accepting friend request:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className={`flex gap-xs my-[2.5px]`}>
       {!isUserMessage && (
-        <UserAvatar
-          fullName={message.sender?.infor.full_name}
-          senderId={message.sender_id}
-          showSenderInfo={showSenderInfo}
-          url={message.sender?.infor.avt_url}
-        />
+        <div onClick={() => handleClickUserInRoom()}>
+          <UserAvatar
+            fullName={message.sender?.infor.full_name}
+            senderId={message.sender_id}
+            showSenderInfo={showSenderInfo}
+            url={message.sender?.infor.avt_url}
+          />
+        </div>
       )}
 
       <div className="flex flex-col flex-1">
@@ -206,6 +274,18 @@ const MessageItem: React.FC<IMessageItem> = ({
           />
         )}
       </div>
+      {openFriendInfoModal && (
+        <FriendInfoModal
+          openFriendInfoModal={openFriendInfoModal}
+          setOpenFriendInfoModal={setOpenFriendInfoModal}
+          friendInfo={friendInfo}
+          handleAddFriendClick={handleAddFriendClick}
+          isLoading={isLoading}
+          isRequest={isRequest}
+          isShowButton={isShowButton}
+          handleAcceptRequestClick={handleAcceptRequestClick}
+        />
+      )}
     </div>
   );
 };

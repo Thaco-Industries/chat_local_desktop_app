@@ -13,6 +13,8 @@ import React, {
   ReactNode,
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useSocket } from './SocketContext';
+import { refreshToken } from '../hook/useRefreshToken';
 
 const API_CALL_BEGIN = 'API_CALL_BEGIN';
 const API_CALL_SUCCESS = 'API_CALL_SUCCESS';
@@ -75,6 +77,7 @@ export default function ApiProvider({ children }: ApiProviderProps) {
   const [state, dispatch] = useReducer(apiReducer, initialState);
   const navigate = useNavigate();
   const location = useLocation();
+  const { disconnectSocket, reconnectSocket } = useSocket();
 
   const isTokenExpired = (): boolean => {
     const userAuth = getAuthCookie();
@@ -96,28 +99,35 @@ export default function ApiProvider({ children }: ApiProviderProps) {
     }
   }, [location.pathname]);
 
-  const refreshToken = async () => {
-    try {
-      const userAuth = getAuthCookie();
-      if (!userAuth?.token?.refreshToken) throw new Error('No refresh token');
+  // const refreshToken = async () => {
+  //   const { disconnectSocket, reconnectSocket } = useSocket();
+  //   try {
+  //     const userAuth = getAuthCookie();
+  //     if (!userAuth?.token?.refreshToken) throw new Error('No refresh token');
 
-      const response = await axios.patch(
-        'auth/refreshToken',
-        {
-          refreshToken: userAuth.token.refreshToken,
-        },
-        { headers: { Authorization: `Bearer ${userAuth.token.refreshToken}` } }
-      );
+  //     disconnectSocket();
 
-      const newAuth = response.data;
+  //     const response = await axios.patch(
+  //       'auth/refreshToken',
+  //       {
+  //         refreshToken: userAuth.token.refreshToken,
+  //       },
+  //       { headers: { Authorization: `Bearer ${userAuth.token.refreshToken}` } }
+  //     );
 
-      createAuthCookie(newAuth);
-      return newAuth.token.accessToken;
-    } catch (error) {
-      handleLogout();
-      throw error;
-    }
-  };
+  //     const newAuth = response.data;
+
+  //     createAuthCookie(newAuth);
+
+  //     // Kết nối lại socket với token mới
+  //     reconnectSocket(newAuth.token.accessToken);
+
+  //     return newAuth.token.accessToken;
+  //   } catch (error) {
+  //     handleLogout();
+  //     throw error;
+  //   }
+  // };
 
   const apiRequest = async (
     method: HttpMethod,
@@ -151,7 +161,11 @@ export default function ApiProvider({ children }: ApiProviderProps) {
       if (error.response?.status === 401) {
         // handleLogout();
         try {
-          const newAccessToken = await refreshToken();
+          const newAccessToken = await refreshToken(
+            handleLogout,
+            disconnectSocket,
+            reconnectSocket
+          );
 
           const retryResponse = await axios({
             method,

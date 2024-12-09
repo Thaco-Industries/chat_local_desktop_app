@@ -11,11 +11,13 @@ import { useSocket } from '../../context/SocketContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useMessageService } from '../../services/MessageService';
 import { IMessage, IUserInRoomInfo } from '../../interfaces';
+import { useRoomService } from '../../services/RoomService';
 
 const ChatScreen: React.FC<IChatScreen> = ({
   roomId,
   setRoomId,
   roomInfo,
+  setRoomInfo,
   isDesktopCollapsed,
   setIsDesktopCollapsed,
   visible,
@@ -34,6 +36,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
   const listMemberRef = useRef<Record<string, IUserInRoomInfo> | null>(null);
 
   const {
+    setListMember,
     listMember,
     messages,
     setMessages,
@@ -46,7 +49,9 @@ const ChatScreen: React.FC<IChatScreen> = ({
   } = useChatContext();
   const { markAsReadMessage, getMessageByRoom, sendMessage } =
     useMessageService();
-  const socket = useSocket();
+
+  const { getMemberInRoom } = useRoomService();
+  const { socket } = useSocket();
 
   const markAsRead = async () => {
     try {
@@ -191,6 +196,17 @@ const ChatScreen: React.FC<IChatScreen> = ({
     [listMember, setMessages, showScrollToBottom, roomId]
   );
 
+  const handleUserJoinAndOutRoom = async () => {
+    try {
+      const response = await getMemberInRoom(roomId);
+      if (response.data) {
+        setListMember(response.data);
+      }
+    } catch (error) {
+      console.error('API call failed: ', error);
+    }
+  };
+
   const getMessageListData = useCallback(async () => {
     if (loading || !hasMoreData || !listMember) return;
     setLoading(true);
@@ -204,7 +220,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
 
         const response = await getMessageByRoom(
           roomId,
-          20,
+          10,
           currentLastMessageId
         );
         if (response.data?.length) {
@@ -252,32 +268,43 @@ const ChatScreen: React.FC<IChatScreen> = ({
     if (socket) {
       socket.on(`new-message/${roomId}`, handleNewMessage);
       socket.on(`recall-message/${roomId}`, handleRecallMessage);
+      socket.on(`user-join-room/${roomId}`, handleUserJoinAndOutRoom);
+      socket.on(`user-out-room/${roomId}`, handleUserJoinAndOutRoom);
+
       return () => {
         socket.off(`new-message/${roomId}`);
         socket.off(`recall-message/${roomId}`);
+        socket.off(`user-join-room/${roomId}`);
+        socket.off(`user-out-room/${roomId}`);
       };
     }
-  }, [socket, roomId, handleNewMessage, handleRecallMessage]);
+  }, [
+    socket,
+    roomId,
+    handleNewMessage,
+    handleRecallMessage,
+    handleUserJoinAndOutRoom,
+  ]);
 
   useEffect(() => {
-    if (hasMoreData) {
-      const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          // kiểm tra element có nằm trong viewport không?
-          getMessageListData();
-        }
-      });
+    if (loading || !hasMoreData) return;
 
-      if (loadMoreRef.current) {
-        observer.observe(loadMoreRef.current);
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        // kiểm tra element có nằm trong viewport không?
+        getMessageListData();
       }
+    });
 
-      return () => {
-        if (loadMoreRef.current) {
-          observer.unobserve(loadMoreRef.current);
-        }
-      };
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
     }
+
+    return () => {
+      if (loadMoreRef.current) {
+        observer.unobserve(loadMoreRef.current);
+      }
+    };
   }, [listMember, hasMoreData, getMessageListData]);
 
   const handleScroll = useCallback(
@@ -324,6 +351,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
     <div className="flex flex-col bg-background-500 h-full relative">
       <ChatHeader
         roomInfo={roomInfo}
+        setRoomInfo={setRoomInfo}
         roomId={roomId}
         setRoomId={setRoomId}
         isCollapsed={isCollapsed}
@@ -334,6 +362,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
         setVisible={setVisible}
         imageView={setImageView}
         setImageView={setImageView}
+        listMember={listMember}
       />
       <div
         className="flex flex-col-reverse flex-1 mb-2 overflow-y-auto scrollbar"
@@ -355,7 +384,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
       {showScrollToBottom && (
         <div
           onClick={() => scrollToBottom(true)}
-          className="absolute right-7 md:right-14 bottom-24 cursor-pointer"
+          className="absolute right-7 tablet:right-14 bottom-24 cursor-pointer"
         >
           {numberMessageUnread !== 0 && (
             <span className=" inline-flex items-center justify-center text-[12px] leading-[16px] font-bold p-1 min-w-7 h-7 text-white bg-red-500 border-2 border-white rounded-full absolute -top-2 -left-1">
@@ -375,6 +404,9 @@ const ChatScreen: React.FC<IChatScreen> = ({
         imageView={imageView}
         setImageView={setImageView}
         roomId={roomId}
+        roomInfo={roomInfo}
+        setRoomId={setRoomId}
+        setRoomInfo={setRoomInfo}
       />
       <ViewImageModal
         title="Hình ảnh"

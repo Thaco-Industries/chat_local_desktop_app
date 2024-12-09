@@ -1,5 +1,6 @@
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 import { IFileMessage } from './Message';
+import { IUserInfo } from './User';
 
 export interface IRoom {
   // id: string;
@@ -50,6 +51,18 @@ export interface IUserRoom {
   id: string;
   user_id: string;
   room_id: string;
-  permission: string;
+  permission: 'LEADER' | 'MEMBER';
   user: any;
+}
+
+export interface IInvitedInfor {
+  id: string;
+  invited_by: string;
+  invited_user_id: string;
+  room_id: string;
+  status_leader: string;
+  status_invited_user: string;
+  leader_action_id: string;
+  invitedUserInfo: IUserInfo;
+  invitedByInfo: IUserInfo;
 }

@@ -18,6 +18,10 @@ function UserAvatar({
   fullName,
   size,
 }: Props) {
+  const urlFile =
+    url && url.includes('http')
+      ? url
+      : `${process.env.REACT_APP_API_URL}/media/view/${url}`;
   const backgroundColor = getColorBackround(senderId);
   const shortName = getUserShortName(fullName ?? '');
   const logoSize = {
@@ -29,8 +33,8 @@ function UserAvatar({
       {url ? (
         <img
           style={logoSize}
-          src={url}
-          className={`rounded-full`}
+          src={urlFile}
+          className="rounded-full object-cover"
           alt="user-avatar"
         />
       ) : (

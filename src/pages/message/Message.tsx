@@ -7,6 +7,7 @@ import ChatDrawerDetail from '../../components/chat/Drawer/ChatDrawerDetail';
 import { IRoom } from '../../interfaces';
 import { useFetchApi } from '../../context/ApiContext';
 import { ChatProvider } from '../../context/ChatContext';
+import { useMessageContext } from '../../context/MessageContext';
 
 const defaultRoom: IRoom = {
   id: '',
@@ -31,11 +32,11 @@ const defaultRoom: IRoom = {
 };
 
 const Message: React.FC = () => {
+  const { roomList, setRoomList } = useMessageContext();
   const [roomId, setRoomId] = useState<string>('');
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [visible, setVisible] = useState<boolean>(false);
   const [imageView, setImageView] = useState<string>('');
-  const [roomList, setRoomList] = useState<IRoom[]>([]);
   const [roomInfo, setRoomInfo] = useState<IRoom>(defaultRoom);
 
   const { apiRequest } = useFetchApi();
@@ -53,10 +54,10 @@ const Message: React.FC = () => {
 
   return (
     <ChatProvider>
-      <div className="flex h-full w-full md:gap-[2px]">
+      <div className="flex h-full w-full tablet:gap-[2px]">
         <div
-          className={clsx('w-full md:w-1/5 min-w-[330px] h-full bg-white', {
-            'hidden md:block': roomId,
+          className={clsx('w-full tablet:w-1/5 min-w-[330px] h-full bg-white', {
+            'hidden tablet:block': roomId,
           })}
         >
           <RoomList
@@ -72,6 +73,7 @@ const Message: React.FC = () => {
           {roomId ? (
             <ChatScreen
               roomInfo={roomInfo}
+              setRoomInfo={setRoomInfo}
               roomId={roomId}
               setRoomId={setRoomId}
               isDesktopCollapsed={isDesktopCollapsed}
@@ -87,13 +89,17 @@ const Message: React.FC = () => {
           )}
         </div>
         {isDesktopCollapsed && (
-          <div className="hidden xl:flex w-80">
+          <div className="hidden xl:flex w-[310px]">
             <ChatDrawerDetail
               imageView={imageView}
               setImageView={setImageView}
               setVisible={setVisible}
               visible={visible}
               roomId={roomId}
+              roomInfo={roomInfo}
+              setRoomInfo={setRoomInfo}
+              setRoomId={setRoomId}
+              setIsDesktopCollapsed={setIsDesktopCollapsed}
             />
           </div>
         )}

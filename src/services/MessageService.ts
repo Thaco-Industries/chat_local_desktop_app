@@ -48,5 +48,10 @@ export const useMessageService = () => {
     }
   };
 
-  return { recallMessage, markAsReadMessage, getMessageByRoom, sendMessage };
+  return {
+    recallMessage,
+    markAsReadMessage,
+    getMessageByRoom,
+    sendMessage,
+  };
 };

@@ -15,6 +15,7 @@ import Login from './pages/login/Login';
 import PublicRoute from './components/PublicRoute';
 import { SocketProvider } from './context/SocketContext';
 import ToastContent from './helper/notifyMessageHelper';
+import { MessageProvider } from './context/MessageContext';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -25,25 +26,24 @@ const isElectron = navigator.userAgent.toLowerCase().includes('electron');
 root.render(
   <HashRouter>
     <ApiProvider>
-      <ToastContent />
-      <Routes>
-        <Route path="/login" element={<PublicRoute element={<Login />} />} />
-        <Route
-          path="/"
-          element={
-            <SocketProvider>
-              <ProtectedRoute element={<Layout />} />
-            </SocketProvider>
-          }
-        >
-          <Route index element={<Message />} />
-
-          <Route path="room" element={<Room />} />
-          <Route path="group" element={<Group />} />
-          <Route path="setting" element={<Setting />} />
-          <Route path="profile" element={<Profile />} />
-        </Route>
-      </Routes>
+      <SocketProvider>
+        <MessageProvider>
+          <ToastContent />
+          <Routes>
+            <Route
+              path="/login"
+              element={<PublicRoute element={<Login />} />}
+            />
+            <Route path="/" element={<ProtectedRoute element={<Layout />} />}>
+              <Route index element={<Message />} />
+              <Route path="room" element={<Room />} />
+              <Route path="group" element={<Group />} />
+              <Route path="setting" element={<Setting />} />
+              <Route path="profile" element={<Profile />} />
+            </Route>
+          </Routes>
+        </MessageProvider>
+      </SocketProvider>
     </ApiProvider>
   </HashRouter>
 );

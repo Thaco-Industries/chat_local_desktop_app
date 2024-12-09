@@ -100,14 +100,18 @@ function SearchAndAddToolbar({
           <AddGroupIcon />
         </button>
       </div>
-      <AddFriendModal
-        openAddFriendModal={openAddFriendModal}
-        setOpenAddFriendModal={setOpenAddFriendModal}
-      />
-      <AddRoomModal
-        openAddRoomModal={openAddRoomModal}
-        setOpenAddRoomModal={setOpenAddRoomModal}
-      />
+      {openAddFriendModal && (
+        <AddFriendModal
+          openAddFriendModal={openAddFriendModal}
+          setOpenAddFriendModal={setOpenAddFriendModal}
+        />
+      )}
+      {openAddRoomModal && (
+        <AddRoomModal
+          openAddRoomModal={openAddRoomModal}
+          setOpenAddRoomModal={setOpenAddRoomModal}
+        />
+      )}
     </div>
   );
 }

@@ -16,5 +16,18 @@ export const useFileService = () => {
     return response;
   };
 
-  return { getAllFilesInRoom };
+  const deleteFileMessage = async (roomId: string, fileIds: string[]) => {
+    const payload = {
+      roomId,
+      fileIds,
+    };
+    const response = await apiRequest(
+      'DELETE',
+      `message/delete-message-by-file-id?roomId=${roomId}`,
+      payload
+    );
+    return response;
+  };
+
+  return { getAllFilesInRoom, deleteFileMessage };
 };

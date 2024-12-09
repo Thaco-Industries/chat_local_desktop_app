@@ -3,8 +3,9 @@
 import { File, Photo } from './common';
 
 export interface ITabItemsProps {
-  activeTab: 'photos' | 'files' | null;
+  activeTab: 'image' | 'other' | 'video' | null;
   photos: IFileInfor[];
+  videos: IFileInfor[];
   files: IFileInfor[];
   isDelete: boolean;
   fileSelected: string[];
@@ -18,6 +19,7 @@ export interface IPhotoTabContentProps {
   handleFileChoosen: (id: string, url: string | null) => void;
   isDelete: boolean;
   fileSelected: string[];
+  isVideoTab: boolean;
 }
 
 export interface IFileTabContentProps {

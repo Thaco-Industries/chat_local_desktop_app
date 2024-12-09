@@ -9,7 +9,6 @@ import { Spinner } from 'flowbite-react';
 import clsx from 'clsx';
 import { CameraIcon } from '../../../assets/icons/camera';
 import { useRoomService } from '../../../services/RoomService';
-import { useChatContext } from '../../../context/ChatContext';
 
 type Props = {
   openAddRoomModal: boolean;
@@ -19,17 +18,19 @@ type Props = {
 function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
   const { getListFriend } = useFriendService();
   const { uploadRoomImage, createNewRoom } = useRoomService();
-  const {} = useChatContext();
   const [friendList, setFriendList] = useState<IFriendInfo[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [imagePath, setImagePath] = useState<string>('');
   const [selectedFriends, setSelectedFriends] = useState<string[]>([]);
+  const [isFetchingFriendList, setIsFetchingFriendList] =
+    useState<boolean>(false);
 
   useEffect(() => {
     getFriendList(searchQuery);
   }, [searchQuery]);
 
   const getFriendList = async (query: string) => {
+    setIsFetchingFriendList(true);
     try {
       const response = await getListFriend(query);
 
@@ -38,6 +39,8 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
       }
     } catch (error) {
       console.error('Error during search:', error);
+    } finally {
+      setIsFetchingFriendList(false);
     }
   };
 
@@ -234,6 +237,7 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
                     friendList={friendList}
                     selectedFriends={selectedFriends}
                     toggleFriendSelection={toggleFriendSelection}
+                    isLoading={isFetchingFriendList}
                   />
                   <div className="flex gap-sm self-end">
                     <button
@@ -248,13 +252,13 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
                       className={clsx(
                         'px-md py-[6.5px] bg-[#076eb8] rounded-3xl shadow border border-[#076eb8] text-white',
                         {
-                          'opacity-100': selectedFriends.length > 0,
+                          'opacity-100': selectedFriends.length >= 2,
                         },
                         {
-                          'opacity-50': selectedFriends.length === 0,
+                          'opacity-50': selectedFriends.length < 2,
                         }
                       )}
-                      disabled={selectedFriends.length === 0 || isSubmitting}
+                      disabled={selectedFriends.length < 2 || isSubmitting}
                     >
                       {isSubmitting ? <Spinner /> : 'Tạo nhóm'}
                     </button>

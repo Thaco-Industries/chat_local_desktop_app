@@ -18,6 +18,7 @@ const groupItemsByDate = <T extends IFileInfor>(items: T[]) => {
 const TabItems: React.FC<ITabItemsProps> = ({
   activeTab,
   photos,
+  videos,
   files,
   isDelete,
   fileSelected,
@@ -26,6 +27,7 @@ const TabItems: React.FC<ITabItemsProps> = ({
   setImageView,
 }) => {
   const groupedPhotos = groupItemsByDate(photos);
+  const groupedVideos = groupItemsByDate(videos);
   const groupedFiles = groupItemsByDate(files);
 
   const handleFileChoosen = (id: string, url: string | null) => {
@@ -43,16 +45,25 @@ const TabItems: React.FC<ITabItemsProps> = ({
 
   return (
     <div>
-      {activeTab === 'photos' && (
-        <></>
-        // <PhotoTabContent
-        //   fileSelected={fileSelected}
-        //   groupedPhotos={groupedPhotos}
-        //   handleFileChoosen={handleFileChoosen}
-        //   isDelete={isDelete}
-        // />
+      {activeTab === 'image' && (
+        <PhotoTabContent
+          fileSelected={fileSelected}
+          groupedPhotos={groupedPhotos}
+          handleFileChoosen={handleFileChoosen}
+          isDelete={isDelete}
+          isVideoTab={false}
+        />
       )}
-      {activeTab === 'files' && (
+      {activeTab === 'video' && (
+        <PhotoTabContent
+          fileSelected={fileSelected}
+          groupedPhotos={groupedVideos}
+          handleFileChoosen={handleFileChoosen}
+          isDelete={isDelete}
+          isVideoTab={true}
+        />
+      )}
+      {activeTab === 'other' && (
         <FileTabContent
           fileSelected={fileSelected}
           groupedFiles={groupedFiles}

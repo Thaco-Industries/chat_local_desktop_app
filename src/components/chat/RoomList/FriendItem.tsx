@@ -1,20 +1,26 @@
 import React from 'react';
 import { IFriendInfo } from '../../../interfaces/Friend';
 import UserAvatar from '../../common/UserAvatar';
-import { Checkbox } from 'flowbite-react';
+import { Checkbox, Radio } from 'flowbite-react';
 
 type Props = {
   friendItem: IFriendInfo;
   selectedFriends: string[];
   toggleFriendSelection: (id: string) => void;
+  mode: 'single' | 'multiple';
 };
 
 function FriendItem({
   friendItem,
   selectedFriends,
   toggleFriendSelection,
+  mode,
 }: Props) {
   const isSelected = selectedFriends.includes(friendItem.id);
+
+  const handleSelection = () => {
+    toggleFriendSelection(friendItem.id);
+  };
 
   return (
     <div
@@ -24,12 +30,21 @@ function FriendItem({
         toggleFriendSelection(friendItem.id);
       }}
     >
-      <Checkbox
-        checked={isSelected}
-        onChange={() => toggleFriendSelection(friendItem.id)}
-        onClick={(e) => e.stopPropagation()}
-        className="focus:ring-0 focus:ring-offset-0 text-primary bg-white border-[#D9D9D9] cursor-pointer"
-      />
+      {mode === 'multiple' ? (
+        <Checkbox
+          checked={isSelected}
+          onChange={handleSelection}
+          onClick={(e) => e.stopPropagation()}
+          className="focus:ring-0 focus:ring-offset-0 text-primary bg-white border-[#D9D9D9] cursor-pointer"
+        />
+      ) : (
+        <Radio
+          checked={isSelected}
+          onChange={handleSelection}
+          onClick={(e) => e.stopPropagation()}
+          className="focus:ring-0 focus:ring-offset-0 text-primary bg-white border-[#D9D9D9] cursor-pointer"
+        />
+      )}
       <UserAvatar
         fullName={friendItem.full_name}
         senderId={friendItem.id}

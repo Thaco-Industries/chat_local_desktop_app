@@ -7,7 +7,7 @@ import { getDateLabel } from '../../../util/getDateLabel';
 import { Spinner } from 'flowbite-react';
 
 const MessageList = forwardRef<HTMLDivElement, IMessageList>(
-  ({ messages, setImageView, setVisible, hasMoreData }, ref) => {
+  ({ messages, setImageView, setVisible, hasMoreData, loading }, ref) => {
     const groupedMessages = messages.reduce((acc, message) => {
       const dateLabel = getDateLabel(message.created_at);
       if (!acc[dateLabel]) acc[dateLabel] = [];
@@ -16,12 +16,10 @@ const MessageList = forwardRef<HTMLDivElement, IMessageList>(
     }, {} as Record<string, IMessageList['messages']>);
 
     return (
-      <div className="flex flex-col gap-1 px-6 md:px-lg relative ">
-        {hasMoreData && (
-          <div className="text-center" ref={ref}>
-            <Spinner size="xl" />
-          </div>
-        )}
+      <div className="flex flex-col gap-1 px-6 tablet:px-lg relative ">
+        <div className="text-center" ref={ref}>
+          {loading && hasMoreData && <Spinner size="xl" />}
+        </div>
 
         {messages &&
           Object.entries(groupedMessages)
@@ -44,12 +42,13 @@ const MessageList = forwardRef<HTMLDivElement, IMessageList>(
                       index > 0 ? reversedMessages[index - 1] : null;
 
                     const showSenderInfo =
-                      !prevMessage ||
+                      !prevMessage || // Tin nhắn đầu tiên
+                      prevMessage.message_type === 'NOTIFICATION' ||
+                      message.sender_id !== prevMessage.sender_id || // Người gửi khác
                       moment(message.created_at).diff(
                         moment(prevMessage?.created_at),
                         'minutes'
-                      ) > 3 ||
-                      message.sender_id !== prevMessage?.sender_id;
+                      ) > 3; // Thời gian cách nhau > 3 phút
                     return (
                       <MessageItem
                         key={message.id}

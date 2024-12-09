@@ -1,77 +1,84 @@
 import React, { useEffect, useState } from 'react';
 import ArrowLeft from '../../../assets/icons/arrow-left';
-import ChatInformation from '../ChatInformation';
+import ChatInformation from './ChatInformation';
 import TabList from '../Tab/TabList';
 import clsx from 'clsx';
 import DeleteIcon from '../../../assets/icons/delete-icon';
 import moment from 'moment';
-import { IChatDrawerDetail } from '../../../interfaces';
+import { IChatDrawerDetail, IInvitedInfor } from '../../../interfaces';
 import { useFileService } from '../../../services/FileService';
-
-const photos = [
-  {
-    id: 'video1',
-    src: 'https://videos.pexels.com/video-files/7565438/7565438-hd_1080_1920_25fps.mp4',
-    date: moment().format('DD/MM/YYYY'),
-    isVideo: true,
-  },
-  {
-    id: 'video2',
-    src: 'https://videos.pexels.com/video-files/6548176/6548176-hd_1920_1080_24fps.mp4',
-    date: moment().format('DD/MM/YYYY'),
-    isVideo: true,
-  },
-  ...Array.from({ length: 30 }, (_, i) => ({
-    id: `${i}`,
-    src: `https://i.pravatar.cc/150?img=${i + 1}`,
-    date: moment().subtract(i, 'days').format('DD/MM/YYYY'),
-    isVideo: false,
-  })),
-];
-
-// const files = Array.from({ length: 30 }, (_, i) => ({
-//   id: `${i}`,
-//   name: `Báo cáo phương án vận hành ${i}.pptx`,
-//   size: `${i}00 MB`,
-//   date: moment().subtract(i, 'days').format('DD/MM/YYYY'),
-// }));
+import ViewAllMemberInRoom from '../ViewAllMemberInRoom';
 
 const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
   setVisible,
   setImageView,
   roomId,
+  roomInfo,
+  setRoomId,
+  setIsCollapsed,
+  setIsDesktopCollapsed,
+  setRoomInfo,
 }) => {
-  const { getAllFilesInRoom } = useFileService();
-
-  const [activeTab, setActiveTab] = useState<'photos' | 'files' | null>(null);
+  const { getAllFilesInRoom, deleteFileMessage } = useFileService();
+  const [activeTab, setActiveTab] = useState<'image' | 'other' | 'video' | ''>(
+    ''
+  );
+  const [viewAllMemberInRoom, setViewAllMemberInRoom] =
+    useState<boolean>(false);
   const [isDelete, setIsDelete] = useState<boolean>(false);
   const [fileSelected, setFileSelected] = useState<string[]>([]);
-  const [mediaFileList, setMediaFileList] = useState<IFileInfor[]>([]);
+  const [photoList, setPhotoList] = useState<IFileInfor[]>([]);
+  const [videoList, setVideoList] = useState<IFileInfor[]>([]);
   const [otherFileList, setOtherFileList] = useState<IFileInfor[]>([]);
+  const [invitedList, setInvitedList] = useState<IInvitedInfor[]>([]);
 
   const activeTabStyle = 'border-b-2 border-[#1890FF] text-[#1890FF]';
 
   useEffect(() => {
-    getOtherFileInRoom();
+    handleReset();
+    getMediaFiles('image');
+    getMediaFiles('other');
+    getMediaFiles('video');
   }, [roomId]);
 
-  const getMediaFileInRoom = async () => {
-    try {
-      // const video = await getAllFilesInRoom(roomId, 'video');
-      // const video = await getAllFilesInRoom(roomId, 'video');
-    } catch (error) {}
+  const handleReset = () => {
+    setViewAllMemberInRoom(false);
+    setActiveTab('');
+    setFileSelected([]);
+    setIsDelete(false);
+    setPhotoList([]);
+    setVideoList([]);
+    setOtherFileList([]);
   };
-  const getOtherFileInRoom = async () => {
+
+  const getMediaFiles = async (type: 'image' | 'video' | 'other') => {
     try {
-      const response = await getAllFilesInRoom(roomId, 'other');
-      setOtherFileList(response.data.data);
+      const response = await getAllFilesInRoom(roomId, type);
+      if (response.data) {
+        switch (type) {
+          case 'video':
+            setVideoList(response.data.data);
+            break;
+          case 'image':
+            setPhotoList(response.data.data);
+            break;
+          case 'other':
+            setOtherFileList(response.data.data);
+            break;
+          default:
+            break;
+        }
+      }
 
       // const video = await getAllFilesInRoom(roomId, 'video');
-    } catch (error) {}
+    } catch (error) {
+      console.error('Get data failed: ' + error);
+    }
   };
 
   const handleBackClick = () => {
-    setActiveTab(null);
+    setViewAllMemberInRoom(false);
+    setActiveTab('');
     setFileSelected([]);
     setIsDelete(false);
   };
@@ -81,18 +88,38 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
     setFileSelected([]);
   };
 
-  const handleTabChange = (tab: 'photos' | 'files' | null) => {
+  const handleTabChange = (tab: 'image' | 'video' | 'other') => {
     setIsDelete(false);
     setFileSelected([]);
     setActiveTab(tab);
   };
 
+  const handleDeleteFile = async () => {
+    const response = await deleteFileMessage(roomId, fileSelected);
+    if (response.statusText === 'OK' && activeTab) {
+      setFileSelected([]);
+      setIsDelete(false);
+      getMediaFiles(activeTab);
+    }
+  };
+
   return (
-    <div className="flex h-full flex-col bg-white shadow-xl relative">
-      {!activeTab ? (
-        <h1 className="text-title text-[16px] font-semibold p-5">Thông tin</h1>
+    <div className="flex h-full w-full flex-col bg-white shadow-xl relative">
+      {!activeTab && !viewAllMemberInRoom ? (
+        <h1 className="text-title text-[16px] font-semibold p-md">Thông tin</h1>
+      ) : viewAllMemberInRoom ? (
+        <div className="flex gap-xs items-center p-md">
+          <button
+            onClick={handleBackClick}
+            className="text-primary"
+            title="trở về"
+          >
+            <ArrowLeft />
+          </button>
+          <h1 className="text-title text-[16px] font-semibold">Thành viên</h1>
+        </div>
       ) : (
-        <div className="w-full flex flex-col items-start justify-between bg-white gap-xs p-5 pb-0 border border-[#0000000F]">
+        <div className="w-full flex flex-col items-start justify-between bg-white gap-xs p-md pb-0 border border-[#0000000F]">
           <div className="flex justify-between w-full">
             <div className="flex gap-xs items-center">
               <button
@@ -114,14 +141,20 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
 
           <div className="flex bg-white gap-4 ">
             <button
-              onClick={() => handleTabChange('photos')}
-              className={`${activeTab === 'photos' ? activeTabStyle : ''}`}
+              onClick={() => handleTabChange('image')}
+              className={`${activeTab === 'image' ? activeTabStyle : ''}`}
             >
-              Ảnh, Video
+              Ảnh
             </button>
             <button
-              onClick={() => handleTabChange('files')}
-              className={`${activeTab === 'files' ? activeTabStyle : ''}`}
+              onClick={() => handleTabChange('video')}
+              className={`${activeTab === 'video' ? activeTabStyle : ''}`}
+            >
+              Video
+            </button>
+            <button
+              onClick={() => handleTabChange('other')}
+              className={`${activeTab === 'other' ? activeTabStyle : ''}`}
             >
               File
             </button>
@@ -132,7 +165,8 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
       <div className="relative flex-1 overflow-y-auto scrollbar overflow-x-hidden">
         {activeTab ? (
           <TabList
-            photos={mediaFileList}
+            photos={photoList}
+            videos={videoList}
             files={otherFileList}
             activeTab={activeTab}
             isDelete={isDelete}
@@ -141,19 +175,36 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
             setImageView={setImageView}
             setVisible={setVisible}
           />
+        ) : viewAllMemberInRoom ? (
+          <ViewAllMemberInRoom
+            roomInfo={roomInfo}
+            invitedList={invitedList}
+            setInvitedList={setInvitedList}
+          />
         ) : (
           <ChatInformation
             setActiveTab={setActiveTab}
             files={otherFileList}
-            photos={photos}
+            photos={photoList}
+            videos={videoList}
             setImageView={setImageView}
             setVisible={setVisible}
+            roomInfo={roomInfo}
+            setViewAllMemberInRoom={setViewAllMemberInRoom}
+            invitedList={invitedList}
+            setInvitedList={setInvitedList}
+            setRoomId={setRoomId}
+            setFileSelected={setFileSelected}
+            setIsDelete={setIsDelete}
+            setIsCollapsed={setIsCollapsed}
+            setIsDesktopCollapsed={setIsDesktopCollapsed}
+            setRoomInfo={setRoomInfo}
           />
         )}
       </div>
       <div
         className={clsx(
-          'absolute h-14 w-full bottom-0 z-10 bg-white border-t border-border p-xs items-center justify-end gap-5',
+          'absolute h-14 w-full bottom-0 z-10 bg-white border-t border-border p-xs items-center justify-end gap-md',
           { flex: fileSelected.length > 0 },
           { hidden: fileSelected.length === 0 }
         )}
@@ -164,7 +215,10 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
         >
           Bỏ chọn tất cả
         </button>
-        <button className="border border-red-700 text-red-700 text-base rounded-3xl px-5 py-2 flex items-center justify-center gap-xxs">
+        <button
+          className="border border-red-700 text-red-700 text-base rounded-3xl px-5 py-2 flex items-center justify-center gap-xxs"
+          onClick={handleDeleteFile}
+        >
           <DeleteIcon />
           Xóa
         </button>

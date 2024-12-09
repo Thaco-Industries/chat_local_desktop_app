@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { SideBar } from './SideBar';
+import { MessageProvider } from '../context/MessageContext';
 
 export const Layout: React.FC = () => {
   return (

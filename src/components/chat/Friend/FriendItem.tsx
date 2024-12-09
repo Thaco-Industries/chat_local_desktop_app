@@ -63,7 +63,6 @@ export default function FriendItem({ friendItem }: Props) {
         status: 'ACCEPTED',
       };
       const response = await actionRequestFriend(userId, payload);
-      console.log(response);
       if (response.status === 204) {
         setIsShowButton(false);
       }

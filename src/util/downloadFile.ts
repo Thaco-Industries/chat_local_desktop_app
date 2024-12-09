@@ -5,28 +5,22 @@ export const FileHandle = () => {
 
   const handleFileDownload = async (url: string, file_name?: string) => {
     try {
-      const response = await apiRequest('GET', `media/${url}`, {
-        responseType: 'blob', // Để nhận dạng file dưới dạng binary
-      });
-
-      // Lấy tên file từ header Content-Disposition
-      const contentDisposition = response.headers['content-disposition'];
-      const fileNameMatch = contentDisposition?.match(/filename="(.+)"/);
-      const fileName = fileNameMatch ? fileNameMatch[1] : 'downloaded-file';
-
-      // Tạo URL object từ dữ liệu blob
-      const fileUrlBlob = URL.createObjectURL(new Blob([response.data]));
-
-      // Tạo thẻ <a> để tải file
-      const link = document.createElement('a');
-      link.href = fileUrlBlob;
-      link.setAttribute('download', fileName); // Gán tên file
-      document.body.appendChild(link);
-      link.click(); // Kích hoạt tải file
-      link.remove(); // Xóa thẻ <a> sau khi tải xong
-
-      // Hủy URL object sau khi sử dụng xong
-      URL.revokeObjectURL(fileUrlBlob);
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      // Tự động lấy phần mở rộng từ URL nếu không có trong file_name
+      const fileExtension = url.split('.').pop() || 'txt'; // Mặc định là txt nếu không tìm thấy
+      const finalFileName = file_name?.includes('.')
+        ? file_name
+        : `${file_name || 'file'}.${fileExtension}`;
+      const anchor = document.createElement('a');
+      anchor.href = downloadUrl;
+      anchor.download = finalFileName; // Đặt tên tệp
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      // Giải phóng URL Blob sau khi tải xuống
+      window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
       console.error('Tải file thất bại:', error);
     }

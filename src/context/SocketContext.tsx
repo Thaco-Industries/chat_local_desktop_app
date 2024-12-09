@@ -11,10 +11,18 @@ import { io, Socket } from 'socket.io-client';
 import { getAuthCookie } from '../actions/auth.action';
 
 // Define the type for the SocketContext value
-type SocketContextType = Socket | null;
+type SocketContextType = {
+  socket: Socket | null;
+  disconnectSocket: () => void;
+  reconnectSocket: (token: string) => void;
+};
 
 // Initialize the Context with a null default value
-const SocketContext = createContext<SocketContextType>(null);
+const SocketContext = createContext<SocketContextType>({
+  socket: null,
+  disconnectSocket: () => {},
+  reconnectSocket: () => {},
+});
 
 // Custom hook to access the SocketContext
 export const useSocket = (): SocketContextType => {
@@ -29,40 +37,48 @@ interface SocketProviderProps {
 const socketUrl = process.env.REACT_APP_SOCKET_URL;
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
-  const [socket, setSocket] = useState<SocketContextType>(null);
-  const userAuth = getAuthCookie(); // Get authentication information from AuthContext
   const socketRef = useRef<Socket | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
-  useEffect(() => {
-    // Kiểm tra và tạo kết nối nếu chưa tồn tại
+  const disconnectSocket = () => {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
+      setSocket(null);
+    }
+  };
+
+  const reconnectSocket = (token: string) => {
     if (!socketRef.current) {
       socketRef.current = io(
         `${socketUrl}/${process.env.REACT_APP_SOCKET_CHANNEL}`,
         {
-          // extraHeaders: {
-          //   authorization: `Bearer ${userAuth?.token.accessToken}`,
-          // },
-          auth: {
-            Authorization: `Bearer ${userAuth?.token.accessToken}`,
-          },
+          auth: { Authorization: `Bearer ${token}` },
           transports: ['websocket', 'polling'],
         }
       );
       setSocket(socketRef.current);
     }
+  };
 
-    // Cleanup kết nối khi component unmount
+  useEffect(() => {
+    // Kiểm tra và tạo kết nối nếu chưa tồn tại
+    const userAuth = getAuthCookie();
+    if (userAuth?.token?.accessToken) {
+      reconnectSocket(userAuth.token.accessToken);
+    }
+
     return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
-        socketRef.current = null;
-        setSocket(null);
-      }
+      disconnectSocket();
     };
-  }, [userAuth?.token.accessToken]);
+  }, []);
   // Re-run effect when the user changes
 
   return (
-    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
+    <SocketContext.Provider
+      value={{ socket, disconnectSocket, reconnectSocket }}
+    >
+      {children}
+    </SocketContext.Provider>
   );
 };

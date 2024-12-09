@@ -42,15 +42,12 @@ const LoginForm = () => {
       navigate('/');
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.log('Lỗi đăng nhập:', error.response); // Kiểm tra phản hồi lỗi từ API
+        const errorMessage = error?.response?.data?.message || error.message;
+        console.error('Error:', errorMessage);
 
-        if (error.response && error.response.status === 404) {
-          setErrors({
-            password: 'Tên đăng nhập hoặc mật khẩu không đúng!',
-          });
-        } else {
-          setErrors({ password: 'Đã xảy ra lỗi không xác định!' });
-        }
+        setErrors({
+          password: errorMessage,
+        });
       } else {
         console.error('Đã xảy ra lỗi không xác định:', error);
       }
@@ -62,7 +59,7 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="w-full md:w-[70%] mx-auto">
+    <div className="w-full tablet:w-[70%] mx-auto">
       <h1 className="mb-5 text-[24px] font-medium text-center">
         Đăng nhập tài khoản
       </h1>
@@ -84,7 +81,7 @@ const LoginForm = () => {
                 <Field
                   name="username"
                   type="text"
-                  className="!rounded-lg !bg-background-500 !text-textBody h-xl md:h-[60px] outline-none px-[20px] transition-none w-full border-none focus:ring-0 shadow-md"
+                  className="!rounded-lg !bg-background-500 !text-textBody h-xl tablet:h-[60px] outline-none px-[20px] transition-none w-full border-none focus:ring-0 shadow-md"
                   placeholder="Nhập vào tên đăng nhập"
                 />
                 <ErrorMessage
@@ -106,7 +103,7 @@ const LoginForm = () => {
                 <Field
                   name="password"
                   type={passwordVisible ? 'text' : 'password'}
-                  className="!rounded-lg !bg-background-500 !text-textBody h-xl md:h-[60px] px-[20px] transition-none w-full border-none outline-none focus:ring-0 shadow-md"
+                  className="!rounded-lg !bg-background-500 !text-textBody h-xl tablet:h-[60px] px-[20px] transition-none w-full border-none outline-none focus:ring-0 shadow-md"
                   placeholder="Nhập vào mật khẩu"
                 />
                 <div
@@ -129,7 +126,7 @@ const LoginForm = () => {
 
             <button
               type="submit"
-              className="!mt-12 h-xl md:h-[60px] !w-full !justify-center items-center !py-3 !bg-primary hover:!bg-primary rounded-md text-[16px] text-white font-semibold"
+              className="!mt-12 h-xl tablet:h-[60px] !w-full !justify-center items-center !py-3 !bg-primary hover:!bg-primary rounded-md text-[16px] text-white font-semibold"
               disabled={loading}
             >
               {loading ? <Spinner /> : 'Đăng nhập'}

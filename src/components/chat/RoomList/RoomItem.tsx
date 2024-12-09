@@ -47,6 +47,15 @@ const RoomItem: React.FC<IRoomItem> = ({ room, keyword }) => {
     }
   };
 
+  const getDateLabel = (created_at: string) => {
+    const messageDate = moment(created_at, 'YYYY-MM-DD HH:mm');
+    const today = moment();
+
+    return messageDate.isSame(today, 'day')
+      ? moment(created_at).format('HH:mm')
+      : messageDate.format('DD/MM/YYYY');
+  };
+
   return (
     <div>
       {room.last_message && !keyword ? (
@@ -62,7 +71,7 @@ const RoomItem: React.FC<IRoomItem> = ({ room, keyword }) => {
                 {room.room_name}
               </div>
               <div className="text-sm text-lightText">
-                {moment(room.last_message.created_at).format('DD/MM/YYYY')}
+                {getDateLabel(room.last_message.created_at)}
               </div>
             </div>
             <div className="flex gap-3 flex-shrink-0 flex-grow-0">

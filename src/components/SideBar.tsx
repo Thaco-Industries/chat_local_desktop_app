@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import MessageIcon from '../assets/icons/message';
 import UserSquareIcon from '../assets/icons/user-square';
 import PeopleIcon from '../assets/icons/people';
@@ -6,12 +6,26 @@ import SettingIcon from '../assets/icons/setting';
 import clsx from 'clsx';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Popover } from 'flowbite-react';
-import { deleteAuthCookie } from '../actions/auth.action';
+import { deleteAuthCookie, getAuthCookie } from '../actions/auth.action';
+import { useMessageContext } from '../context/MessageContext';
+import UserAvatar from './common/UserAvatar';
 
 export const SideBar: React.FC = () => {
+  const { roomList } = useMessageContext();
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
+  const userAuth = getAuthCookie();
+  const [displayUnreadMessage, setDisplayUnreadMessage] = useState<any>();
+
+  useEffect(() => {
+    const numberOfUnreadRoomMessage =
+      roomList?.filter((room) => room.number_message_not_read > 0).length || 0;
+
+    setDisplayUnreadMessage(
+      numberOfUnreadRoomMessage > 99 ? '99+' : numberOfUnreadRoomMessage
+    );
+  }, [roomList]);
 
   const menuItems = [
     {
@@ -64,12 +78,12 @@ export const SideBar: React.FC = () => {
         className="absolute z-20 inline-block w-max max-w-[100vw] bg-white outline-none border border-gray-200 rounded-[4px] shadow-sm"
       >
         <div className="avatar px-xs cursor-pointer">
-          <div className="w-xl rounded-full border border-white border-solid relative">
-            <img
-              src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-              alt="user-avatar"
-            />
-          </div>
+          <UserAvatar
+            fullName={userAuth?.user.infor.full_name}
+            senderId={userAuth?.user.id || ''}
+            url={userAuth?.user.infor.avt_url}
+            size={50}
+          />
         </div>
       </Popover>
       <div className="w-full flex flex-col justify-around items-center">
@@ -84,9 +98,9 @@ export const SideBar: React.FC = () => {
             >
               <span className="m-auto flex items-center justify-center">
                 <div className="indicator">
-                  {item.badge && (
+                  {item.badge && Number(displayUnreadMessage) > 0 && (
                     <span className="absolute inline-flex items-center justify-center text-[8px] leading-[12px] font-bold p-1 min-w-5 h-5 text-white bg-red-500 rounded-full -top-2 -end-3">
-                      99+
+                      {displayUnreadMessage}
                     </span>
                   )}
                   {item.icon}

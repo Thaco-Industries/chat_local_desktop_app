@@ -46,7 +46,9 @@ export interface IUserInRoomInfo {
   };
   userRoom: [
     {
+      deleted_at: string;
       user_id: string;
+      permission: 'LEADER' | 'MEMBER';
       room_id: string;
     }
   ];

@@ -55,6 +55,14 @@ export const useFriendService = () => {
 
     return response;
   };
+  const getListFriendCanAddToRoom = async (id: string, query: string) => {
+    const response = await apiRequest(
+      'GET',
+      `room/list-friend-can-add-to-room/${id}?search=${query}`
+    );
+
+    return response;
+  };
 
   return {
     searchUser,
@@ -63,5 +71,6 @@ export const useFriendService = () => {
     getUserInfo,
     actionRequestFriend,
     getListFriend,
+    getListFriendCanAddToRoom,
   };
 };

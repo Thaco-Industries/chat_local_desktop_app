@@ -26,7 +26,7 @@ export const RoomList: React.FC<IRoomList> = ({
   const { markAsReadMessage } = useMessageService();
   const { getMemberInRoom } = useRoomService();
   const { setListMember } = useChatContext();
-  const socket = useSocket();
+  const { socket } = useSocket();
   const userAuth = getAuthCookie();
 
   const [keyword, setKeyword] = useState<string>('');
@@ -148,17 +148,46 @@ export const RoomList: React.FC<IRoomList> = ({
     );
   };
 
+  const handleRoomInforChange = (room: IRoom) => {
+    setRoomList((prevRoomList) => {
+      let updatedInfor = prevRoomList.map((r) =>
+        r.id === room.id
+          ? { ...r, room_name: room.room_name, avatar_url: room.avatar_url }
+          : r
+      );
+
+      return updatedInfor;
+    });
+  };
+
+  const handleDisconnectedRoom = (message: {
+    roomId: string;
+    userId: string;
+  }) => {
+    setRoomList((prevRoomList) =>
+      prevRoomList.filter((room) => room.id !== message.roomId)
+    );
+  };
+
   useEffect(() => {
     if (socket) {
       socket.on(`notification-new-message`, handleNewMessage);
       socket.on(`mark-as-read-room-success`, handleMarkAsReadRoomSuccess);
       socket.on(`notification-recall-message`, handleNotifyRecallMessage);
       socket.on(`new-room-connected`, getRoomData);
+      socket.on(`change-room-info`, handleRoomInforChange);
+      socket.on(`user-join-room`, getRoomData);
+      socket.on(`user-out-room`, getRoomData);
+      socket.on(`disconnected-room`, handleDisconnectedRoom);
       return () => {
         socket.off(`notification-new-message`);
         socket.off(`mark-as-read-room-success`);
         socket.off(`notification-recall-message`);
         socket.off(`new-room-connected`);
+        socket.off(`change-room-info`);
+        socket.off(`user-join-room`);
+        socket.off(`user-out-room`);
+        socket.off(`disconnected-room`);
       };
     }
   }, [socket, handleNewMessage, handleMarkAsReadRoomSuccess]);
@@ -180,22 +209,18 @@ export const RoomList: React.FC<IRoomList> = ({
   };
 
   const handleRoomClick = (room: IRoom) => {
-    let newRoomId = room.id;
-    setRoomId((prevRoomId) => {
-      if (newRoomId === prevRoomId) {
-        return prevRoomId;
-      }
-      setListMember(null);
-      markAsRead(room);
-      setRoomInfo(room);
-      setMessages([]);
-      setLastMessageId('');
-      getListMember(room.id);
-      setHasMoreData(true);
-      setIsFirstLoad(true);
+    const newRoomId = room.id;
+    if (newRoomId === roomId) return;
 
-      return newRoomId;
-    });
+    setRoomId(newRoomId);
+    setListMember(null);
+    markAsRead(room);
+    setRoomInfo(room);
+    setMessages([]);
+    setLastMessageId('');
+    getListMember(room.id);
+    setHasMoreData(true);
+    setIsFirstLoad(true);
   };
 
   return (

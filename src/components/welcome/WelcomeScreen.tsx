@@ -3,7 +3,7 @@ import LogoThacoId from '../../assets/icons/logo-thacoID';
 
 export default function WelcomeScreen() {
   return (
-    <div className="h-full hidden md:flex flex-col items-center justify-center gap-11">
+    <div className="h-full hidden tablet:flex flex-col items-center justify-center gap-11">
       <div className="w-[70%] flex justify-center">
         <LogoThacoId />
       </div>
