@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import MessageIcon from '../assets/icons/message';
 import UserSquareIcon from '../assets/icons/user-square';
 import PeopleIcon from '../assets/icons/people';
@@ -9,23 +9,37 @@ import { Popover } from 'flowbite-react';
 import { deleteAuthCookie, getAuthCookie } from '../actions/auth.action';
 import { useMessageContext } from '../context/MessageContext';
 import UserAvatar from './common/UserAvatar';
+import { useSocket } from '../context/SocketContext';
+import { INotificationNewMessage } from '../interfaces';
 
 export const SideBar: React.FC = () => {
-  const { roomList } = useMessageContext();
+  const { roomList, unreadRooms, setUnreadRooms } = useMessageContext();
+  const { socket } = useSocket();
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
   const userAuth = getAuthCookie();
   const [displayUnreadMessage, setDisplayUnreadMessage] = useState<any>();
+  // const [unreadRooms, setUnreadRooms] = useState<Set<string>>(new Set());
+
+  const handleNewMessage = useCallback(
+    (message: INotificationNewMessage) => {
+      if (message.message.room_id) {
+        setUnreadRooms((prev) => new Set(prev).add(message.message.room_id));
+      }
+    },
+    [userAuth]
+  );
 
   useEffect(() => {
-    const numberOfUnreadRoomMessage =
-      roomList?.filter((room) => room.number_message_not_read > 0).length || 0;
+    if (socket) {
+      socket.on(`notification-new-message`, handleNewMessage);
 
-    setDisplayUnreadMessage(
-      numberOfUnreadRoomMessage > 99 ? '99+' : numberOfUnreadRoomMessage
-    );
-  }, [roomList]);
+      return () => {
+        socket.off(`notification-new-message`);
+      };
+    }
+  }, [socket, handleNewMessage]);
 
   const menuItems = [
     {
@@ -98,9 +112,9 @@ export const SideBar: React.FC = () => {
             >
               <span className="m-auto flex items-center justify-center">
                 <div className="indicator">
-                  {item.badge && Number(displayUnreadMessage) > 0 && (
+                  {item.badge && Number(unreadRooms.size) > 0 && (
                     <span className="absolute inline-flex items-center justify-center text-[8px] leading-[12px] font-bold p-1 min-w-5 h-5 text-white bg-red-500 rounded-full -top-2 -end-3">
-                      {displayUnreadMessage}
+                      {unreadRooms.size}
                     </span>
                   )}
                   {item.icon}

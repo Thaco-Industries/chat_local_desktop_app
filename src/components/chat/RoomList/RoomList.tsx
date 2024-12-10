@@ -12,6 +12,7 @@ import { IMessage, INotificationNewMessage } from '../../../interfaces';
 import { getAuthCookie } from '../../../actions/auth.action';
 import GalleryIcon from '../../../assets/icons/gallery';
 import RoomListSkeleton from './RoomListSkeleton';
+import { useMessageContext } from '../../../context/MessageContext';
 
 export const RoomList: React.FC<IRoomList> = ({
   setRoomId,
@@ -21,11 +22,17 @@ export const RoomList: React.FC<IRoomList> = ({
   setRoomInfo,
   getRoomData,
 }) => {
-  const { setMessages, setLastMessageId, setHasMoreData, setIsFirstLoad } =
-    useChatContext();
+  const {
+    setMessages,
+    setLastMessageId,
+    setHasMoreData,
+    setIsFirstLoad,
+    setListMember,
+  } = useChatContext();
+
   const { markAsReadMessage } = useMessageService();
-  const { getMemberInRoom } = useRoomService();
-  const { setListMember } = useChatContext();
+  const { getMemberInRoom, getRoomById } = useRoomService();
+  const { setUnreadRooms } = useMessageContext();
   const { socket } = useSocket();
   const userAuth = getAuthCookie();
 
@@ -130,6 +137,11 @@ export const RoomList: React.FC<IRoomList> = ({
         r.id === room.roomId ? { ...r, number_message_not_read: 0 } : r
       )
     );
+    setUnreadRooms((prev) => {
+      const updated = new Set(prev);
+      updated.delete(room.roomId);
+      return updated;
+    });
   };
 
   const handleNotifyRecallMessage = (message: IMessage) => {
@@ -169,15 +181,34 @@ export const RoomList: React.FC<IRoomList> = ({
     );
   };
 
+  const handleLoadRoomByRoomId = async (res: { roomId: string }) => {
+    const response = await getRoomById(res.roomId);
+    if (response.data) {
+      setRoomList((prevRoomList) => {
+        const existingRoomIndex = prevRoomList.findIndex(
+          (room) => room.id === response.data.id
+        );
+
+        if (existingRoomIndex !== -1) {
+          const updatedRoomList = prevRoomList.filter(
+            (room) => room.id !== response.data.id
+          );
+          return [response.data, ...updatedRoomList];
+        }
+        return [response.data, ...prevRoomList];
+      });
+    }
+  };
+
   useEffect(() => {
     if (socket) {
       socket.on(`notification-new-message`, handleNewMessage);
       socket.on(`mark-as-read-room-success`, handleMarkAsReadRoomSuccess);
       socket.on(`notification-recall-message`, handleNotifyRecallMessage);
-      socket.on(`new-room-connected`, getRoomData);
+      socket.on(`new-room-connected`, handleLoadRoomByRoomId);
       socket.on(`change-room-info`, handleRoomInforChange);
-      socket.on(`user-join-room`, getRoomData);
-      socket.on(`user-out-room`, getRoomData);
+      socket.on(`user-join-room`, handleLoadRoomByRoomId);
+      socket.on(`user-out-room`, handleLoadRoomByRoomId);
       socket.on(`disconnected-room`, handleDisconnectedRoom);
       return () => {
         socket.off(`notification-new-message`);

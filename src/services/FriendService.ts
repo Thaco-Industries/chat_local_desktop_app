@@ -63,6 +63,11 @@ export const useFriendService = () => {
 
     return response;
   };
+  const deleteFriend = async (id: string) => {
+    const response = await apiRequest('DELETE', `friend/remove-friend/${id}`);
+
+    return response;
+  };
 
   return {
     searchUser,
@@ -72,5 +77,6 @@ export const useFriendService = () => {
     actionRequestFriend,
     getListFriend,
     getListFriendCanAddToRoom,
+    deleteFriend,
   };
 };

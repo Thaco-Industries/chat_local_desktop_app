@@ -4,6 +4,11 @@ import { useFetchApi } from '../context/ApiContext';
 export const useRoomService = () => {
   const { apiRequest } = useFetchApi();
 
+  const getRoomById = async (roomId: string) => {
+    const response = await apiRequest('GET', `room/${roomId}`);
+    return response;
+  };
+
   const getMemberInRoom = async (roomId: string) => {
     const response = await apiRequest(
       'GET',
@@ -132,5 +137,6 @@ export const useRoomService = () => {
     addMemberToRoom,
     leaveRoom,
     listCanGiveLeader,
+    getRoomById,
   };
 };

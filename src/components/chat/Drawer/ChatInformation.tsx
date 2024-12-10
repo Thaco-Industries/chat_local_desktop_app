@@ -19,6 +19,8 @@ import { AvatarSection } from './Components/AvatarSection';
 import { RoomNameInput } from './Components/RoomNameInput';
 import { FileSection } from './Components/FileSection';
 import { MediaSection } from './Components/MediaSection';
+import DeleteIcon from '../../../assets/icons/delete-icon';
+import { useFriendService } from '../../../services/FriendService';
 
 const ChatInformation: React.FC<IChatInformationProps> = ({
   setActiveTab,
@@ -57,11 +59,14 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
     uploadRoomImage,
     changeRoomInfor,
   } = useRoomService();
+  const { deleteFriend } = useFriendService();
   const userAuth = getAuthCookie();
   const [openAddMemberModal, setOpenAddMemberModal] = useState<boolean>(false);
   const [openChangeLeaderModal, setOpenChangeLeaderModal] =
     useState<boolean>(false);
   const [openConfirmModal, setOpenConfirmModal] = useState<boolean>(false);
+  const [openConfirmDeleteFriendModal, setOpenConfirmDeleteFriendModal] =
+    useState<boolean>(false);
   const [avatars, setAvatars] = useState(roomInfo.avatar_url);
   const [isActiveInput, setIsActiveInput] = useState<boolean>(false);
 
@@ -129,6 +134,10 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
     }
   };
 
+  const handleDeleteFriend = () => {
+    setOpenConfirmDeleteFriendModal(true);
+  };
+
   const handleConfirmLeaveRoom = async () => {
     const response = await leaveRoom(roomInfo.id);
     if (response.statusText === 'OK') {
@@ -140,6 +149,13 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
       setIsDelete(false);
       setIsCollapsed?.(false);
       setIsDesktopCollapsed?.(false);
+    }
+  };
+
+  const handleConfirmDeleteFriendRoom = async () => {
+    const response = await deleteFriend(roomInfo.userRoom[0].user_id);
+    if (response.statusText === 'OK') {
+      setOpenConfirmDeleteFriendModal(false);
     }
   };
 
@@ -329,9 +345,10 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
               </>
             )}
           </div>
-          {roomInfo.is_group && (
-            <div className="bg-white flex-1 p-5">
-              <h1 className="text-title font-semibold mb-xs">Mở rộng</h1>
+
+          <div className="bg-white flex-1 p-5">
+            <h1 className="text-title font-semibold mb-xs">Mở rộng</h1>
+            {roomInfo.is_group ? (
               <div className="flex flex-col gap-xs">
                 <div
                   className="flex gap-xs cursor-pointer items-center"
@@ -350,8 +367,17 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
                   <p className="text-red-700 leading-[20px]">Rời khỏi nhóm</p>
                 </div>
               </div>
-            </div>
-          )}
+            ) : (
+              <div
+                className="flex gap-xs cursor-pointer items-center"
+                onClick={handleDeleteFriend}
+              >
+                <DeleteIcon />{' '}
+                <p className="text-red-700 leading-[20px]">Xóa bạn bè</p>
+              </div>
+            )}
+          </div>
+
           {openAddMemberModal && (
             <AddNewMemberModal
               openAddMemberModal={openAddMemberModal}
@@ -366,6 +392,15 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
               handleConfirm={handleConfirmLeaveRoom}
               openModal={openConfirmModal}
               setOpenModal={setOpenConfirmModal}
+            />
+          )}
+          {openConfirmDeleteFriendModal && (
+            <ConfirmModal
+              title="Xóa bạn bè"
+              content="Bạn có chắc chắn muốn xóa bạn bè này không?"
+              handleConfirm={handleConfirmDeleteFriendRoom}
+              openModal={openConfirmDeleteFriendModal}
+              setOpenModal={setOpenConfirmDeleteFriendModal}
             />
           )}
           {openChangeLeaderModal && (

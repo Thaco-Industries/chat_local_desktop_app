@@ -12,6 +12,7 @@ import { useChatContext } from '../../context/ChatContext';
 import { useMessageService } from '../../services/MessageService';
 import { IMessage, IUserInRoomInfo } from '../../interfaces';
 import { useRoomService } from '../../services/RoomService';
+import { notify } from '../../helper/notify';
 
 const ChatScreen: React.FC<IChatScreen> = ({
   roomId,
@@ -342,8 +343,11 @@ const ChatScreen: React.FC<IChatScreen> = ({
         setIsReplyMessage(false);
         setMessageReply(null);
       }
-    } catch (err) {
-      console.error('API call failed: ', err);
+    } catch (error: any) {
+      // Lấy thông tin lỗi chi tiết
+      const errorMessage = error?.response?.data?.message || error.message;
+      notify(errorMessage);
+      console.error('Error:', errorMessage);
     }
   };
 

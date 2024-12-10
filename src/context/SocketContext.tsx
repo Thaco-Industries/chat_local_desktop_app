@@ -57,7 +57,39 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
           transports: ['websocket', 'polling'],
         }
       );
-      setSocket(socketRef.current);
+      setSocket(socketRef.current); // Lắng nghe sự kiện lỗi và tự động kết nối lại
+      socketRef.current.on('connect_error', (error) => {
+        console.error('Socket connection error:', error.message);
+        // Thử kết nối lại sau 3 giây
+        setTimeout(() => {
+          if (socketRef.current && !socketRef.current.connected) {
+            const userAuth = getAuthCookie();
+            if (userAuth?.token?.accessToken) {
+              reconnectSocket(userAuth.token.accessToken);
+            }
+          }
+        }, 3000);
+      });
+
+      socketRef.current.on('disconnect', (reason) => {
+        console.warn('Socket disconnected:', reason);
+        // Xử lý ngắt kết nối, ví dụ: hiển thị thông báo lỗi
+        if (reason === 'io server disconnect') {
+          // Nếu server ngắt kết nối, thực hiện kết nối lại
+          const userAuth = getAuthCookie();
+          if (userAuth?.token?.accessToken) {
+            reconnectSocket(userAuth.token.accessToken);
+          }
+        }
+      });
+
+      socketRef.current.on('reconnect_attempt', () => {
+        console.log('Attempting to reconnect...');
+      });
+
+      socketRef.current.on('reconnect', () => {
+        console.log('Socket reconnected successfully.');
+      });
     }
   };
 
