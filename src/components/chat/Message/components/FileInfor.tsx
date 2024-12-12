@@ -40,25 +40,23 @@ export default function FileInfo({ url, fileSize, file_name }: Props) {
 
   return (
     <div
-      className="max-w-[220px] lg:max-w-[350px] relative bg-white rounded-[10px] p-4 shadow flex"
+      className="w-[220px] lg:w-[350px] relative bg-white rounded-[10px] p-4 shadow cursor-pointer"
       title={file_name}
       onClick={(e) => handleDownload(e, url, file_name)}
     >
-      <div className="flex-1">
-        <div className="text-title text-sm font-semibold flex">
-          {/* Cắt ngắn tên file */}
-          <p className="truncate max-w-[160px] lg:max-w-[280px]">
-            {removeExtensionFileName(file_name)}
-          </p>
-          <span>.{getFileExtension(file_name)}</span>
-        </div>
-        <p className="text-lightText text-[13px] mt-[10px] mb-4">
-          {convertFileSize(fileSize)}
+      <div className="flex">
+        <p className="truncate text-sm leading-[15px] ">
+          {removeExtensionFileName(file_name)}
         </p>
+        <span className="text-sm leading-[15px]">
+          .{getFileExtension(file_name)}
+        </span>
       </div>
-      <div className="basis-8">
-        <DownloadButton url={url} file_name={file_name} />
-      </div>
+      <p className="text-sm text-lightText mt-xxs">
+        {convertFileSize(fileSize)}
+      </p>
+
+      <DownloadButton url={url} file_name={file_name} />
     </div>
   );
 }

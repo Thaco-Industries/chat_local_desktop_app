@@ -14,8 +14,8 @@ import { Field, Form, Formik } from 'formik';
 import { useEffect, useRef, useState } from 'react';
 import Edit from '../../assets/icons/edit';
 import CustomField from '../common/customField';
-import { useChatContext } from '../../context/ChatContext';
 import { getAuthCookie } from '../../actions/auth.action';
+import { useMessageContext } from '../../context/MessageContext';
 
 const ChatHeader: React.FC<IChatHeader> = ({
   roomInfo,
@@ -32,6 +32,7 @@ const ChatHeader: React.FC<IChatHeader> = ({
     avatar: roomInfo.avatar_url,
   };
   const { uploadRoomImage, changeRoomInfor } = useRoomService();
+  const { isSearchMessage, setIsSearchMessage } = useMessageContext();
   const [avatar, setAvatar] = useState(roomInfo.avatar_url);
   const [isActiveInput, setIsActiveInput] = useState<boolean>(false);
   const validationSchema = Yup.object().shape({
@@ -236,9 +237,15 @@ const ChatHeader: React.FC<IChatHeader> = ({
             <button
               type="button"
               title="tìm kiếm tin nhắn"
-              className="w-10 h-10 p-xs hover:bg-[#CEE5FF80] flex justify-center items-center rounded-sm"
+              className={clsx(
+                'w-10 h-10 p-xs hover:bg-[#CEE5FF80] flex justify-center items-center rounded-sm',
+                { 'bg-[#CEE5FF80]': isSearchMessage }
+              )}
+              onClick={() => setIsSearchMessage((prev) => !prev)}
             >
-              <MessageSearchIcon />
+              <MessageSearchIcon
+                color={`${isSearchMessage ? '#076EB8' : ''}`}
+              />
             </button>
             <button
               type="button"

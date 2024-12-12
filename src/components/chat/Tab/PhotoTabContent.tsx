@@ -21,7 +21,9 @@ export const PhotoTabContent: React.FC<IPhotoTabContentProps> = ({
           <h2 className="font-semibold mb-4">Ngày {date}</h2>
           <div className="grid grid-cols-4 gap-xxs">
             {groupedPhotos[date].map((photo, index) => {
-              const urlFile = `${process.env.REACT_APP_API_URL}/media/view/${photo.url_display}`;
+              const urlFile = `${process.env.REACT_APP_API_URL}/media/view/${
+                isVideoTab ? photo.thumbnail_url_display : photo.url_display
+              }`;
               return (
                 <div
                   key={photo.id}
@@ -30,27 +32,20 @@ export const PhotoTabContent: React.FC<IPhotoTabContentProps> = ({
                     handleFileChoosen(photo.id, urlFile);
                   }}
                 >
-                  {isVideoTab ? (
-                    <>
-                      <video
-                        src={urlFile}
-                        className="w-full h-full object-cover"
-                        muted
-                      />
-                      <button
-                        className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white w-8 h-8 bg-[#0000001A] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                        title="phát"
-                      >
-                        <PlayIcon />
-                      </button>
-                    </>
-                  ) : (
-                    <img
-                      src={urlFile}
-                      alt={`Photo ${index + 1}`}
-                      className="object-cover w-full h-full"
-                    />
+                  <img
+                    src={urlFile}
+                    alt={`Photo ${index + 1}`}
+                    className="object-cover w-full h-full"
+                  />
+                  {isVideoTab && (
+                    <button
+                      className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white w-8 h-8 bg-[#0000001A] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                      title="phát"
+                    >
+                      <PlayIcon />
+                    </button>
                   )}
+
                   {isDelete && (
                     <div
                       className={clsx(

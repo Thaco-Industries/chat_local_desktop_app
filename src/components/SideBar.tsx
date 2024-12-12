@@ -11,25 +11,37 @@ import { useMessageContext } from '../context/MessageContext';
 import UserAvatar from './common/UserAvatar';
 import { useSocket } from '../context/SocketContext';
 import { INotificationNewMessage } from '../interfaces';
+import { useMessageService } from '../services/MessageService';
 
 export const SideBar: React.FC = () => {
   const { roomList, unreadRooms, setUnreadRooms } = useMessageContext();
+  const { getNumberConversationNotRead } = useMessageService();
   const { socket } = useSocket();
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
   const userAuth = getAuthCookie();
   const [displayUnreadMessage, setDisplayUnreadMessage] = useState<any>();
-  // const [unreadRooms, setUnreadRooms] = useState<Set<string>>(new Set());
 
-  const handleNewMessage = useCallback(
-    (message: INotificationNewMessage) => {
-      if (message.message.room_id) {
-        setUnreadRooms((prev) => new Set(prev).add(message.message.room_id));
-      }
-    },
-    [userAuth]
-  );
+  const updateUnreadRooms = async () => {
+    if (location.pathname === '/') {
+      const unreadCount = roomList.filter(
+        (r) => r.number_message_not_read > 0
+      ).length;
+      setUnreadRooms(unreadCount);
+    } else {
+      const response = await getNumberConversationNotRead();
+      if (response.data) setUnreadRooms(response.data);
+    }
+  };
+
+  useEffect(() => {
+    updateUnreadRooms();
+  }, [roomList]);
+
+  const handleNewMessage = useCallback(async () => {
+    await updateUnreadRooms();
+  }, [roomList]);
 
   useEffect(() => {
     if (socket) {
@@ -112,9 +124,9 @@ export const SideBar: React.FC = () => {
             >
               <span className="m-auto flex items-center justify-center">
                 <div className="indicator">
-                  {item.badge && Number(unreadRooms.size) > 0 && (
+                  {item.badge && Number(unreadRooms) > 0 && (
                     <span className="absolute inline-flex items-center justify-center text-[8px] leading-[12px] font-bold p-1 min-w-5 h-5 text-white bg-red-500 rounded-full -top-2 -end-3">
-                      {unreadRooms.size}
+                      {unreadRooms}
                     </span>
                   )}
                   {item.icon}

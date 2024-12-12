@@ -137,11 +137,10 @@ export const RoomList: React.FC<IRoomList> = ({
         r.id === room.roomId ? { ...r, number_message_not_read: 0 } : r
       )
     );
-    setUnreadRooms((prev) => {
-      const updated = new Set(prev);
-      updated.delete(room.roomId);
-      return updated;
-    });
+    const numberOfUnreadRooms = roomList.filter(
+      (r) => r.number_message_not_read !== 0
+    );
+    setUnreadRooms(numberOfUnreadRooms.length);
   };
 
   const handleNotifyRecallMessage = (message: IMessage) => {
@@ -270,7 +269,7 @@ export const RoomList: React.FC<IRoomList> = ({
 
       <ul
         className={clsx(
-          'h-[calc(100%-120px)] overflow-y-auto scrollbar transition-opacity duration-300 '
+          'h-[calc(100%-80px)] overflow-y-auto scrollbar transition-opacity duration-300 '
         )}
       >
         {loading

@@ -17,6 +17,35 @@ export const useMessageService = () => {
     return response;
   };
 
+  const getMessageSearch = async (roomId: string, search: string) => {
+    const response = await apiRequest(
+      'GET',
+      `message/search?roomId=${roomId}&search=${search}`
+    );
+    return response;
+  };
+
+  const getRedirectMessage = async (
+    roomId: string,
+    pageSize: number,
+    selectThisMessageId: boolean,
+    fromMessageIdToNewer: string
+  ) => {
+    const response = await apiRequest(
+      'GET',
+      `message/by-room-id?roomId=${roomId}&pageSize=${pageSize}&fromMessageIdToNewer=${fromMessageIdToNewer}&selectThisMessageId=${selectThisMessageId}`
+    );
+    return response;
+  };
+
+  const getNumberConversationNotRead = async () => {
+    const response = await apiRequest(
+      'GET',
+      'message/number-conversation-not-read'
+    );
+    return response;
+  };
+
   const sendMessage = async (payload: Object) => {
     const response = await apiRequest('POST', 'message', payload);
     return response;
@@ -53,5 +82,8 @@ export const useMessageService = () => {
     markAsReadMessage,
     getMessageByRoom,
     sendMessage,
+    getMessageSearch,
+    getRedirectMessage,
+    getNumberConversationNotRead,
   };
 };

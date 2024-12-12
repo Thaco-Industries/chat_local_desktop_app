@@ -8,6 +8,7 @@ import { IRoom } from '../../interfaces';
 import { useFetchApi } from '../../context/ApiContext';
 import { ChatProvider } from '../../context/ChatContext';
 import { useMessageContext } from '../../context/MessageContext';
+import SearchMessage from '../../components/chat/SearchMessage/SearchMessage';
 
 const defaultRoom: IRoom = {
   id: '',
@@ -32,7 +33,8 @@ const defaultRoom: IRoom = {
 };
 
 const Message: React.FC = () => {
-  const { roomList, setRoomList } = useMessageContext();
+  const { roomList, setRoomList, setIsSearchMessage, isSearchMessage } =
+    useMessageContext();
   const [roomId, setRoomId] = useState<string>('');
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [visible, setVisible] = useState<boolean>(false);
@@ -60,14 +62,18 @@ const Message: React.FC = () => {
             'hidden tablet:block': roomId,
           })}
         >
-          <RoomList
-            setRoomId={setRoomId}
-            roomId={roomId}
-            setRoomList={setRoomList}
-            roomList={roomList}
-            setRoomInfo={setRoomInfo}
-            getRoomData={getRoomData}
-          />
+          {!isSearchMessage ? (
+            <RoomList
+              setRoomId={setRoomId}
+              roomId={roomId}
+              setRoomList={setRoomList}
+              roomList={roomList}
+              setRoomInfo={setRoomInfo}
+              getRoomData={getRoomData}
+            />
+          ) : (
+            <SearchMessage roomId={roomId} />
+          )}
         </div>
         <div className={clsx('flex-1 bg-white')}>
           {roomId ? (

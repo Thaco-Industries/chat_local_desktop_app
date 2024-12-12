@@ -56,7 +56,7 @@ function SearchAndAddToolbar({
           <input
             ref={inputRef}
             type="text"
-            className="bg-lightGrey border border-gray-300 text-navyGrey text-sm rounded-[22px] block w-full ps-10 p-2.5 focus:ring-0 focus:border-gray-300"
+            className="bg-lightGrey border border-gray-300 text-navyGrey text-sm rounded-[22px] block w-full ps-10 p-2.5 pe-lg focus:ring-0 focus:border-gray-300"
             placeholder="Tìm kiếm"
             value={keyword}
             onChange={handleInputChange}

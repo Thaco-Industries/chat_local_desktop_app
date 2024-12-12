@@ -37,6 +37,14 @@ export interface IMessage {
 export interface IMessageReply {
   created_at: string;
   message_display: string;
+  message_type:
+    | 'TEXT'
+    | 'FILE'
+    | 'RECALLED'
+    | 'EMOJI'
+    | 'STICKER'
+    | 'NOTIFICATION'
+    | 'TEXT_TAG';
   id: string;
   file_id: IFileMessage;
 }
@@ -60,8 +68,6 @@ export interface IMessageItem extends IModalImageSetData {
 
 export interface IMessageList extends IModalImageSetData {
   messages: IMessage[];
-  loading: boolean;
-  hasMoreData: boolean;
 }
 
 export interface INotificationNewMessage {
