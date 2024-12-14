@@ -1,4 +1,10 @@
-export default function ArrowLeft() {
+export default function ArrowLeft({
+  onClick,
+  className,
+}: {
+  onClick?: () => void;
+  className?: string;
+}) {
   return (
     <svg
       width="24"
@@ -6,6 +12,8 @@ export default function ArrowLeft() {
       viewBox="0 0 24 25"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      onClick={onClick} // Sử dụng prop onClick
+      className={className}
     >
       <g id="vuesax/linear/arrow-left">
         <g id="arrow-left">
