@@ -28,9 +28,9 @@ const ListFriendMobile: React.FC<ListFriendMobileProps> = ({
     }
   };
   return (
-    <div className="flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col overflow-hidden">
       {/* top */}
-      <div className="h-[65px] w-full border-b border-solid border-[#DCDCDC] bg-white flex items-center pl-[15px]">
+      <div className="h-[65px] w-full border-b border-solid border-[#DCDCDC] bg-white flex items-center pl-[15px] flex-shrink-0">
         <ArrowLeft
           onClick={() => {
             setIsShowListFriends(false);
