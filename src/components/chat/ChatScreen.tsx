@@ -74,11 +74,6 @@ const ChatScreen: React.FC<IChatScreen> = ({
   const scrollToBottom = useCallback(
     async (smooth = false) => {
       // debugger;
-      setIsAutoScrolling(true); // Bắt đầu trạng thái tự động cuộn
-      setIsSearching(false);
-      setMessages([]);
-      setLastMessageId('');
-      await new Promise((resolve) => setTimeout(resolve, 0)); // Đảm bảo cập nhật state xong
       messageEndRef.current?.scrollIntoView({
         behavior: smooth ? 'smooth' : 'auto',
       });
@@ -86,8 +81,8 @@ const ChatScreen: React.FC<IChatScreen> = ({
         await markAsRead(); // Gọi API đánh dấu đã đọc
         setNumberMessageUnread(0);
       }
-      getMessageListData(''); // Lấy danh sách tin nhắn
-      setTimeout(() => setIsAutoScrolling(false), 300);
+      setShowScrollToBottom(false);
+      // Lấy danh sách tin nhắn
     },
     [numberMessageUnread, roomId, markAsRead]
   );
@@ -249,7 +244,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
         }
       }
     },
-    [listMember, setMessages, showScrollToBottom, roomId]
+    [listMember, showScrollToBottom, roomId]
   );
 
   const handleUserJoinAndOutRoom = async () => {
@@ -508,7 +503,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
         listMember={listMember}
       />
       <div
-        className="flex flex-col-reverse flex-1 mb-2 overflow-y-auto scrollbar"
+        className="flex flex-col-reverse flex-1 overflow-y-auto scrollbar"
         onScroll={handleScroll}
         ref={messageListRef}
       >
@@ -523,7 +518,20 @@ const ChatScreen: React.FC<IChatScreen> = ({
       </div>
       {showScrollToBottom && (
         <div
-          onClick={() => scrollToBottom(true)}
+          onClick={async () => {
+            if (isSearching) {
+              setIsAutoScrolling(true); // Bắt đầu trạng thái tự động cuộn
+              setMessages([]);
+              setLastMessageId('');
+              await new Promise((resolve) => setTimeout(resolve, 0)); // Đảm bảo cập nhật state xong
+              getMessageListData('');
+            }
+            scrollToBottom(true);
+            setTimeout(() => {
+              setIsAutoScrolling(false);
+              setIsSearching(false);
+            }, 300);
+          }}
           className="absolute right-7 tablet:right-14 bottom-24 cursor-pointer"
         >
           {numberMessageUnread !== 0 && (

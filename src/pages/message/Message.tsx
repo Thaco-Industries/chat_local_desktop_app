@@ -33,8 +33,7 @@ const defaultRoom: IRoom = {
 };
 
 const Message: React.FC = () => {
-  const { roomList, setRoomList, setIsSearchMessage, isSearchMessage } =
-    useMessageContext();
+  const { roomList, setRoomList, isSearchMessage } = useMessageContext();
   const [roomId, setRoomId] = useState<string>('');
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [visible, setVisible] = useState<boolean>(false);

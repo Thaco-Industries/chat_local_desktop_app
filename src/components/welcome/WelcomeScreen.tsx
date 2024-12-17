@@ -8,7 +8,7 @@ export default function WelcomeScreen() {
         <LogoThacoId />
       </div>
       <p className="text-primary text-lg text-center w-[70%]">
-        Chào mừng bạn đến với phần mềm chat nội bộ Trung tâm R&D
+        Chào mừng bạn đến với phần mềm Chat Local R&D
       </p>
     </div>
   );

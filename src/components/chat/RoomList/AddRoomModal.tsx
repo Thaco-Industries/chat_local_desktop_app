@@ -78,8 +78,10 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
       if (response.status === 201) {
         setOpenAddRoomModal(false);
       }
-    } catch (error) {
-      notify('Đã xảy ra lỗi, vui lòng thử lại!', 'error');
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error.message;
+      notify(`Lỗi khi tạo phòng: ${errorMessage}`);
+      console.error('Error:', errorMessage);
     } finally {
       actions.setSubmitting(false); // Reset isSubmitting
     }

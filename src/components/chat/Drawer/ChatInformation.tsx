@@ -214,28 +214,27 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
         submitForm,
       }) => (
         <div className="menu flex flex-col gap-xxs bg-background-500 text-base-content min-h-full w-[310px] max-w-[310px] p-0">
-          {roomInfo.is_group && (
-            <Form className="bg-white px-5 text-center flex flex-col items-center gap-xs ">
-              <AvatarSection
-                roomInfo={roomInfo}
-                isLeader={isLeader}
-                avatars={avatars}
-                setAvatars={setAvatars}
-                handleUploadImage={handleUploadImage}
-                setFieldValue={setFieldValue}
-                submitForm={submitForm}
-              />
-              <RoomNameInput
-                roomName={values.roomName || roomInfo.room_name}
-                isLeader={isLeader}
-                isActiveInput={isActiveInput}
-                setIsActiveInput={setIsActiveInput}
-                setFieldValue={setFieldValue}
-                handleBlur={handleBlur}
-                submitForm={submitForm}
-              />
-            </Form>
-          )}
+          <Form className="bg-white px-5 text-center flex flex-col items-center gap-xs">
+            <AvatarSection
+              roomInfo={roomInfo}
+              isLeader={isLeader}
+              avatars={avatars}
+              setAvatars={setAvatars}
+              handleUploadImage={handleUploadImage}
+              setFieldValue={setFieldValue}
+              submitForm={submitForm}
+            />
+            <RoomNameInput
+              roomName={values.roomName || roomInfo.room_name}
+              isLeader={isLeader}
+              isActiveInput={isActiveInput}
+              setIsActiveInput={setIsActiveInput}
+              setFieldValue={setFieldValue}
+              handleBlur={handleBlur}
+              submitForm={submitForm}
+            />
+          </Form>
+
           {roomInfo.is_group && (
             <div className="bg-white px-5 py-sm">
               <h1 className="text-title font-semibold mb-sm">
