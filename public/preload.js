@@ -1,21 +1,33 @@
 const { contextBridge, ipcRenderer } = require('electron');
-// contextBridge.exposeInMainWorld('electron', {
-//   homeDir: () => os.homedir(),
-//   osVersion: () => os.arch(),
-// });
-
-// contextBridge.exposeInMainWorld('ipcRenderer', {
-//   send: (channel, data) => ipcRenderer.send(channel, data),
-//   on: (channel, func) =>
-//     ipcRenderer.on(channel, (event, ...args) => func(event, ...args)),
-// });
-
-// contextBridge.exposeInMainWorld('electronAPI', {
-//   showNotification: (title, message) => {
-//     ipcRenderer.send('show-notification', { title, message });
-//   },
-// });
 
 process.once('loaded', () => {
-  contextBridge.exposeInMainWorld('versions', process.versions);
+  contextBridge.exposeInMainWorld('electronAPI', {
+    notifyMessage: (message) =>
+      ipcRenderer.send('display-custom-notification', message),
+    receiveNotification: (callback) =>
+      ipcRenderer.on('notification-message', callback),
+    onNotificationClicked: (callback) => {
+      ipcRenderer.on('notification-clicked', (_, data) => {
+        callback(data);
+      });
+    },
+    // Các phương thức khác
+    notificationClicked: () => ipcRenderer.invoke('notification-clicked'),
+    onReplyNotification: (callback) => {
+      ipcRenderer.on('send-reply-message', (_, data) => {
+        callback(data);
+      });
+    },
+    sendReplyMessage: (message) => {
+      ipcRenderer.invoke('send-reply-message', message);
+    },
+    removeListener: (channel, callback) => {
+      ipcRenderer.removeListener(channel, callback);
+    },
+    updateBadge: (count) => ipcRenderer.send('update-badge', count),
+    closeNotificationWindow: () =>
+      ipcRenderer.invoke('close-notification-window'),
+  });
 });
+
+// preload.js

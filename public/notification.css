@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+body {
+  font-family: 'Nunito';
+}
+
+.notification-container {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0px 1px 5px 0px #00000040;
+  overflow: hidden;
+  padding: 20px;
+  cursor: pointer;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 5px;
+}
+
+.notification-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 14.4px;
+}
+
+.notification-title .icon-info {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  line-height: 16px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #7b87a1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.notification-user {
+  font-weight: bold;
+  font-size: 16px;
+  color: #001e33;
+  margin: 0;
+}
+
+.notification-message {
+  max-width: 330px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #485259;
+  margin: 4px 0 15px;
+}
+
+.notification-reply {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-reply input {
+  flex: 1;
+  padding: 8px;
+  font-size: 13px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.notification-reply input:focus-visible {
+  border: 1px solid #007bff;
+  outline: none;
+}
+
+.notification-reply .reply-btn {
+  padding: 0;
+  border: none;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.notification-reply .icon-send {
+  display: inline-block;
+  font-size: 16px;
+  color: #fff;
+}
+
+.notification-container {
+  transition: opacity 0.5s; /* Hiệu ứng mờ dần */
+  opacity: 1; /* Hiển thị thông báo ban đầu */
+}

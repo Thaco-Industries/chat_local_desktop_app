@@ -11,6 +11,7 @@ import { IMessage } from '../../../interfaces';
 import UserAvatar from '../../common/UserAvatar';
 import moment from 'moment';
 import { useMessageContext } from '../../../context/MessageContext';
+import unidecode from 'unidecode';
 
 type Props = {
   roomId: string;
@@ -110,14 +111,28 @@ const SearchForm: React.FC<Props> = ({ roomId }) => {
   const highlightKeyword = (text: string, keyword: string) => {
     if (!keyword.trim()) return text; // Không làm gì nếu từ khóa rỗng
 
-    const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape ký tự đặc biệt
-    const regex = new RegExp(`(${escapedKeyword})`, 'i'); // Chỉ tìm lần xuất hiện đầu tiên (không phân biệt hoa thường)
-
-    // Thay thế từ khóa bằng thẻ span với class/style
-    return text.replace(
-      regex,
-      '<span style="color: #076EB8; font-weight: bold;">$1</span>'
+    // Bình thường hóa từ khóa và văn bản
+    const normalizedKeyword = unidecode(
+      keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // Escape ký tự đặc biệt
     );
+    const normalizedText = unidecode(text);
+
+    // Tìm vị trí khớp đầu tiên
+    const regex = new RegExp(`(${normalizedKeyword})`, 'i'); // Chỉ tìm lần đầu (không phân biệt hoa thường)
+    const match = normalizedText.match(regex);
+
+    if (!match) return text; // Không tìm thấy từ khóa
+
+    const startIndex = match.index!; // Vị trí bắt đầu từ khóa
+    const endIndex = startIndex + match[0].length;
+
+    // Chia văn bản thành 3 phần: trước, từ khóa, và sau
+    const beforeMatch = text.slice(0, startIndex);
+    const matchText = text.slice(startIndex, endIndex);
+    const afterMatch = text.slice(endIndex);
+
+    // Tạo văn bản với highlight
+    return `${beforeMatch}<span style="color: #076EB8; font-weight: bold;">${matchText}</span>${afterMatch}`;
   };
 
   return (
@@ -156,7 +171,6 @@ const SearchForm: React.FC<Props> = ({ roomId }) => {
               onClick={() => {
                 formik.setFieldValue('keyword', '');
                 inputRef.current?.focus();
-                setIsSearchMessage(false);
               }}
               width="12"
               height="12"
@@ -170,9 +184,24 @@ const SearchForm: React.FC<Props> = ({ roomId }) => {
           </div>
         )}
       </div>
-      {!_.isEmpty(formik.values.keyword) && numberOfResult !== 0 && (
-        <div className="w-full px-md py-xs bg-[#A1A1A133]">
+      {!_.isEmpty(formik.values.keyword) && (
+        <div className="w-full px-md py-xs bg-[#A1A1A133] flex justify-between items-center">
           <p className="text-textBody">{numberOfResult} kết quả</p>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="cursor-pointer"
+            onClick={() => {
+              setIsSearchMessage(false);
+            }}
+            width="12"
+            height="12"
+            fill="none"
+          >
+            <path
+              d="M6.58586 5.82143L11.2734 0.233929C11.3519 0.141072 11.2859 0 11.1644 0H9.73943C9.6555 0 9.57514 0.0374999 9.51979 0.101786L5.65372 4.71071L1.78764 0.101786C1.73407 0.0374999 1.65371 0 1.568 0H0.143C0.0215717 0 -0.0444998 0.141072 0.0340716 0.233929L4.72157 5.82143L0.0340716 11.4089C0.0164709 11.4296 0.00517935 11.4549 0.00153715 11.4819C-0.00210506 11.5088 0.00205506 11.5362 0.013524 11.5608C0.024993 11.5855 0.043289 11.6063 0.0662396 11.6208C0.0891901 11.6354 0.115831 11.643 0.143 11.6429H1.568C1.65193 11.6429 1.73229 11.6054 1.78764 11.5411L5.65372 6.93214L9.51979 11.5411C9.57336 11.6054 9.65372 11.6429 9.73943 11.6429H11.1644C11.2859 11.6429 11.3519 11.5018 11.2734 11.4089L6.58586 5.82143Z"
+              fill="#485259"
+            />
+          </svg>
         </div>
       )}
       <div className="w-full h-[calc(100vh-120px)] overflow-y-auto scrollbar">

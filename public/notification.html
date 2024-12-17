@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Notification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./notification.css" />
+  </head>
+  <body>
+    <div class="notification-container">
+      <div class="notification-header">
+        <div class="notification-title">
+          <i class="icon-info"><img src="images/gallery.svg" alt="đóng" /></i>
+          Chat Local R&D
+        </div>
+        <button class="close-btn">
+          <img src="images/Close.svg" alt="đóng" />
+        </button>
+      </div>
+      <div class="notification-body">
+        <p class="notification-user" id="sender"></p>
+        <p class="notification-message" id="message_display"></p>
+        <div class="notification-reply">
+          <input type="text" placeholder="Trả lời tin nhắn" />
+          <button class="reply-btn" title="gửi">
+            <i class="icon-send"><img src="images/send.svg" alt="gửi" /></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="notification.js"></script>
+  </body>
+</html>

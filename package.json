@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "author": "THACO INDUSTRIES",
-  "description": "Chat nội bộ trung tâm R&D",
+  "description": "Chat Local R&D",
   "homepage": "./",
   "main": "./public/electron.js",
   "dependencies": {
@@ -15,10 +15,12 @@
     "@types/node": "22.8.6",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
+    "@types/unidecode": "^0.1.3",
     "axios": "1.7.7",
     "clsx": "2.1.1",
     "daisyui": "4.12.14",
     "electron-webpack": "^2.8.2",
+    "electron-windows-badge": "^1.1.0",
     "emoji-picker-react": "^4.12.0",
     "flowbite-react": "^0.10.2",
     "form-data": "4.0.0",
@@ -33,6 +35,7 @@
     "react-toastify": "10.0.6",
     "socket.io-client": "4.8.1",
     "typescript": "4.9.5",
+    "unidecode": "1.1.0",
     "uuid": "11.0.3",
     "web-vitals": "4.2.4",
     "yup": "1.4.0"
@@ -70,7 +73,7 @@
   },
   "build": {
     "appId": "com.electron.chatapp",
-    "productName": "Chat nội bộ trung tâm R&D",
+    "productName": "Chat Local R&D",
     "files": [
       "build/**/*",
       "node_modules/**/*"
@@ -82,7 +85,8 @@
       "target": "dmg"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "./public/logo.svg"
     },
     "linux": {
       "target": "deb"

@@ -1,3 +1,4 @@
+import { INotificationNewMessage } from './Message';
 import { IInvitedInfor, IRoom } from './Room';
 
 export interface Item {
@@ -34,10 +35,21 @@ export interface IChatDrawerDetail extends IModalImageSetData {
 declare global {
   interface Window {
     electronAPI: {
-      sendNotification: (data: { title: string; message: string }) => void;
-      onNewMessage: (
-        callback: (event: Event, message: { text: string }) => void
+      // Gửi thông báo
+      notifyMessage: (message: INotificationNewMessage) => void;
+      // Nhận thông báo
+      receiveNotification: (
+        callback: (event: unknown, data: INotificationNewMessage) => void
       ) => void;
+      // Lắng nghe sự kiện khi thông báo được nhấp
+      onNotificationClicked: (
+        callback: (message: INotificationNewMessage) => void
+      ) => void;
+      // Lắng nghe sự kiện trả lời tin nhắn được gọi
+      onReplyNotification: (callback: (message: string) => void) => void;
+      //Loại bỏ lắng nghe event
+      removeListener: (event: string, callback: (data: any) => void) => void;
+      updateBadge: (count: number) => void;
     };
   }
 }

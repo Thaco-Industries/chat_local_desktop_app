@@ -54,7 +54,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         `${socketUrl}/${process.env.REACT_APP_SOCKET_CHANNEL}`,
         {
           auth: { Authorization: `Bearer ${token}` },
-          transports: ['websocket', 'polling'],
+          transports: ['websocket'],
         }
       );
       setSocket(socketRef.current); // Lắng nghe sự kiện lỗi và tự động kết nối lại
