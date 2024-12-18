@@ -5,6 +5,7 @@ interface IFileInfor {
   file_size: number;
   id_file: string;
   uploaded_by: string;
+  system_deleted: boolean;
   room_id: string;
   updated_at: string;
   url_display: string;

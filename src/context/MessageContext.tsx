@@ -8,7 +8,33 @@ interface MessageContextProps {
   unreadRooms: number;
   isSearchMessage: boolean;
   setIsSearchMessage: React.Dispatch<React.SetStateAction<boolean>>;
+  roomId: string;
+  setRoomId: React.Dispatch<React.SetStateAction<string>>;
+  roomInfo: IRoom;
+  setRoomInfo: React.Dispatch<React.SetStateAction<IRoom>>;
 }
+
+const defaultRoom: IRoom = {
+  id: '',
+  avatar_url: '',
+  is_group: false,
+  last_message: {
+    id: '',
+    created_at: '',
+    room_id: '',
+    sender_id: '',
+    message_type: '',
+    seen_by: [],
+    deleted_by: [],
+    status: '',
+    reactions: [],
+    message_display: '',
+  },
+  number_message_not_read: 0,
+  room_name: '',
+  type_room: '',
+  userRoom: [],
+};
 
 // Tạo context
 const MessageContext = createContext<MessageContextProps | null>(null);
@@ -19,16 +45,21 @@ export const MessageProvider: React.FC<{ children: ReactNode }> = ({
   const [roomList, setRoomList] = useState<IRoom[]>([]);
   const [unreadRooms, setUnreadRooms] = useState<number>(0);
   const [isSearchMessage, setIsSearchMessage] = useState<boolean>(false);
-
+  const [roomId, setRoomId] = useState<string>('');
+  const [roomInfo, setRoomInfo] = useState<IRoom>(defaultRoom);
   return (
     <MessageContext.Provider
       value={{
         roomList,
         setRoomList,
+        roomId,
+        setRoomId,
         unreadRooms,
         setUnreadRooms,
         isSearchMessage,
         setIsSearchMessage,
+        roomInfo,
+        setRoomInfo,
       }}
     >
       {children}

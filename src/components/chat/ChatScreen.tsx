@@ -480,7 +480,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
     } catch (error: any) {
       // Lấy thông tin lỗi chi tiết
       const errorMessage = error?.response?.data?.message || error.message;
-      notify(errorMessage);
+      notify(errorMessage, 'error');
       console.error('Error:', errorMessage);
     }
   };

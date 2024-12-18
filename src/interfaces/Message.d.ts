@@ -54,6 +54,7 @@ export interface IFileMessage {
   file_size: string;
   uploaded_by: string;
   thumbnail_url_display: string;
+  system_deleted: boolean;
   id_file: string;
   file_type: 'IMAGE' | 'FILE' | 'VIDEO';
   room_id: string;

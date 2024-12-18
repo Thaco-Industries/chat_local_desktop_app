@@ -16,6 +16,7 @@ import PublicRoute from './components/PublicRoute';
 import { SocketProvider } from './context/SocketContext';
 import ToastContent from './helper/notifyMessageHelper';
 import { MessageProvider } from './context/MessageContext';
+import { ChatProvider } from './context/ChatContext';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -28,20 +29,22 @@ root.render(
     <ApiProvider>
       <SocketProvider>
         <MessageProvider>
-          <ToastContent />
-          <Routes>
-            <Route
-              path="/login"
-              element={<PublicRoute element={<Login />} />}
-            />
-            <Route path="/" element={<ProtectedRoute element={<Layout />} />}>
-              <Route index element={<Message />} />
-              <Route path="room" element={<Room />} />
-              <Route path="group" element={<Group />} />
-              <Route path="setting" element={<Setting />} />
-              <Route path="profile" element={<Profile />} />
-            </Route>
-          </Routes>
+          <ChatProvider>
+            <ToastContent />
+            <Routes>
+              <Route
+                path="/login"
+                element={<PublicRoute element={<Login />} />}
+              />
+              <Route path="/" element={<ProtectedRoute element={<Layout />} />}>
+                <Route index element={<Message />} />
+                <Route path="room" element={<Room />} />
+                <Route path="group" element={<Group />} />
+                <Route path="setting" element={<Setting />} />
+                <Route path="profile" element={<Profile />} />
+              </Route>
+            </Routes>
+          </ChatProvider>
         </MessageProvider>
       </SocketProvider>
     </ApiProvider>

@@ -19,6 +19,7 @@ export const SideBar: React.FC = () => {
     setUnreadRooms,
     setRoomList,
     setIsSearchMessage,
+    setRoomId,
   } = useMessageContext();
   const { getNumberConversationNotRead } = useMessageService();
   const { socket } = useSocket();
@@ -31,7 +32,8 @@ export const SideBar: React.FC = () => {
     setUnreadRooms(0);
     setRoomList([]);
     setIsSearchMessage(false);
-  }, [location]);
+    setRoomId('');
+  }, [currentPath]);
 
   const updateUnreadRooms = async () => {
     if (location.pathname === '/') {

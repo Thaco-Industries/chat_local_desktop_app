@@ -70,7 +70,7 @@ const ChatHeader: React.FC<IChatHeader> = ({
     } catch (error: any) {
       // Lấy thông tin lỗi chi tiết
       const errorMessage = error?.response?.data?.message || error.message;
-      notify(`Lỗi tải ảnh: ${errorMessage}`);
+      notify(`Lỗi tải ảnh: ${errorMessage}`, 'error');
       console.error('Error:', errorMessage);
     }
   };

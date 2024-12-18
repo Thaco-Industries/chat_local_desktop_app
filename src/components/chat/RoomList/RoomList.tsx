@@ -95,7 +95,7 @@ export const RoomList: React.FC<IRoomList> = ({
           const response = await sendMessage(payload);
         } catch (error: any) {
           const errorMessage = error?.response?.data?.message || error.message;
-          notify(errorMessage);
+          notify(errorMessage, 'error');
           console.error('Error:', errorMessage);
         }
       }
@@ -372,7 +372,8 @@ export const RoomList: React.FC<IRoomList> = ({
 
       <ul
         className={clsx(
-          'h-[calc(100%-80px)] overflow-y-auto scrollbar transition-opacity duration-300 '
+          'overflow-y-auto scrollbar transition-opacity duration-300',
+          keyword ? 'h-[calc(100%-120px)]' : 'h-[calc(100%-80px)]'
         )}
       >
         {loading

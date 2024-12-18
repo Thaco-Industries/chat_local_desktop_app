@@ -19,6 +19,11 @@ let tray;
 let lastNotificationMessage = null;
 let badge;
 
+const productUrl = process.env.REACT_APP_PRODUCT_URL;
+
+// autoUpdater.autoDownload = false;
+// autoUpdater.autoInstallOnAppQuit = true;
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1500,
@@ -31,14 +36,13 @@ function createWindow() {
     icon: path.join(__dirname, 'favicon.ico'),
   });
 
-  const appURL = app.isPackaged
-    ? `file://${path.join(__dirname, '../build/index.html')}#/`
-    : 'http://localhost:3000/#/';
+  const appURL = app.isPackaged ? productUrl : 'http://localhost:3000/#/';
+  // `file://${path.join(__dirname, '../build/index.html')}#/`
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL(appURL);
 
   badge = new Badge(mainWindow, {
-    font: '14px',
+    font: '8px', // Thêm đơn vị px
   });
 
   mainWindow.on('close', (event) => {
@@ -109,6 +113,8 @@ app.whenReady().then(() => {
       }
     }
   });
+
+  // autoUpdater.checkForUpdates();
 });
 
 app.on('window-all-closed', function () {
@@ -180,7 +186,12 @@ function initializeNotificationWindow(message) {
 
 ipcMain.on('display-custom-notification', (event, message) => {
   //Kiểm tra trạng thái của mainWindow
-  if (mainWindow && mainWindow.isVisible() && !mainWindow.isMinimized()) {
+  if (
+    mainWindow &&
+    mainWindow.isVisible() &&
+    !mainWindow.isMinimized() &&
+    mainWindow.isFocused()
+  ) {
     // Nếu mainWindow đang hiển thị và không bị thu nhỏ, không hiển thị thông báo
     console.log('MainWindow đang hiển thị. Không hiển thị thông báo.');
     return;

@@ -1,10 +1,9 @@
 // MessageList.tsx
-import React, { forwardRef } from 'react';
+import React from 'react';
 import MessageItem from './MessageItem';
 import { IMessageList } from '../../../interfaces/Message';
 import moment from 'moment';
 import { getDateLabel } from '../../../util/getDateLabel';
-import { Spinner } from 'flowbite-react';
 
 const MessageList: React.FC<IMessageList> = ({
   messages,
@@ -19,7 +18,7 @@ const MessageList: React.FC<IMessageList> = ({
   }, {} as Record<string, IMessageList['messages']>);
 
   return (
-    <div className="flex flex-col gap-1 px-6 tablet:px-lg relative ">
+    <div className="flex flex-col gap-1 px-6 pb-xxs tablet:px-lg relative ">
       {messages &&
         Object.entries(groupedMessages)
           .reverse() // Đảo ngược thứ tự của các ngày
