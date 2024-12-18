@@ -49,7 +49,7 @@ function UserAvatar({
           )}
         >
           <div className="absolute inset-0 bg-black bg-opacity-15 rounded-full"></div>
-          <p className="z-10">{shortName}</p>
+          <p className="z-10 uppercase">{shortName}</p>
         </div>
       )}
     </div>

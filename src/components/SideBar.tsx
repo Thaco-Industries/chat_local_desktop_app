@@ -29,10 +29,12 @@ export const SideBar: React.FC = () => {
   const userAuth = getAuthCookie();
 
   useEffect(() => {
-    setUnreadRooms(0);
-    setRoomList([]);
-    setIsSearchMessage(false);
-    setRoomId('');
+    if (currentPath !== '/') {
+      setUnreadRooms(0);
+      setRoomList([]);
+      setIsSearchMessage(false);
+      setRoomId('');
+    }
   }, [currentPath]);
 
   const updateUnreadRooms = async () => {

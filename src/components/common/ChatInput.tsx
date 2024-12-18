@@ -14,6 +14,7 @@ import EmojiPickerPopover from './EmojiPickerPopover';
 import PlayButton from '../chat/Message/components/PlayButton';
 import { notify } from '../../helper/notify';
 import { v4 as uuidv4 } from 'uuid';
+import { IRoom } from '../../interfaces';
 
 interface ChatInputProps {
   onSendMessage: (
@@ -22,9 +23,14 @@ interface ChatInputProps {
     files?: File[]
   ) => void;
   roomId: string;
+  roomInfo: IRoom;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
+const ChatInput: React.FC<ChatInputProps> = ({
+  onSendMessage,
+  roomId,
+  roomInfo,
+}) => {
   const [text, setText] = useState<string>('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
@@ -209,7 +215,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
       {({ submitForm }) => (
         <div className="join join-vertical mb-5 mx-lg drop-shadow-md gap-[1px]">
           {isReplyMessage && messageReply && (
-            <div className="join-item bg-white px-6 py-5 grid grid-cols-[40px_1fr_auto] items-start border-b border-b-border">
+            <div
+              className={clsx(
+                'join-item px-6 py-5 grid grid-cols-[40px_1fr_auto] items-start border-b border-b-border'
+              )}
+            >
               <div>
                 <ReplyMessageIcon />
               </div>
@@ -234,7 +244,10 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
           <Form
             className={clsx(
               'min-h-[50px] max-h-[150px] input flex items-center focus:outline-none focus-within:outline-none rounded-[30px] border-none join-item',
-              { 'transition-[height 0.2s ease-in-out]': true }
+              { 'transition-[height 0.2s ease-in-out]': true },
+              roomInfo.userRoom[0].friendStatus === 'FRIEND'
+                ? 'bg-white'
+                : 'bg-[#F1F1F1]'
             )}
             style={{ height: `${formHeight}px` }}
           >
@@ -246,6 +259,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
                 className="inline-flex justify-center p-2 text-gray-500  cursor-pointer"
                 title="Gửi hình ảnh"
                 onClick={() => document.getElementById('imageUpload')?.click()}
+                disabled={
+                  roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+                }
               >
                 <GalleryIcon />
 
@@ -259,12 +275,18 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
                 accept=".jpg, .jpeg, .png, .gif, .webp, .jxl"
                 onChange={handleFileChange}
                 title="gửi ảnh"
+                disabled={
+                  roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+                }
               />
               <button
                 type="button"
                 title="Đính kèm file"
                 onClick={() => document.getElementById('fileUpload')?.click()}
                 className="p-2 text-gray-500 cursor-pointer"
+                disabled={
+                  roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+                }
               >
                 <PaperClipIcon />
                 <span className="sr-only">Add emoji</span>
@@ -277,6 +299,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
                 accept="*"
                 onChange={handleFileChange}
                 title="gửi file"
+                disabled={
+                  roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+                }
               />
             </div>
             <textarea
@@ -286,14 +311,25 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
               onKeyDown={(e) => handleKeyDown(e, submitForm)}
               ref={textareaRef}
               value={text}
-              className="block resize-none p-2.5 w-full text-[#252525]  border-0 focus:ring-0 max-h-[130px] scrollbar rounded-s-[10px]"
+              className={clsx(
+                'block resize-none p-2.5 w-full text-[#252525]  border-0 focus:ring-0 max-h-[130px] scrollbar rounded-s-[10px]',
+                roomInfo.userRoom[0].friendStatus === 'FRIEND'
+                  ? 'bg-white'
+                  : 'bg-[#F1F1F1]'
+              )}
               placeholder="Nhập tin nhắn"
+              disabled={
+                roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+              }
             />
             <div className="relative">
               <button
                 type="button"
                 title="Biểu cảm"
                 onClick={() => setShowEmojiPicker((prev) => !prev)}
+                disabled={
+                  roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+                }
               >
                 <SmileIcon />
               </button>
@@ -311,6 +347,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
               type="submit"
               title="Gửi"
               className="inline-flex justify-center p-2 text-blue-600  cursor-pointer ml-xs"
+              disabled={
+                roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+              }
             >
               <SendIcon />
               <span className="sr-only">Send message</span>

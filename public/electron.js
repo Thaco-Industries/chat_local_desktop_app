@@ -1,4 +1,5 @@
 // Module to control the application lifecycle and the native browser window.
+
 const {
   app,
   BrowserWindow,
@@ -8,10 +9,12 @@ const {
   Tray,
   Menu,
 } = require('electron');
+const dotenv = require('dotenv');
 const path = require('path');
 const Badge = require('electron-windows-badge');
 const badgeIcon = path.join(__dirname, 'badge-icon.png');
 const defaultIcon = path.join(__dirname, 'favicon.ico');
+const isDev = !app.isPackaged;
 
 let notificationWindow = null;
 let mainWindow;
@@ -19,11 +22,16 @@ let tray;
 let lastNotificationMessage = null;
 let badge;
 
-const productUrl = process.env.REACT_APP_PRODUCT_URL;
-
+const baseDir = path.resolve(__dirname, '..');
+const dotenvPath = isDev
+  ? path.join(baseDir, '.env')
+  : path.join(process.resourcesPath, '.env');
+dotenv.config({ path: dotenvPath });
 // autoUpdater.autoDownload = false;
 // autoUpdater.autoInstallOnAppQuit = true;
-
+console.log('Loaded ENV from:', dotenvPath);
+console.log('Environment Variable:', process.env.REACT_APP_PRODUCT_URL);
+const productUrl = process.env.REACT_APP_PRODUCT_URL;
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1500,
@@ -36,8 +44,8 @@ function createWindow() {
     icon: path.join(__dirname, 'favicon.ico'),
   });
 
-  const appURL = app.isPackaged ? productUrl : 'http://localhost:3000/#/';
-  // `file://${path.join(__dirname, '../build/index.html')}#/`
+  const appURL = !isDev ? productUrl : 'http://localhost:3000/';
+  // `file://${path.join(__dirname, '../build/index.html')}#/`;
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL(appURL);
 

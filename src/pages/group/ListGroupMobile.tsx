@@ -2,6 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useFetchApi } from '../../context/ApiContext';
 import ArrowLeft from '../../assets/icons/arrow-left';
 import UserAvatar from '../../components/common/UserAvatar';
+import { useNavigate } from 'react-router-dom';
+import { useMessageContext } from '../../context/MessageContext';
+import { useChatContext } from '../../context/ChatContext';
+import { useRoomService } from '../../services/RoomService';
+import { useMessageService } from '../../services/MessageService';
+import { notify } from '../../helper/notify';
 
 interface ListGroupMobileProps {
   setIsShowListFriends: React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,9 +20,23 @@ const ListGroupMobile: React.FC<ListGroupMobileProps> = ({
 }) => {
   const [listGroups, setListGroups] = useState([]);
   const { apiRequest } = useFetchApi();
+  const navigate = useNavigate();
+  const { setRoomId, setRoomInfo } = useMessageContext();
+  const {
+    setListMember,
+    setIsFirstLoad,
+    setHasMoreData,
+    setLastMessageId,
+    setMessages,
+  } = useChatContext();
+  const { getMemberInRoom } = useRoomService();
+  const { markAsReadMessage } = useMessageService();
+  const { getRoomById } = useRoomService();
+
   useEffect(() => {
     getListFriends();
   }, []);
+
   const getListFriends = async () => {
     try {
       const response = await apiRequest('GET', 'room/list-room-group');
@@ -25,6 +45,47 @@ const ListGroupMobile: React.FC<ListGroupMobileProps> = ({
       }
     } catch (err) {
       console.error('API call failed: ', err);
+    }
+  };
+
+  const getListMember = async (roomId: string) => {
+    const response = await getMemberInRoom(roomId);
+    if (response.status === 200) {
+      const updatedList = response.data;
+      setListMember(updatedList);
+    }
+  };
+
+  const markAsRead = async (room_id: string) => {
+    try {
+      await markAsReadMessage(room_id);
+    } catch (err) {
+      console.error('API call failed: ', err);
+    }
+  };
+
+  const handleGroupClick = async (item: any) => {
+    try {
+      const response = await getRoomById(item.room_id);
+      if (response.data) {
+        const room = response.data;
+        console.log(room);
+        setRoomId(room.id);
+        setListMember(null);
+        markAsRead(room.id);
+        setRoomInfo(room);
+        setMessages([]);
+        setLastMessageId('');
+        getListMember(room.id);
+        setHasMoreData(true);
+        setIsFirstLoad(true);
+        navigate('/');
+      }
+    } catch (error: any) {
+      // Lấy thông tin lỗi chi tiết
+      const errorMessage = error?.response?.data?.message || error.message;
+      notify(errorMessage, 'error');
+      console.error('Error:', errorMessage);
     }
   };
   return (
@@ -64,7 +125,7 @@ const ListGroupMobile: React.FC<ListGroupMobileProps> = ({
                   <div
                     className="pt-[13px] pb-[12px] px-[20px] flex items-center hover:bg-[#91cffb33] cursor-pointer"
                     key={index}
-                    // onClick={() => handleFriendClick(item)}
+                    onClick={() => handleGroupClick(item)}
                   >
                     {/* avatar */}
                     <div className="min-w-[45px] min-h-[45px] max-w-[45px] max-h-[45px] relative">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ChatScreen from '../../components/chat/ChatScreen';
 import clsx from 'clsx';
 import { RoomList } from '../../components/chat/RoomList/RoomList';

@@ -53,6 +53,7 @@ export interface IUserRoom {
   room_id: string;
   permission: 'LEADER' | 'MEMBER';
   user: any;
+  friendStatus?: string;
 }
 
 export interface IInvitedInfor {

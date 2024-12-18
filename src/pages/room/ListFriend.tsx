@@ -62,6 +62,7 @@ const ListFriend: React.FC = () => {
       const response = await getRoomById(item.room_id);
       if (response.data) {
         const room = response.data;
+        console.log(room);
         setRoomId(room.id);
         setListMember(null);
         markAsRead(room.id);
@@ -76,7 +77,7 @@ const ListFriend: React.FC = () => {
     } catch (error: any) {
       // Lấy thông tin lỗi chi tiết
       const errorMessage = error?.response?.data?.message || error.message;
-      notify(`Lỗi tải ảnh: ${errorMessage}`, 'error');
+      notify(errorMessage, 'error');
       console.error('Error:', errorMessage);
     }
   };
