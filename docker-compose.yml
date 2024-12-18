@@ -1,0 +1,14 @@
+version: '3'
+services:
+  chat_rd_desktop:
+    image: tymonstarlab/chat_rd_desktop
+    container_name: chat_rd_desktop
+    ports:
+      - '8387:80'
+    restart: always
+    networks:
+      - chat_rd_neworks
+
+networks:
+  chat_rd_neworks:
+    driver: bridge
