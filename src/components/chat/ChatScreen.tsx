@@ -13,6 +13,7 @@ import { useMessageService } from '../../services/MessageService';
 import { IMessage, IUserInRoomInfo } from '../../interfaces';
 import { useRoomService } from '../../services/RoomService';
 import { notify } from '../../helper/notify';
+import { useFriendService } from '../../services/FriendService';
 
 const ChatScreen: React.FC<IChatScreen> = ({
   roomId,
@@ -59,6 +60,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
     sendMessage,
     getRedirectMessage,
   } = useMessageService();
+  const { searchUserById } = useFriendService();
 
   const { getMemberInRoom } = useRoomService();
   const { socket } = useSocket();
@@ -350,6 +352,22 @@ const ChatScreen: React.FC<IChatScreen> = ({
   }, [hasMoreMessages, roomId, newerMessageId]);
 
   useEffect(() => {
+    if (roomInfo.is_group) return;
+    async function handleGetUserInfor() {
+      const response = await searchUserById(roomInfo.userRoom[0].user_id);
+      if (response.data) {
+        // setFriendStatus(response.data.status);
+        roomInfo.userRoom[0] = {
+          ...roomInfo.userRoom[0],
+          friendStatus: response.data.status,
+        };
+      }
+    }
+
+    handleGetUserInfor();
+  }, [roomId]);
+
+  useEffect(() => {
     if (messages.length === 0 && listMember) getMessageListData();
   }, [roomId, listMember, getMessageListData]);
 
@@ -543,7 +561,11 @@ const ChatScreen: React.FC<IChatScreen> = ({
           <ScrollBottomIcon />
         </div>
       )}
-      <ChatInput onSendMessage={handleSendMessage} roomId={roomId} />
+      <ChatInput
+        onSendMessage={handleSendMessage}
+        roomId={roomId}
+        roomInfo={roomInfo}
+      />
       <ChatDrawer
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}

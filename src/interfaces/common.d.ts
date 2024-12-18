@@ -30,6 +30,7 @@ export interface IChatDrawerDetail extends IModalImageSetData {
   setRoomId: Dispatch<SetStateAction<string>>;
   setIsCollapsed?: Dispatch<SetStateAction<boolean>>;
   setIsDesktopCollapsed?: Dispatch<SetStateAction<boolean>>;
+  friendStatus?: string;
 }
 
 declare global {

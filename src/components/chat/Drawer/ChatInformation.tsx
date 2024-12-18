@@ -367,13 +367,15 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
                 </div>
               </div>
             ) : (
-              <div
-                className="flex gap-xs cursor-pointer items-center"
-                onClick={handleDeleteFriend}
-              >
-                <DeleteIcon />
-                <p className="text-red-700 leading-[20px]">Xóa bạn bè</p>
-              </div>
+              roomInfo.userRoom[0].friendStatus === 'FRIEND' && (
+                <div
+                  className="flex gap-xs cursor-pointer items-center"
+                  onClick={handleDeleteFriend}
+                >
+                  <DeleteIcon />
+                  <p className="text-red-700 leading-[20px]">Xóa bạn bè</p>
+                </div>
+              )
             )}
           </div>
 

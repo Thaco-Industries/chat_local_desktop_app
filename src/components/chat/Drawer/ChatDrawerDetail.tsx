@@ -18,6 +18,7 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
   setIsCollapsed,
   setIsDesktopCollapsed,
   setRoomInfo,
+  friendStatus,
 }) => {
   const { getAllFilesInRoom, deleteFileMessage } = useFileService();
   const [activeTab, setActiveTab] = useState<'image' | 'other' | 'video' | ''>(

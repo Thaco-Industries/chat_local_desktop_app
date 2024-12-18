@@ -13,6 +13,12 @@ export const useFriendService = () => {
     return response;
   };
 
+  const searchUserById = async (id: string) => {
+    const response = await apiRequest('GET', `friend/search-user/${id}`);
+
+    return response;
+  };
+
   const sendFriendRequest = async (id: string) => {
     const response = await apiRequest('POST', `friend/requests/${id}`);
 
@@ -74,6 +80,7 @@ export const useFriendService = () => {
     sendFriendRequest,
     cancelSendFriendRequest,
     getUserInfo,
+    searchUserById,
     actionRequestFriend,
     getListFriend,
     getListFriendCanAddToRoom,
