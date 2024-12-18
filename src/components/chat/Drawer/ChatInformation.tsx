@@ -154,7 +154,7 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
 
   const handleConfirmDeleteFriendRoom = async () => {
     const response = await deleteFriend(roomInfo.userRoom[0].user_id);
-    if (response.statusText === 'OK') {
+    if (response.status === 204) {
       setOpenConfirmDeleteFriendModal(false);
     }
   };
@@ -170,7 +170,7 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
     } catch (error: any) {
       // Lấy thông tin lỗi chi tiết
       const errorMessage = error?.response?.data?.message || error.message;
-      notify(`Lỗi tải ảnh: ${errorMessage}`);
+      notify(`Lỗi tải ảnh: ${errorMessage}`, 'error');
       console.error('Error:', errorMessage);
     }
   };
@@ -214,28 +214,27 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
         submitForm,
       }) => (
         <div className="menu flex flex-col gap-xxs bg-background-500 text-base-content min-h-full w-[310px] max-w-[310px] p-0">
-          {roomInfo.is_group && (
-            <Form className="bg-white px-5 text-center flex flex-col items-center gap-xs ">
-              <AvatarSection
-                roomInfo={roomInfo}
-                isLeader={isLeader}
-                avatars={avatars}
-                setAvatars={setAvatars}
-                handleUploadImage={handleUploadImage}
-                setFieldValue={setFieldValue}
-                submitForm={submitForm}
-              />
-              <RoomNameInput
-                roomName={values.roomName || roomInfo.room_name}
-                isLeader={isLeader}
-                isActiveInput={isActiveInput}
-                setIsActiveInput={setIsActiveInput}
-                setFieldValue={setFieldValue}
-                handleBlur={handleBlur}
-                submitForm={submitForm}
-              />
-            </Form>
-          )}
+          <Form className="bg-white px-5 text-center flex flex-col items-center gap-xs">
+            <AvatarSection
+              roomInfo={roomInfo}
+              isLeader={isLeader}
+              avatars={avatars}
+              setAvatars={setAvatars}
+              handleUploadImage={handleUploadImage}
+              setFieldValue={setFieldValue}
+              submitForm={submitForm}
+            />
+            <RoomNameInput
+              roomName={values.roomName || roomInfo.room_name}
+              isLeader={isLeader}
+              isActiveInput={isActiveInput}
+              setIsActiveInput={setIsActiveInput}
+              setFieldValue={setFieldValue}
+              handleBlur={handleBlur}
+              submitForm={submitForm}
+            />
+          </Form>
+
           {roomInfo.is_group && (
             <div className="bg-white px-5 py-sm">
               <h1 className="text-title font-semibold mb-sm">
@@ -354,7 +353,7 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
                   className="flex gap-xs cursor-pointer items-center"
                   onClick={() => setOpenAddMemberModal(true)}
                 >
-                  <AddIcon />{' '}
+                  <AddIcon />
                   <p className="text-primary leading-[20px]">
                     Thêm mới thành viên
                   </p>
@@ -363,7 +362,7 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
                   className="flex gap-xs cursor-pointer items-center"
                   onClick={handleLeaveRoom}
                 >
-                  <ExitIcon />{' '}
+                  <ExitIcon />
                   <p className="text-red-700 leading-[20px]">Rời khỏi nhóm</p>
                 </div>
               </div>
@@ -372,7 +371,7 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
                 className="flex gap-xs cursor-pointer items-center"
                 onClick={handleDeleteFriend}
               >
-                <DeleteIcon />{' '}
+                <DeleteIcon />
                 <p className="text-red-700 leading-[20px]">Xóa bạn bè</p>
               </div>
             )}

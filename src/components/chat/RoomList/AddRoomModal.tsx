@@ -78,8 +78,10 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
       if (response.status === 201) {
         setOpenAddRoomModal(false);
       }
-    } catch (error) {
-      notify('Đã xảy ra lỗi, vui lòng thử lại!', 'error');
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error.message;
+      notify(`Lỗi khi tạo phòng: ${errorMessage}`, 'error');
+      console.error('Error:', errorMessage);
     } finally {
       actions.setSubmitting(false); // Reset isSubmitting
     }
@@ -102,7 +104,7 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
     } catch (error: any) {
       // Lấy thông tin lỗi chi tiết
       const errorMessage = error?.response?.data?.message || error.message;
-      notify(`Lỗi tải ảnh: ${errorMessage}`);
+      notify(`Lỗi tải ảnh: ${errorMessage}`, 'error');
       console.error('Error:', errorMessage);
     }
   };

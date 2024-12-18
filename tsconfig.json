@@ -9,6 +9,6 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist"
   },
-  "include": ["src/**/*"], // Ensure this includes your source files
+  "include": ["src/**/*", "build/events"], // Ensure this includes your source files
   "exclude": ["node_modules"]
 }

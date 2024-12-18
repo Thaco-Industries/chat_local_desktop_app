@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import RoomItem from './RoomItem';
 import SearchAndAddToolbar from '../../common/SearchAndAddToolbar';
 import clsx from 'clsx';
@@ -13,7 +13,29 @@ import { getAuthCookie } from '../../../actions/auth.action';
 import GalleryIcon from '../../../assets/icons/gallery';
 import RoomListSkeleton from './RoomListSkeleton';
 import { useMessageContext } from '../../../context/MessageContext';
+import { notify } from '../../../helper/notify';
 
+const defaultRoom: IRoom = {
+  id: '',
+  avatar_url: '',
+  is_group: false,
+  last_message: {
+    id: '',
+    created_at: '',
+    room_id: '',
+    sender_id: '',
+    message_type: '',
+    seen_by: [],
+    deleted_by: [],
+    status: '',
+    reactions: [],
+    message_display: '',
+  },
+  number_message_not_read: 0,
+  room_name: '',
+  type_room: '',
+  userRoom: [],
+};
 export const RoomList: React.FC<IRoomList> = ({
   setRoomId,
   roomId,
@@ -30,7 +52,7 @@ export const RoomList: React.FC<IRoomList> = ({
     setListMember,
   } = useChatContext();
 
-  const { markAsReadMessage } = useMessageService();
+  const { markAsReadMessage, sendMessage } = useMessageService();
   const { getMemberInRoom, getRoomById } = useRoomService();
   const { setUnreadRooms } = useMessageContext();
   const { socket } = useSocket();
@@ -39,6 +61,13 @@ export const RoomList: React.FC<IRoomList> = ({
   const [keyword, setKeyword] = useState<string>('');
   const [roomListSearch, setRoomListSearch] = useState<IRoom[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [newMessageRoomInfo, setNewMessageRoomInfo] =
+    useState<IRoom>(defaultRoom);
+  const newMessageRoomInfoRef = useRef<IRoom>(defaultRoom);
+
+  useEffect(() => {
+    newMessageRoomInfoRef.current = newMessageRoomInfo;
+  }, [newMessageRoomInfo]);
 
   useEffect(() => {
     if (keyword === '') {
@@ -50,59 +79,133 @@ export const RoomList: React.FC<IRoomList> = ({
     }
   }, [keyword]);
 
+  useEffect(() => {
+    const handleReplyMessage = async (message: string) => {
+      const roomInfo = newMessageRoomInfoRef.current;
+      if (roomInfo) {
+        const payload = {
+          message,
+          reciever: roomInfo.id,
+          reply_message_id: roomInfo.last_message.id,
+          toGroup: roomInfo.is_group,
+          type: 'TEXT',
+        };
+
+        try {
+          const response = await sendMessage(payload);
+        } catch (error: any) {
+          const errorMessage = error?.response?.data?.message || error.message;
+          notify(errorMessage, 'error');
+          console.error('Error:', errorMessage);
+        }
+      }
+    };
+
+    window.electronAPI.onReplyNotification(handleReplyMessage);
+
+    return () => {
+      // Clean up listener
+      window.electronAPI.removeListener(
+        'send-reply-message',
+        handleReplyMessage
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleNotification = async (data: INotificationNewMessage) => {
+      if (data && data.message.room_id) {
+        const newRoomId = data.message.room_id;
+        if (newRoomId === roomId) return;
+
+        const response = await getRoomById(newRoomId);
+        if (response.data) {
+          handleRoomClick(response.data);
+        }
+      }
+    };
+
+    window.electronAPI.onNotificationClicked(handleNotification);
+
+    return () => {
+      // Clean up listener
+      window.electronAPI.removeListener(
+        'notification-clicked',
+        handleNotification
+      );
+    };
+  }, []);
+
   const handleNewMessage = useCallback(
     (message: INotificationNewMessage) => {
+      let renderedMessage: string | React.ReactNode =
+        message.message.message_display;
+
+      const fileExtension =
+        message.message.file_id?.file_name?.split('.').pop()?.toLowerCase() ||
+        '';
+      const isImage = ['png', 'jpg', 'jpeg', 'gif', 'svf'].includes(
+        fileExtension
+      );
+      if (message.message.message_type === 'FILE') {
+        renderedMessage = isImage ? (
+          <div className="flex gap-1 items-center">
+            <GalleryIcon size="16" color="#7B87A1" /> Hình ảnh
+          </div>
+        ) : (
+          message.message.message_display
+        );
+      }
+
+      let notificationMessage;
+      if (message.message.message_type === 'FILE') {
+        if (isImage) {
+          notificationMessage = 'Hình ảnh';
+        } else {
+          notificationMessage = `File đính kèm: ${
+            message.message.file_id?.file_name || 'Không xác định'
+          }`;
+        }
+      } else {
+        notificationMessage = message.message.message_display;
+      }
+
+      // Nội dung thông báo
+      if (
+        message.sender.id !== userAuth?.user.id &&
+        message.message.message_type !== 'NOTIFICATION'
+      ) {
+        const notificationContent = {
+          ...message,
+          message_display: notificationMessage,
+        };
+
+        // Hiển thị thông báo qua Electron
+        if (window.electronAPI) {
+          window.electronAPI.notifyMessage(notificationContent);
+        } else {
+          console.error(
+            'electronAPI.receiveNotification không được định nghĩa'
+          );
+        }
+      }
+
+      const room_Id = message.message.room_id;
+      const existingRoom = roomList.find((room) => room.id === room_Id);
+      if (existingRoom) setNewMessageRoomInfo(existingRoom);
+
+      // Cập nhật danh sách phòng
       setRoomList((prevRoomList) => {
         const updatedRoomList = prevRoomList.map((room) => {
-          if (room.id !== message.message.room_id) {
-            return room; // Không thay đổi room này
-          }
+          if (room.id !== message.message.room_id) return room;
 
-          // Xử lý nếu là phòng hiện tại
           const isCurrentRoom = room.id === roomId;
           if (isCurrentRoom) {
-            markAsRead(room);
+            markAsRead(room.id);
           }
 
-          // Xác định người gửi
           const isNotUserMessage = message.sender.id !== userAuth?.user.id;
 
-          // Xử lý kiểu tin nhắn
-          const { file_id, message_type, message_display } = message.message;
-
-          const fileExtension =
-            file_id?.file_name?.split('.').pop()?.toLocaleLowerCase() || '';
-          const isImage = ['png', 'jpg', 'jpeg', 'gif', 'svf'].includes(
-            fileExtension
-          );
-
-          let renderedMessage: string | React.ReactNode = '';
-          if (typeof message_display !== 'string') {
-            renderedMessage = message_display; // Không render lại nếu đã được xử lý
-          } else if (message_type === 'TEXT') {
-            renderedMessage = message_display;
-          } else if (message_type === 'FILE') {
-            if (isImage) {
-              renderedMessage = (
-                <div className="flex gap-1 items-center">
-                  <GalleryIcon size="16" color="#7B87A1" /> Hình ảnh
-                </div>
-              );
-            } else {
-              renderedMessage = message_display;
-
-              {
-                /* <span>
-                    <PaperClipIcon size="16" color="#7B87A1" />
-                  </span> */
-              }
-              // <span className="truncate w-full">{}</span>
-            }
-          } else {
-            renderedMessage = message_display;
-          }
-
-          // Trả về room đã cập nhật
           return {
             ...room,
             number_message_not_read:
@@ -112,7 +215,7 @@ export const RoomList: React.FC<IRoomList> = ({
             last_message: {
               ...room.last_message,
               ...message.message,
-              message_display: renderedMessage, // Cập nhật message display
+              message_display: renderedMessage,
             },
           };
         });
@@ -222,9 +325,9 @@ export const RoomList: React.FC<IRoomList> = ({
     }
   }, [socket, handleNewMessage, handleMarkAsReadRoomSuccess]);
 
-  const markAsRead = async (room: IRoom) => {
+  const markAsRead = async (room_id: string) => {
     try {
-      await markAsReadMessage(room.id);
+      await markAsReadMessage(room_id);
     } catch (err) {
       console.error('API call failed: ', err);
     }
@@ -244,7 +347,7 @@ export const RoomList: React.FC<IRoomList> = ({
 
     setRoomId(newRoomId);
     setListMember(null);
-    markAsRead(room);
+    markAsRead(room.id);
     setRoomInfo(room);
     setMessages([]);
     setLastMessageId('');
@@ -269,7 +372,8 @@ export const RoomList: React.FC<IRoomList> = ({
 
       <ul
         className={clsx(
-          'h-[calc(100%-80px)] overflow-y-auto scrollbar transition-opacity duration-300 '
+          'overflow-y-auto scrollbar transition-opacity duration-300',
+          keyword ? 'h-[calc(100%-120px)]' : 'h-[calc(100%-80px)]'
         )}
       >
         {loading

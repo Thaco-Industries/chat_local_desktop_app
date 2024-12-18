@@ -70,7 +70,7 @@ const ChatHeader: React.FC<IChatHeader> = ({
     } catch (error: any) {
       // Lấy thông tin lỗi chi tiết
       const errorMessage = error?.response?.data?.message || error.message;
-      notify(`Lỗi tải ảnh: ${errorMessage}`);
+      notify(`Lỗi tải ảnh: ${errorMessage}`, 'error');
       console.error('Error:', errorMessage);
     }
   };
@@ -187,7 +187,7 @@ const ChatHeader: React.FC<IChatHeader> = ({
               />
             </div>
             <div className="flex-1 flex flex-col justify-center">
-              <div className="group flex gap-2 relative max-w-[140px] sm:max-w-[300px] tablet:max-w-[460px]">
+              <div className="group flex relative max-w-[140px] sm:max-w-[300px] tablet:max-w-[460px]">
                 <CustomField
                   type="text"
                   name="roomName"

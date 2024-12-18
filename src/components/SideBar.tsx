@@ -10,18 +10,30 @@ import { deleteAuthCookie, getAuthCookie } from '../actions/auth.action';
 import { useMessageContext } from '../context/MessageContext';
 import UserAvatar from './common/UserAvatar';
 import { useSocket } from '../context/SocketContext';
-import { INotificationNewMessage } from '../interfaces';
 import { useMessageService } from '../services/MessageService';
 
 export const SideBar: React.FC = () => {
-  const { roomList, unreadRooms, setUnreadRooms } = useMessageContext();
+  const {
+    roomList,
+    unreadRooms,
+    setUnreadRooms,
+    setRoomList,
+    setIsSearchMessage,
+    setRoomId,
+  } = useMessageContext();
   const { getNumberConversationNotRead } = useMessageService();
   const { socket } = useSocket();
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
   const userAuth = getAuthCookie();
-  const [displayUnreadMessage, setDisplayUnreadMessage] = useState<any>();
+
+  useEffect(() => {
+    setUnreadRooms(0);
+    setRoomList([]);
+    setIsSearchMessage(false);
+    setRoomId('');
+  }, [currentPath]);
 
   const updateUnreadRooms = async () => {
     if (location.pathname === '/') {
@@ -34,6 +46,10 @@ export const SideBar: React.FC = () => {
       if (response.data) setUnreadRooms(response.data);
     }
   };
+
+  useEffect(() => {
+    window.electronAPI.updateBadge(unreadRooms);
+  }, [unreadRooms]);
 
   useEffect(() => {
     updateUnreadRooms();

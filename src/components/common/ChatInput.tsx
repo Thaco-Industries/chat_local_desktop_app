@@ -86,7 +86,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, roomId }) => {
         console.log(errorMessage);
 
         // console.error('Error message:', errorMessage);
-        notify(errorMessage);
+        notify(errorMessage, 'error');
       }
     }
     e.target.value = ''; // Reset input sau khi tải lên
