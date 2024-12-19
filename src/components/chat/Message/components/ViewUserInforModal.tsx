@@ -1,46 +1,54 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import UserAvatar from '../../common/UserAvatar';
-import { IUserInfo } from '../../../interfaces';
-import { useFriendService } from '../../../services/FriendService';
-import { IFriendInfo } from '../../../interfaces/Friend';
 import clsx from 'clsx';
 import { Spinner } from 'flowbite-react';
+import { useFriendService } from '../../../../services/FriendService';
+import { IUserInfo } from '../../../../interfaces';
+import { IFriendInfo } from '../../../../interfaces/Friend';
+import UserAvatar from '../../../common/UserAvatar';
 
 type Props = {
-  openFriendInfoModal: boolean;
-  setOpenFriendInfoModal: Dispatch<SetStateAction<boolean>>;
+  openViewUserInforModal: boolean;
+  setOpenViewUserInforModal: Dispatch<SetStateAction<boolean>>;
   friendId: string;
-  isRequest: boolean;
-  isLoading: boolean;
-  isShowButton: boolean;
-  handleAddFriendClick: (userId: string) => void;
-  handleAcceptRequestClick: (userId: string) => void;
   overlay: boolean;
 };
 
-function FriendInfoModal({
-  openFriendInfoModal,
-  setOpenFriendInfoModal,
+function ViewUserInforModal({
+  openViewUserInforModal,
+  setOpenViewUserInforModal,
   friendId,
-  isRequest,
-  isLoading,
-  isShowButton,
-  handleAddFriendClick,
-  handleAcceptRequestClick,
+
   overlay,
 }: Props) {
   const { searchUserById } = useFriendService();
   const [userInfor, setUserInfo] = useState<IUserInfo>();
   const [friendInfor, setFriendInfor] = useState<IFriendInfo>();
-  const { getUserInfo } = useFriendService();
+  const {
+    getUserInfo,
+    sendFriendRequest,
+    cancelSendFriendRequest,
+    actionRequestFriend,
+  } = useFriendService();
+
+  const [isRequest, setIsRequest] = useState<boolean>(false);
+  const [isShowButton, setIsShowButton] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!openFriendInfoModal) return;
+    if (!openViewUserInforModal) return;
     getUser();
     if (friendId) {
       getFriendById(friendId);
     }
-  }, [openFriendInfoModal, friendId]);
+  }, [openViewUserInforModal, friendId]);
+
+  useEffect(() => {
+    if (friendInfor) {
+      // Cập nhật isRequest và isShowButton dựa trên friendInfor
+      setIsRequest(friendInfor.status !== 'FRIEND');
+      setIsShowButton(friendInfor.status !== 'FRIEND');
+    }
+  }, [friendInfor]);
 
   const personalInfo = [
     { label: 'Mã số nhân viên', value: userInfor?.infor.msnv },
@@ -58,6 +66,51 @@ function FriendInfoModal({
       value: userInfor?.position_infor[0].position,
     },
   ];
+
+  const handleAddFriendClick = async (userId: string) => {
+    setIsRequest((prev) => !prev);
+    setIsLoading(true);
+    try {
+      if (isRequest) {
+        const response = await cancelSendFriendRequest(userId);
+        if (response.status !== 204) {
+          // Nếu API lỗi, hoàn nguyên trạng thái
+          setIsRequest(true);
+        }
+      } else {
+        const response = await sendFriendRequest(userId);
+        if (response.status !== 201) {
+          // Nếu API lỗi, hoàn nguyên trạng thái
+          setIsRequest(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      // Hoàn nguyên trạng thái nếu xảy ra lỗi
+      setIsRequest(!isRequest);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAcceptRequestClick = async (userId: string) => {
+    setIsLoading(true);
+    try {
+      const payload = {
+        id: userId,
+        status: 'ACCEPTED',
+      };
+      const response = await actionRequestFriend(userId, payload);
+      console.log(response);
+      if (response.status === 204) {
+        setIsShowButton(false);
+      }
+    } catch (error) {
+      console.error('Error accepting friend request:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getUser = async () => {
     if (!friendId) return;
@@ -81,10 +134,10 @@ function FriendInfoModal({
   };
 
   const closeModal = () => {
-    setOpenFriendInfoModal(false);
+    setOpenViewUserInforModal(false);
   };
 
-  if (!openFriendInfoModal) return null;
+  if (!openViewUserInforModal) return null;
 
   return (
     <div
@@ -214,4 +267,4 @@ function FriendInfoModal({
   );
 }
 
-export default FriendInfoModal;
+export default ViewUserInforModal;

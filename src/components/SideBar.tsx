@@ -11,6 +11,8 @@ import { useMessageContext } from '../context/MessageContext';
 import UserAvatar from './common/UserAvatar';
 import { useSocket } from '../context/SocketContext';
 import { useMessageService } from '../services/MessageService';
+import FeedbackIcon from '../assets/icons/feedback';
+import ProfileIcon from '../assets/icons/profile';
 
 export const SideBar: React.FC = () => {
   const {
@@ -57,6 +59,20 @@ export const SideBar: React.FC = () => {
     updateUnreadRooms();
   }, [roomList]);
 
+  const openFeedbackForm = () => {
+    const url =
+      'https://docs.google.com/forms/d/e/1FAIpQLSeQ9f_GVmgrQ4gMES8Dl_BLjXqxG4XBmyw7bA4GLa44JAkaIQ/viewform';
+    window.electronAPI
+      .openUrl(url)
+      .then((response: { success: boolean; error?: string }) => {
+        if (response.success) {
+          console.log('URL opened successfully');
+        } else {
+          console.error('Failed to open URL:', response.error);
+        }
+      });
+  };
+
   const handleNewMessage = useCallback(async () => {
     await updateUnreadRooms();
   }, [roomList]);
@@ -88,6 +104,12 @@ export const SideBar: React.FC = () => {
       icon: <PeopleIcon />,
       title: 'Nhóm',
       url: '/group',
+      badge: false,
+    },
+    {
+      icon: <ProfileIcon />,
+      title: 'Cá nhân',
+      url: '/profile',
       badge: false,
     },
     {
@@ -152,6 +174,12 @@ export const SideBar: React.FC = () => {
               </span>
             </Link>
           ))}
+      </div>
+      <div
+        className="min-w-[70px] h-xl flex-1 flex items-end justify-center cursor-pointer"
+        onClick={openFeedbackForm} // Xử lý sự kiện onClick
+      >
+        <FeedbackIcon />
       </div>
     </div>
   );

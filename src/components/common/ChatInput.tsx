@@ -245,7 +245,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
             className={clsx(
               'min-h-[50px] max-h-[150px] input flex items-center focus:outline-none focus-within:outline-none rounded-[30px] border-none join-item',
               { 'transition-[height 0.2s ease-in-out]': true },
-              roomInfo.userRoom[0].friendStatus === 'FRIEND'
+              roomInfo.is_group === true ||
+                roomInfo.userRoom[0].friendStatus === 'FRIEND'
                 ? 'bg-white'
                 : 'bg-[#F1F1F1]'
             )}
@@ -260,7 +261,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 title="Gửi hình ảnh"
                 onClick={() => document.getElementById('imageUpload')?.click()}
                 disabled={
-                  roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+                  roomInfo.is_group === true ||
+                  roomInfo.userRoom[0].friendStatus === 'FRIEND'
+                    ? false
+                    : true
                 }
               >
                 <GalleryIcon />
@@ -276,7 +280,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 onChange={handleFileChange}
                 title="gửi ảnh"
                 disabled={
-                  roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+                  roomInfo.is_group === true ||
+                  roomInfo.userRoom[0].friendStatus === 'FRIEND'
+                    ? false
+                    : true
                 }
               />
               <button
@@ -285,7 +292,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 onClick={() => document.getElementById('fileUpload')?.click()}
                 className="p-2 text-gray-500 cursor-pointer"
                 disabled={
-                  roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+                  roomInfo.is_group === true ||
+                  roomInfo.userRoom[0].friendStatus === 'FRIEND'
+                    ? false
+                    : true
                 }
               >
                 <PaperClipIcon />
@@ -300,7 +310,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 onChange={handleFileChange}
                 title="gửi file"
                 disabled={
-                  roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+                  roomInfo.is_group === true ||
+                  roomInfo.userRoom[0].friendStatus === 'FRIEND'
+                    ? false
+                    : true
                 }
               />
             </div>
@@ -313,13 +326,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
               value={text}
               className={clsx(
                 'block resize-none p-2.5 w-full text-[#252525]  border-0 focus:ring-0 max-h-[130px] scrollbar rounded-s-[10px]',
-                roomInfo.userRoom[0].friendStatus === 'FRIEND'
+                roomInfo.is_group === true ||
+                  roomInfo.userRoom[0].friendStatus === 'FRIEND'
                   ? 'bg-white'
                   : 'bg-[#F1F1F1]'
               )}
               placeholder="Nhập tin nhắn"
               disabled={
-                roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+                roomInfo.is_group === true ||
+                roomInfo.userRoom[0].friendStatus === 'FRIEND'
+                  ? false
+                  : true
               }
             />
             <div className="relative">
@@ -328,7 +345,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 title="Biểu cảm"
                 onClick={() => setShowEmojiPicker((prev) => !prev)}
                 disabled={
-                  roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+                  roomInfo.is_group === true ||
+                  roomInfo.userRoom[0].friendStatus === 'FRIEND'
+                    ? false
+                    : true
                 }
               >
                 <SmileIcon />
@@ -348,7 +368,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
               title="Gửi"
               className="inline-flex justify-center p-2 text-blue-600  cursor-pointer ml-xs"
               disabled={
-                roomInfo.userRoom[0].friendStatus === 'FRIEND' ? false : true
+                roomInfo.userRoom[0].friendStatus === 'FRIEND' &&
+                roomInfo.is_group
+                  ? false
+                  : true
               }
             >
               <SendIcon />

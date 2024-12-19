@@ -27,6 +27,7 @@ process.once('loaded', () => {
     updateBadge: (count) => ipcRenderer.send('update-badge', count),
     closeNotificationWindow: () =>
       ipcRenderer.invoke('close-notification-window'),
+    openUrl: (url) => ipcRenderer.invoke('open-url', url),
   });
 });
 

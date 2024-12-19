@@ -51,6 +51,7 @@ declare global {
       //Loại bỏ lắng nghe event
       removeListener: (event: string, callback: (data: any) => void) => void;
       updateBadge: (count: number) => void;
+      openUrl: (url: string) => Promise<{ success: boolean; error?: string }>;
     };
   }
 }
