@@ -61,13 +61,7 @@ export const RoomList: React.FC<IRoomList> = ({
   const [keyword, setKeyword] = useState<string>('');
   const [roomListSearch, setRoomListSearch] = useState<IRoom[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  // const [newMessageRoomInfo, setNewMessageRoomInfo] =
-  //   useState<IRoom>(defaultRoom);
   const newMessageRoomInfoRef = useRef<IRoom>(defaultRoom);
-
-  useEffect(() => {
-    console.log(newMessageRoomInfoRef.current);
-  }, [newMessageRoomInfoRef.current]);
 
   useEffect(() => {
     if (keyword === '') {
