@@ -15,6 +15,7 @@ import PlayButton from '../chat/Message/components/PlayButton';
 import { notify } from '../../helper/notify';
 import { v4 as uuidv4 } from 'uuid';
 import { IRoom } from '../../interfaces';
+import { useFriendService } from '../../services/FriendService';
 
 interface ChatInputProps {
   onSendMessage: (
@@ -31,9 +32,26 @@ const ChatInput: React.FC<ChatInputProps> = ({
   roomId,
   roomInfo,
 }) => {
+  const { searchUserById } = useFriendService();
   const [text, setText] = useState<string>('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (roomInfo.is_group || !roomInfo) return;
+    async function handleGetUserInfor() {
+      const response = await searchUserById(roomInfo.userRoom[0].user_id);
+      if (response.data) {
+        // setFriendStatus(response.data.status);
+        roomInfo.userRoom[0] = {
+          ...roomInfo.userRoom[0],
+          friendStatus: response.data.status,
+        };
+      }
+    }
+
+    handleGetUserInfor();
+  }, [roomId]);
 
   const [formHeight, setFormHeight] = useState<number>(40);
 
@@ -339,7 +357,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   : true
               }
             />
-            <div className="relative">
+            <div className="flex items-center">
               <button
                 type="button"
                 title="Biểu cảm"
@@ -368,8 +386,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
               title="Gửi"
               className="inline-flex justify-center p-2 text-blue-600  cursor-pointer ml-xs"
               disabled={
-                roomInfo.userRoom[0].friendStatus === 'FRIEND' &&
-                roomInfo.is_group
+                roomInfo.is_group === true ||
+                roomInfo.userRoom[0].friendStatus === 'FRIEND'
                   ? false
                   : true
               }
