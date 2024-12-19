@@ -125,6 +125,11 @@ export const useRoomService = () => {
     return response;
   };
 
+  const getInvitedRoom = async () => {
+    const response = await apiRequest('GET', `invited-rooms`);
+    return response;
+  };
+
   return {
     getMemberInRoom,
     uploadRoomImage,
@@ -138,5 +143,6 @@ export const useRoomService = () => {
     leaveRoom,
     listCanGiveLeader,
     getRoomById,
+    getInvitedRoom,
   };
 };

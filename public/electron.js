@@ -22,7 +22,6 @@ let notificationWindow = null;
 let mainWindow;
 let tray;
 let lastNotificationMessage = null;
-let splashWindow = null;
 let badge;
 
 const baseDir = path.resolve(__dirname, '..');
@@ -70,28 +69,6 @@ function createWindow() {
   }
 }
 
-function createSplashScreen() {
-  splashWindow = new BrowserWindow({
-    width: 1500,
-    height: 800,
-    frame: false, // Ẩn thanh tiêu đề
-    alwaysOnTop: true,
-    transparent: true,
-    webPreferences: {
-      contextIsolation: true,
-      nodeIntegration: false,
-    },
-  });
-  const appURL = app.isPackaged
-    ? `file://${path.join(__dirname, '../build/splash.html')}#/`
-    : `file://${path.join(__dirname, 'splash.html')}`;
-  splashWindow.loadURL(appURL);
-
-  splashWindow.on('closed', () => {
-    splashWindow = null;
-  });
-}
-
 function setupLocalFilesNormalizerProxy() {
   protocol.registerHttpProtocol(
     'file',
@@ -119,57 +96,49 @@ if (!gotTheLock) {
     }
   });
   app.whenReady().then(() => {
-    createSplashScreen();
+    createWindow();
+    setupLocalFilesNormalizerProxy();
+    // Tạo Tray Icon
+    tray = new Tray(path.join(__dirname, 'icon.png')); // Thay bằng icon phù hợp
 
-    // Giả lập thời gian tải ứng dụng (ví dụ: 3 giây)
-    setTimeout(() => {
-      if (splashWindow) {
-        splashWindow.close(); // Đóng splash screen
-      }
-      createWindow();
-      setupLocalFilesNormalizerProxy();
-      // Tạo Tray Icon
-      tray = new Tray(path.join(__dirname, 'icon.png')); // Thay bằng icon phù hợp
-
-      const trayMenu = Menu.buildFromTemplate([
-        {
-          label: 'Mở ứng dụng',
-          click: () => {
-            mainWindow.show();
-            mainWindow.focus();
-          },
+    const trayMenu = Menu.buildFromTemplate([
+      {
+        label: 'Mở ứng dụng',
+        click: () => {
+          mainWindow.show();
+          mainWindow.focus();
         },
-        {
-          label: 'Thoát',
-          click: () => {
-            app.isQuiting = true;
-            app.quit();
-          },
+      },
+      {
+        label: 'Thoát',
+        click: () => {
+          app.isQuiting = true;
+          app.quit();
         },
-      ]);
+      },
+    ]);
 
-      tray.setContextMenu(trayMenu);
-      tray.setToolTip('Chat Local R&D');
+    tray.setContextMenu(trayMenu);
+    tray.setToolTip('Chat Local R&D');
 
-      tray.on('click', () => {
-        mainWindow.show();
-        mainWindow.focus();
-      });
-
-      app.on('activate', function () {
-        if (BrowserWindow.getAllWindows().length === 0) {
-          createWindow();
-        } else {
-          const mainWindow = BrowserWindow.getAllWindows()[0];
-          if (mainWindow) {
-            mainWindow.focus();
-          }
-        }
-      });
-
-      // autoUpdater.checkForUpdates();
+    tray.on('click', () => {
+      mainWindow.show();
+      mainWindow.focus();
     });
-  }, 3000); // Thời gian hiển thị splash screen
+
+    app.on('activate', function () {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+      } else {
+        const mainWindow = BrowserWindow.getAllWindows()[0];
+        if (mainWindow) {
+          mainWindow.focus();
+        }
+      }
+    });
+
+    // autoUpdater.checkForUpdates();
+  });
 }
 
 app.on('window-all-closed', function () {

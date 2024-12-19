@@ -1,9 +1,9 @@
 import { Popover } from 'flowbite-react';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import MoreIcon from '../../assets/icons/more';
 import { useRoomService } from '../../services/RoomService';
 import ConfirmRemoveMemberModal from '../chat/ConfirmRemoveMemberModal';
-import { userInfo } from 'os';
+import ConfirmModal from '../modal/ConfirmModal';
 
 type Props = {
   roomId: string;
@@ -15,6 +15,8 @@ function MemberActionPopover({ roomId, memberId, memberName }: Props) {
   const { removeMember, changeRoomLeader } = useRoomService();
   const [isOpen, setIsOpen] = useState(false);
   const [openConfirmModal, setOpenConfirmModal] = useState<boolean>(false);
+  const [openChangeLeaderModal, setOpenChangeLeaderModal] =
+    useState<boolean>(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,6 +48,7 @@ function MemberActionPopover({ roomId, memberId, memberName }: Props) {
     };
     await changeRoomLeader(payload);
     setIsOpen(false);
+    setOpenChangeLeaderModal(false);
   };
 
   return (
@@ -63,7 +66,7 @@ function MemberActionPopover({ roomId, memberId, memberName }: Props) {
               </div>
               <div
                 className="self-stretch grow shrink basis-0 justify-start items-center gap-2.5 inline-flex cursor-pointer"
-                onClick={handleChangeRoomLeader}
+                onClick={() => setOpenChangeLeaderModal(true)}
               >
                 <div className="text-textBody">Chuyển trưởng nhóm</div>
               </div>
@@ -88,6 +91,13 @@ function MemberActionPopover({ roomId, memberId, memberName }: Props) {
         setOpenConfirmModal={setOpenConfirmModal}
         handleRemoveMember={handleRemoveMember}
         memberName={memberName}
+      />
+      <ConfirmModal
+        content={`Bạn có chắc muốn chuyển quyền trưởng nhóm cho ${memberName}?`}
+        handleConfirm={handleChangeRoomLeader}
+        openModal={openChangeLeaderModal}
+        setOpenModal={setOpenChangeLeaderModal}
+        title="Thông báo"
       />
     </div>
   );

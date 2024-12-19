@@ -27,6 +27,7 @@ function UserAvatar({
     width: size || 45,
     height: size || 45,
   };
+
   return (
     <div>
       {url && url.includes('http') ? (
