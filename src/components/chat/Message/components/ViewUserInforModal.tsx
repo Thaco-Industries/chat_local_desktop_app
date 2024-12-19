@@ -2,9 +2,10 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { Spinner } from 'flowbite-react';
 import { useFriendService } from '../../../../services/FriendService';
-import { IUserInfo } from '../../../../interfaces';
+import { IPositionInfo, IUserInfo } from '../../../../interfaces';
 import { IFriendInfo } from '../../../../interfaces/Friend';
 import UserAvatar from '../../../common/UserAvatar';
+import PositionIcon from '../../../../assets/icons/position-icon';
 
 type Props = {
   openViewUserInforModal: boolean;
@@ -137,6 +138,45 @@ function ViewUserInforModal({
     setOpenViewUserInforModal(false);
   };
 
+  function renderPosition(data: IPositionInfo[]) {
+    const mainPosition = data.find((item) => item.priority === 0);
+    const secondaryPositions = data.filter((item) => item.priority !== 0);
+    return (
+      <div>
+        <p className="text-textBody font-semibold">Chức vụ đảm nhiệm chính </p>
+        <p className="text-textBody mt-xs flex items-center">
+          {mainPosition ? (
+            <>
+              <PositionIcon />
+              <span className="ml-xs">
+                {mainPosition.position} - {mainPosition.ban_name}
+              </span>
+            </>
+          ) : (
+            <span className="text-[#C0C0C0]">
+              Chưa có chức vụ đảm nhiệm chính
+            </span>
+          )}
+        </p>
+        <p className="text-textBody font-semibold mt-sm">Chức vụ kiêm nhiệm</p>
+        <p className="text-textBody mt-xs">
+          {secondaryPositions.length > 0 ? (
+            secondaryPositions.map((item, index) => (
+              <div key={index} className="flex items-center">
+                <PositionIcon />
+                <span className="ml-xs">
+                  {item.position} - {item.ban_name}
+                </span>
+              </div>
+            ))
+          ) : (
+            <span className="text-[#C0C0C0]">Chưa có chức vụ kiêm nhiệm</span>
+          )}
+        </p>
+      </div>
+    );
+  }
+
   if (!openViewUserInforModal) return null;
 
   return (
@@ -249,13 +289,9 @@ function ViewUserInforModal({
                   <h1 className="text-title font-semibold my-[15px]">
                     Thông tin chức vụ
                   </h1>
-                  <div className="grid grid-cols-[160px_auto] gap-y-[15px]">
-                    {positionInfo.map((info, index) => (
-                      <React.Fragment key={index}>
-                        <p>{info.label}:</p>
-                        <p>{info.value}</p>
-                      </React.Fragment>
-                    ))}
+                  <div className="flex flex-col gap-xs">
+                    {userInfor.position_infor &&
+                      renderPosition(userInfor.position_infor)}
                   </div>
                 </div>
               </div>

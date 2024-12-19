@@ -14,7 +14,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const Badge = require('electron-windows-badge');
 const badgeIcon = path.join(__dirname, 'badge-icon.png');
-const defaultIcon = path.join(__dirname, 'favicon.ico');
+const defaultIcon = path.join(__dirname, 'icon.png');
 const isDev = !app.isPackaged;
 
 let notificationWindow = null;
@@ -41,8 +41,11 @@ function createWindow() {
     minHeight: 700,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      enableRemoteModule: false,
+      nodeIntegration: false,
     },
-    icon: path.join(__dirname, 'favicon.ico'),
+    icon: path.join(__dirname, 'icon.png'),
   });
 
   const appURL = !isDev ? productUrl : 'http://localhost:3000/';
@@ -85,7 +88,7 @@ app.whenReady().then(() => {
   createWindow();
   setupLocalFilesNormalizerProxy();
   // Tạo Tray Icon
-  tray = new Tray(path.join(__dirname, 'favicon.ico')); // Thay bằng icon phù hợp
+  tray = new Tray(path.join(__dirname, 'icon.png')); // Thay bằng icon phù hợp
 
   const trayMenu = Menu.buildFromTemplate([
     {
@@ -169,7 +172,7 @@ function initializeNotificationWindow(message) {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
-    icon: path.join(__dirname, 'favicon.ico'),
+    icon: path.join(__dirname, 'icon.png'),
     x: width - 400,
     y: height - 200,
   });
@@ -180,7 +183,6 @@ function initializeNotificationWindow(message) {
 
   notificationWindow.setMenuBarVisibility(false);
   notificationWindow.loadURL(appURL);
-  notificationWindow.webContents.openDevTools();
 
   notificationWindow.on('closed', () => {
     notificationWindow = null;
@@ -195,19 +197,9 @@ function initializeNotificationWindow(message) {
 
 ipcMain.on('display-custom-notification', (event, message) => {
   //Kiểm tra trạng thái của mainWindow
-  if (
-    mainWindow &&
-    mainWindow.isVisible() &&
-    !mainWindow.isMinimized() &&
-    mainWindow.isFocused()
-  ) {
-    // Nếu mainWindow đang hiển thị và không bị thu nhỏ, không hiển thị thông báo
-    console.log('MainWindow đang hiển thị. Không hiển thị thông báo.');
-    return;
+  if (mainWindow && (!mainWindow.isVisible() || mainWindow.isMinimized())) {
+    createNotificationWindow(message);
   }
-
-  // Nếu mainWindow không hiển thị, tạo cửa sổ thông báo
-  createNotificationWindow(message);
 });
 
 ipcMain.handle('notification-clicked', async () => {
@@ -273,9 +265,14 @@ ipcMain.handle('close-notification-window', async () => {
 });
 
 ipcMain.handle('open-url', async (event, url) => {
-  if (url) {
-    await shell.openExternal(url); // Mở URL trong trình duyệt mặc định
-    return { success: true };
+  try {
+    if (url) {
+      await shell.openExternal(url); // Sử dụng shell để mở URL trong trình duyệt
+      return { success: true };
+    }
+    return { success: false, error: 'Invalid URL' };
+  } catch (error) {
+    console.error('Error opening URL:', error);
+    return { success: false, error: error.message };
   }
-  return { success: false, error: 'Invalid URL' };
 });
