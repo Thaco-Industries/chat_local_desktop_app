@@ -81,17 +81,8 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
     handleGetInvitedList();
   }, [roomInfo]);
 
-  const getListMember = async () => {
-    const response = await getMemberInRoom(roomInfo.id);
-    if (response.status === 200) {
-      const updatedList = response.data;
-      setListMember(updatedList);
-    }
-  };
-
   const handleChangeRoomLeader = () => {
     handleGetInvitedList();
-    getListMember();
   };
 
   useEffect(() => {

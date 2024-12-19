@@ -1,10 +1,11 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import UserAvatar from '../common/UserAvatar';
 import MemberActionPopover from '../common/MemberActionPopover';
 import { useChatContext } from '../../context/ChatContext';
 import { getAuthCookie } from '../../actions/auth.action';
 import { IInvitedInfor, IRoom } from '../../interfaces';
 import { useRoomService } from '../../services/RoomService';
+import { useSocket } from '../../context/SocketContext';
 
 type Props = {
   roomInfo: IRoom;
@@ -14,8 +15,11 @@ type Props = {
 
 function ViewAllMemberInRoom({ roomInfo, invitedList, setInvitedList }: Props) {
   const { listMember } = useChatContext();
-  const { leaderActionInvited } = useRoomService();
+  const { leaderActionInvited, invitedRoomList, getMemberInRoom } =
+    useRoomService();
   const userAuth = getAuthCookie();
+  const { socket } = useSocket();
+  const { setListMember } = useChatContext();
 
   const filteredMembers = Object.values(listMember ?? {}).filter(
     (member) => member.userRoom[0].deleted_at === null
@@ -40,6 +44,38 @@ function ViewAllMemberInRoom({ roomInfo, invitedList, setInvitedList }: Props) {
       );
     }
   };
+
+  const handleGetInvitedList = async () => {
+    const response = await invitedRoomList(roomInfo.id);
+    if (response.data) {
+      setInvitedList(response.data);
+    }
+  };
+
+  const getListMember = async () => {
+    const response = await getMemberInRoom(roomInfo.id);
+    if (response.status === 200) {
+      const updatedList = response.data;
+      setListMember(updatedList);
+    }
+  };
+
+  const handleChangeRoomLeader = () => {
+    handleGetInvitedList();
+    getListMember();
+  };
+
+  useEffect(() => {
+    if (socket) {
+      socket.on(`new-invitation/${roomInfo.id}`, handleGetInvitedList);
+      socket.on(`change-room-leader/${roomInfo.id}`, handleChangeRoomLeader);
+
+      return () => {
+        socket.off(`new-invitation/${roomInfo.id}`);
+        socket.off(`change-room-leader/${roomInfo.id}`);
+      };
+    }
+  }, [socket, roomInfo, handleChangeRoomLeader]);
 
   return (
     <div className="w-full flex flex-col items-start justify-between bg-background-500 gap-xs pb-0">

@@ -13,6 +13,8 @@ import { useSocket } from '../context/SocketContext';
 import { useMessageService } from '../services/MessageService';
 import FeedbackIcon from '../assets/icons/feedback';
 import ProfileIcon from '../assets/icons/profile';
+import { useFriendService } from '../services/FriendService';
+import { useRoomService } from '../services/RoomService';
 
 export const SideBar: React.FC = () => {
   const {
@@ -23,6 +25,8 @@ export const SideBar: React.FC = () => {
     setIsSearchMessage,
     setRoomId,
   } = useMessageContext();
+  const { getInvitedRoom } = useRoomService();
+  const { getFriendRequests } = useFriendService();
   const { getNumberConversationNotRead } = useMessageService();
   const { socket } = useSocket();
   const location = useLocation();
@@ -30,9 +34,14 @@ export const SideBar: React.FC = () => {
   const navigate = useNavigate();
   const userAuth = getAuthCookie();
 
+  const [numberOfFriendRequest, setNumberOfFriendRequest] = useState<number>();
+  const [numberOfInvitedRoom, setNumberOfInvitedRoom] = useState<number>();
+
   useEffect(() => {
+    handleNewFriendRequest();
+    handleNewInvitation();
     if (currentPath !== '/') {
-      setUnreadRooms(0);
+      // setUnreadRooms(0);
       setRoomList([]);
       setIsSearchMessage(false);
       setRoomId('');
@@ -77,12 +86,28 @@ export const SideBar: React.FC = () => {
     await updateUnreadRooms();
   }, [roomList]);
 
+  const handleNewFriendRequest = async () => {
+    const response = await getFriendRequests();
+    if (response.data) {
+      setNumberOfFriendRequest(response.data.length);
+    }
+  };
+  const handleNewInvitation = async () => {
+    const response = await getInvitedRoom();
+    if (response.data) {
+      setNumberOfInvitedRoom(response.data.length);
+    }
+  };
+
   useEffect(() => {
     if (socket) {
       socket.on(`notification-new-message`, handleNewMessage);
-
+      socket.on(`new-friend-request`, handleNewFriendRequest);
+      socket.on(`new-invitation`, handleNewInvitation);
       return () => {
         socket.off(`notification-new-message`);
+        socket.off(`new-friend-request`);
+        socket.off(`new-invitation`);
       };
     }
   }, [socket, handleNewMessage]);
@@ -98,7 +123,7 @@ export const SideBar: React.FC = () => {
       icon: <UserSquareIcon />,
       title: 'Bạn bè',
       url: '/room',
-      badge: false,
+      badge: true,
     },
     {
       icon: <PeopleIcon />,
@@ -170,9 +195,20 @@ export const SideBar: React.FC = () => {
             >
               <span className="m-auto flex items-center justify-center">
                 <div className="indicator">
-                  {item.badge && Number(unreadRooms) > 0 && (
+                  {item.title === 'Tin nhắn' && Number(unreadRooms) > 0 && (
                     <span className="absolute inline-flex items-center justify-center text-[8px] leading-[12px] font-bold p-1 min-w-5 h-5 text-white bg-red-500 rounded-full -top-2 -end-3">
                       {unreadRooms}
+                    </span>
+                  )}
+                  {item.title === 'Bạn bè' &&
+                    Number(numberOfFriendRequest) > 0 && (
+                      <span className="absolute inline-flex items-center justify-center text-[8px] leading-[12px] font-bold p-1 min-w-5 h-5 text-white bg-red-500 rounded-full -top-2 -end-3">
+                        {numberOfFriendRequest}
+                      </span>
+                    )}
+                  {item.title === 'Nhóm' && Number(numberOfInvitedRoom) > 0 && (
+                    <span className="absolute inline-flex items-center justify-center text-[8px] leading-[12px] font-bold p-1 min-w-5 h-5 text-white bg-red-500 rounded-full -top-2 -end-3">
+                      {numberOfInvitedRoom}
                     </span>
                   )}
                   {item.icon}

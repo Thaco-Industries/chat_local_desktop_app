@@ -40,6 +40,11 @@ export const useFriendService = () => {
     return response;
   };
 
+  const getFriendRequests = async () => {
+    const response = await apiRequest('GET', `friend/requests`);
+    return response;
+  };
+
   const actionRequestFriend = async (
     userId: string,
     body: { id: string; status: string }
@@ -85,5 +90,6 @@ export const useFriendService = () => {
     getListFriend,
     getListFriendCanAddToRoom,
     deleteFriend,
+    getFriendRequests,
   };
 };

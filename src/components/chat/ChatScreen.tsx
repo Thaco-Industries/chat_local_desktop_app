@@ -377,18 +377,32 @@ const ChatScreen: React.FC<IChatScreen> = ({
     setMessageReply(null);
   }, [roomId]);
 
+  const getListMember = async () => {
+    const response = await getMemberInRoom(roomInfo.id);
+    if (response.status === 200) {
+      const updatedList = response.data;
+      setListMember(updatedList);
+    }
+  };
+
+  const handleChangeRoomLeader = () => {
+    getListMember();
+  };
+
   useEffect(() => {
     if (socket) {
       socket.on(`new-message/${roomId}`, handleNewMessage);
       socket.on(`recall-message/${roomId}`, handleRecallMessage);
       socket.on(`user-join-room/${roomId}`, handleUserJoinAndOutRoom);
       socket.on(`user-out-room/${roomId}`, handleUserJoinAndOutRoom);
+      socket.on(`change-room-leader/${roomInfo.id}`, handleChangeRoomLeader);
 
       return () => {
         socket.off(`new-message/${roomId}`);
         socket.off(`recall-message/${roomId}`);
         socket.off(`user-join-room/${roomId}`);
         socket.off(`user-out-room/${roomId}`);
+        socket.off(`change-room-leader/${roomInfo.id}`);
       };
     }
   }, [
