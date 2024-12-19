@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import getColorBackround from '../../util/getColorBackground';
 import clsx from 'clsx';
 import getUserShortName from '../../util/getUserShortName';
@@ -31,7 +31,9 @@ function UserAvatar({
         <img
           style={logoSize}
           src={urlFile}
-          className="rounded-full object-cover"
+          className={clsx('rounded-full object-cover', {
+            'opacity-0': !showSenderInfo,
+          })}
           alt="user-avatar"
         />
       ) : (

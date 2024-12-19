@@ -61,13 +61,13 @@ export const RoomList: React.FC<IRoomList> = ({
   const [keyword, setKeyword] = useState<string>('');
   const [roomListSearch, setRoomListSearch] = useState<IRoom[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [newMessageRoomInfo, setNewMessageRoomInfo] =
-    useState<IRoom>(defaultRoom);
+  // const [newMessageRoomInfo, setNewMessageRoomInfo] =
+  //   useState<IRoom>(defaultRoom);
   const newMessageRoomInfoRef = useRef<IRoom>(defaultRoom);
 
   useEffect(() => {
-    newMessageRoomInfoRef.current = newMessageRoomInfo;
-  }, [newMessageRoomInfo]);
+    console.log(newMessageRoomInfoRef.current);
+  }, [newMessageRoomInfoRef.current]);
 
   useEffect(() => {
     if (keyword === '') {
@@ -82,22 +82,28 @@ export const RoomList: React.FC<IRoomList> = ({
   useEffect(() => {
     const handleReplyMessage = async (message: string) => {
       const roomInfo = newMessageRoomInfoRef.current;
-      if (roomInfo) {
-        const payload = {
-          message,
-          reciever: roomInfo.id,
-          reply_message_id: roomInfo.last_message.id,
-          toGroup: roomInfo.is_group,
-          type: 'TEXT',
-        };
+      if (!roomInfo || !roomInfo.id || !roomInfo.last_message.id) {
+        notify(
+          'Không thể gửi phản hồi. Phòng hoặc tin nhắn không hợp lệ.',
+          'error'
+        );
+        return;
+      }
 
-        try {
-          const response = await sendMessage(payload);
-        } catch (error: any) {
-          const errorMessage = error?.response?.data?.message || error.message;
-          notify(errorMessage, 'error');
-          console.error('Error:', errorMessage);
-        }
+      const payload = {
+        message,
+        reciever: roomInfo.id,
+        reply_message_id: roomInfo.last_message.id,
+        toGroup: roomInfo.is_group,
+        type: 'TEXT',
+      };
+
+      try {
+        const response = await sendMessage(payload);
+      } catch (error: any) {
+        const errorMessage = error?.response?.data?.message || error.message;
+        notify(errorMessage, 'error');
+        console.error('Error:', errorMessage);
       }
     };
 
@@ -192,44 +198,51 @@ export const RoomList: React.FC<IRoomList> = ({
 
       const room_Id = message.message.room_id;
       const existingRoom = roomList.find((room) => room.id === room_Id);
-      if (existingRoom) setNewMessageRoomInfo(existingRoom);
+      if (existingRoom) {
+        // Không cần lưu vào ref, xử lý trực tiếp trong setRoomList
+        setRoomList((prevRoomList) => {
+          // Duyệt qua danh sách phòng và cập nhật phòng phù hợp
+          const updatedRoomList = prevRoomList.map((room) => {
+            if (room.id !== room_Id) return room; // Giữ nguyên phòng không liên quan
 
-      // Cập nhật danh sách phòng
-      setRoomList((prevRoomList) => {
-        const updatedRoomList = prevRoomList.map((room) => {
-          if (room.id !== message.message.room_id) return room;
+            const isCurrentRoom = room.id === roomId; // Kiểm tra phòng hiện tại
+            if (isCurrentRoom) {
+              markAsRead(room.id); // Đánh dấu là đã đọc
+            }
 
-          const isCurrentRoom = room.id === roomId;
-          if (isCurrentRoom) {
-            markAsRead(room.id);
+            const isNotUserMessage = message.sender.id !== userAuth?.user.id;
+
+            // Cập nhật phòng với dữ liệu mới
+            return {
+              ...room,
+              number_message_not_read:
+                isNotUserMessage && !isCurrentRoom
+                  ? room.number_message_not_read + 1
+                  : room.number_message_not_read,
+              last_message: {
+                ...room.last_message,
+                ...message.message,
+                message_display: renderedMessage, // Nội dung tin nhắn hiển thị
+              },
+            };
+          });
+
+          // Tách phòng cần di chuyển và danh sách còn lại
+          const roomToMove = updatedRoomList.find(
+            (room) => room.id === room_Id
+          );
+          const otherRooms = updatedRoomList.filter(
+            (room) => room.id !== room_Id
+          );
+
+          if (roomToMove) {
+            newMessageRoomInfoRef.current = roomToMove;
           }
 
-          const isNotUserMessage = message.sender.id !== userAuth?.user.id;
-
-          return {
-            ...room,
-            number_message_not_read:
-              isNotUserMessage && !isCurrentRoom
-                ? room.number_message_not_read + 1
-                : room.number_message_not_read,
-            last_message: {
-              ...room.last_message,
-              ...message.message,
-              message_display: renderedMessage,
-            },
-          };
+          // Đưa phòng liên quan lên đầu danh sách
+          return roomToMove ? [roomToMove, ...otherRooms] : updatedRoomList;
         });
-
-        const roomToMove = updatedRoomList.find(
-          (room) => room.id === message.message.room_id
-        );
-
-        const otherRooms = updatedRoomList.filter(
-          (room) => room.id !== message.message.room_id
-        );
-
-        return roomToMove ? [roomToMove, ...otherRooms] : updatedRoomList;
-      });
+      }
     },
     [roomId, userAuth]
   );
