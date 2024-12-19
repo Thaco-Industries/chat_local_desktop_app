@@ -11,9 +11,7 @@ import MediaMessage from './components/MediaMessage';
 import ActionButton from './components/ActionButton';
 import PlayButton from './components/PlayButton';
 import UserAvatar from '../../common/UserAvatar';
-import FriendInfoModal from '../Friend/FriendInfoModal';
-import { IFriendInfo } from '../../../interfaces/Friend';
-import { useFriendService } from '../../../services/FriendService';
+import ViewUserInforModal from './components/ViewUserInforModal';
 
 const MessageItem: React.FC<IMessageItem> = ({
   message,
@@ -25,8 +23,6 @@ const MessageItem: React.FC<IMessageItem> = ({
   const { recallMessage } = useMessageService();
   const { setMessageReply, setIsReplyMessage, textareaRef, listMember } =
     useChatContext();
-  const { sendFriendRequest, cancelSendFriendRequest, actionRequestFriend } =
-    useFriendService();
 
   const isUserMessage = message.sender_id === userId;
 
@@ -34,39 +30,7 @@ const MessageItem: React.FC<IMessageItem> = ({
   const [updatedMessage, setUpdatedMessage] = useState('');
   const [openFriendInfoModal, setOpenFriendInfoModal] =
     useState<boolean>(false);
-  const [friendInfo, setFriendInfo] = useState<IFriendInfo>();
-
-  const [isRequest, setIsRequest] = useState<boolean>(false);
-  // friendItem.status === 'SENT_REQUEST'
-  const [isShowButton, setIsShowButton] = useState<boolean>(false);
-  // friendItem.status !== 'FRIEND'
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const handleAddFriendClick = async (userId: string) => {
-    setIsRequest((prev) => !prev);
-    setIsLoading(true);
-    try {
-      if (isRequest) {
-        const response = await cancelSendFriendRequest(userId);
-        if (response.status !== 204) {
-          // Nếu API lỗi, hoàn nguyên trạng thái
-          setIsRequest(true);
-        }
-      } else {
-        const response = await sendFriendRequest(userId);
-        if (response.status !== 201) {
-          // Nếu API lỗi, hoàn nguyên trạng thái
-          setIsRequest(false);
-        }
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      // Hoàn nguyên trạng thái nếu xảy ra lỗi
-      setIsRequest(!isRequest);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [friendId, setFriendId] = useState<string>('');
 
   useEffect(() => {
     if (listMember && message.message_display) {
@@ -154,34 +118,18 @@ const MessageItem: React.FC<IMessageItem> = ({
     );
   };
 
-  const handleClickUserInRoom = () => {
+  const handleClickUserInRoom = (message: IMessage) => {
     setOpenFriendInfoModal(true);
-    console.log(message.sender);
-  };
-
-  const handleAcceptRequestClick = async (userId: string) => {
-    setIsLoading(true);
-    try {
-      const payload = {
-        id: userId,
-        status: 'ACCEPTED',
-      };
-      const response = await actionRequestFriend(userId, payload);
-      console.log(response);
-      if (response.status === 204) {
-        setIsShowButton(false);
-      }
-    } catch (error) {
-      console.error('Error accepting friend request:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    setFriendId(message.sender_id);
   };
 
   return (
     <div className={`flex gap-xs my-[2.5px]`}>
       {!isUserMessage && (
-        <div onClick={() => handleClickUserInRoom()}>
+        <div
+          className="cursor-pointer"
+          onClick={() => handleClickUserInRoom(message)}
+        >
           <UserAvatar
             fullName={message.sender?.infor.full_name}
             senderId={message.sender_id}
@@ -279,15 +227,11 @@ const MessageItem: React.FC<IMessageItem> = ({
         )}
       </div>
       {openFriendInfoModal && (
-        <FriendInfoModal
-          openFriendInfoModal={openFriendInfoModal}
-          setOpenFriendInfoModal={setOpenFriendInfoModal}
-          friendInfo={friendInfo}
-          handleAddFriendClick={handleAddFriendClick}
-          isLoading={isLoading}
-          isRequest={isRequest}
-          isShowButton={isShowButton}
-          handleAcceptRequestClick={handleAcceptRequestClick}
+        <ViewUserInforModal
+          openViewUserInforModal={openFriendInfoModal}
+          setOpenViewUserInforModal={setOpenFriendInfoModal}
+          friendId={friendId}
+          overlay={true}
         />
       )}
     </div>

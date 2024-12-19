@@ -8,6 +8,7 @@ const {
   screen,
   Tray,
   Menu,
+  shell,
 } = require('electron');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -269,4 +270,12 @@ ipcMain.handle('close-notification-window', async () => {
     notificationWindow.close();
     notificationWindow = null; // Đảm bảo bộ nhớ được giải phóng
   }
+});
+
+ipcMain.handle('open-url', async (event, url) => {
+  if (url) {
+    await shell.openExternal(url); // Mở URL trong trình duyệt mặc định
+    return { success: true };
+  }
+  return { success: false, error: 'Invalid URL' };
 });

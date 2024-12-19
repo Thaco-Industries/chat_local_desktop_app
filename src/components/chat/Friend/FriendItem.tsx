@@ -22,11 +22,11 @@ export default function FriendItem({ friendItem }: Props) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [openFriendInfoModal, setOpenFriendInfoModal] =
     useState<boolean>(false);
-  const [friendInfo, setFriendInfo] = useState<IFriendInfo>();
+  const [friendId, setFriendId] = useState<string>('');
 
   const openModal = (info: IFriendInfo) => {
     setOpenFriendInfoModal(true);
-    setFriendInfo(info);
+    setFriendId(info.id);
   };
 
   const handleAddFriendClick = async (userId: string) => {
@@ -120,12 +120,13 @@ export default function FriendItem({ friendItem }: Props) {
         <FriendInfoModal
           openFriendInfoModal={openFriendInfoModal}
           setOpenFriendInfoModal={setOpenFriendInfoModal}
-          friendInfo={friendInfo}
+          friendId={friendId}
           handleAddFriendClick={handleAddFriendClick}
           isLoading={isLoading}
           isRequest={isRequest}
           isShowButton={isShowButton}
           handleAcceptRequestClick={handleAcceptRequestClick}
+          overlay={false}
         />
       )}
     </div>

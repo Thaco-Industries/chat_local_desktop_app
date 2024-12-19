@@ -18,10 +18,7 @@ function UserAvatar({
   fullName,
   size,
 }: Props) {
-  const urlFile =
-    url && url.includes('http')
-      ? url
-      : `${process.env.REACT_APP_API_URL}/media/view/${url}`;
+  const urlFile = url;
   const backgroundColor = getColorBackround(senderId);
   const shortName = getUserShortName(fullName ?? '');
   const logoSize = {
@@ -30,7 +27,7 @@ function UserAvatar({
   };
   return (
     <div>
-      {url ? (
+      {url && url.includes('http') ? (
         <img
           style={logoSize}
           src={urlFile}

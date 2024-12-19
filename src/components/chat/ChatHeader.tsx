@@ -247,7 +247,7 @@ const ChatHeader: React.FC<IChatHeader> = ({
                 color={`${isSearchMessage ? '#076EB8' : ''}`}
               />
             </button>
-            <button
+            {/* <button
               type="button"
               title="cuộc gọi thoại"
               className="w-10 h-10 p-xs hover:bg-[#CEE5FF80] flex justify-center items-center rounded-sm"
@@ -260,7 +260,7 @@ const ChatHeader: React.FC<IChatHeader> = ({
               className="w-10 h-10 p-xs hover:bg-[#CEE5FF80] flex justify-center items-center rounded-sm"
             >
               <VideoCameraIcon />
-            </button>
+            </button> */}
             <div className="drawer-content xl:hidden">
               <label
                 htmlFor="collapsedMenu"

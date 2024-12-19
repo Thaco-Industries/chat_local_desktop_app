@@ -13,19 +13,22 @@ export interface IUserInfo {
   role: 'USER' | 'ADMIN';
   is_locked: false;
   infor: {
-    ban: string;
-    msnv: string;
-    nhom: string;
-    email: string;
     avt_url: string;
-    bo_phan: string;
-    cap_bac: string;
-    full_name: string;
-    phong_phu: string;
+    email: string;
     dien_thoai: string;
-    phong_chinh: string;
-    chuc_danh: string;
+    msnv: string;
+    full_name: string;
   };
+  position_infor: IPositionInfo[];
+}
+
+export interface IPositionInfo {
+  id: string;
+  code: string;
+  ban_name: string;
+  position: string;
+  priority: number;
+  group_name: string;
 }
 
 export interface IUserInRoomInfo {
