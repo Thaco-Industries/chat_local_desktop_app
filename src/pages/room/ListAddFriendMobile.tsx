@@ -3,6 +3,7 @@ import ArrowLeft from '../../assets/icons/arrow-left';
 import { useFetchApi } from '../../context/ApiContext';
 import UserAvatar from '../../components/common/UserAvatar';
 import { formatDate } from '../../util/formatDate';
+import { notify } from '../../helper/notify';
 
 interface ListAddFriendMobileProps {
   setIsShowListAddFriends: React.Dispatch<React.SetStateAction<boolean>>;
@@ -50,6 +51,12 @@ const ListAddFriendMobile: React.FC<ListAddFriendMobileProps> = ({
         { id: id, status: mode }
       );
       if (response.status == 204) {
+        notify(
+          mode === 'REJECTED'
+            ? 'Từ chối lời mời kết bạn thành công'
+            : 'Đồng ý kết bạn thành công',
+          'success'
+        );
         getListAddFriends();
       }
     } catch (error) {

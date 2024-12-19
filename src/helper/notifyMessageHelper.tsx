@@ -4,7 +4,6 @@ import 'react-toastify/dist/ReactToastify.css';
 function ToastContent() {
   return (
     <ToastContainer
-      // bodyClassName="m-0 rounded-[30px]"
       style={{ width: 'unset' }}
       toastStyle={{
         padding: 5,
@@ -14,7 +13,7 @@ function ToastContent() {
       }}
       closeButton={false}
       position="top-center"
-      autoClose={false}
+      autoClose={6000}
       hideProgressBar
       newestOnTop={false}
       closeOnClick

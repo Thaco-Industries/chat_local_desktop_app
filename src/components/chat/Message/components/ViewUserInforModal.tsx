@@ -6,6 +6,7 @@ import { IPositionInfo, IUserInfo } from '../../../../interfaces';
 import { IFriendInfo } from '../../../../interfaces/Friend';
 import UserAvatar from '../../../common/UserAvatar';
 import PositionIcon from '../../../../assets/icons/position-icon';
+import { notify } from '../../../../helper/notify';
 
 type Props = {
   openViewUserInforModal: boolean;
@@ -102,8 +103,8 @@ function ViewUserInforModal({
         status: 'ACCEPTED',
       };
       const response = await actionRequestFriend(userId, payload);
-      console.log(response);
       if (response.status === 204) {
+        notify('Đồng ý kết bạn thành công');
         setIsShowButton(false);
       }
     } catch (error) {
@@ -191,7 +192,7 @@ function ViewUserInforModal({
       onClick={closeModal}
     >
       <div
-        className="relative w-[400px] h-[80vh]"
+        className="relative w-[450px] h-[80vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal content */}

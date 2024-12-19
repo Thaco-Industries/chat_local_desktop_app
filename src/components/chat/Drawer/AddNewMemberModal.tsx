@@ -79,7 +79,7 @@ function AddNewMemberModal({
           base: 'z-[100]',
         },
         content: {
-          base: 'w-[400px] h-[80vh]',
+          base: 'w-[450px] h-[80vh]',
         },
       }}
       position="center"

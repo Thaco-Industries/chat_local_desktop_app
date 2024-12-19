@@ -126,7 +126,7 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
       onClick={closeModal}
     >
       <div
-        className="relative w-[400px] h-[80vh]"
+        className="relative w-[450px] h-[80vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal content */}

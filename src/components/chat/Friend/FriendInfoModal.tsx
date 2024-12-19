@@ -49,17 +49,6 @@ function FriendInfoModal({
     { label: 'Số điện thoại', value: userInfor?.infor.dien_thoai },
   ];
 
-  const positionInfo = [
-    {
-      label: 'Chức vụ đảm nhiệm chính',
-      value: userInfor?.position_infor[0].position,
-    },
-    {
-      label: 'Chức vụ kiêm nhiệm',
-      value: userInfor?.position_infor[0].position,
-    },
-  ];
-
   const getUser = async () => {
     if (!friendId) return;
     try {
@@ -138,7 +127,7 @@ function FriendInfoModal({
       onClick={closeModal}
     >
       <div
-        className="relative w-[400px] h-[80vh]"
+        className="relative w-[450px] h-[80vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal content */}

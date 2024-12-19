@@ -3,6 +3,7 @@ import { useFetchApi } from '../../context/ApiContext';
 import ArrowLeft from '../../assets/icons/arrow-left';
 import UserAvatar from '../../components/common/UserAvatar';
 import { formatDate } from '../../util/formatDate';
+import { notify } from '../../helper/notify';
 
 interface ListAddGroupMobileProps {
   setIsShowListAddFriends: React.Dispatch<React.SetStateAction<boolean>>;
@@ -34,6 +35,12 @@ const ListAddGroupMobile: React.FC<ListAddGroupMobileProps> = ({
     try {
       const response = await apiRequest('PUT', urlHandle + id);
       if (response.status == 200) {
+        notify(
+          mode === 'REJECTED'
+            ? 'Từ chối lời mời tham gia nhom thành công'
+            : 'Tham gia nhóm thành công',
+          'success'
+        );
         getListAddGroups();
       }
     } catch (error) {

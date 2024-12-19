@@ -3,6 +3,7 @@ import AddFriendIcon from '../../assets/icons/add-friend';
 import { useFetchApi } from '../../context/ApiContext';
 import UserAvatar from '../../components/common/UserAvatar';
 import { formatDate } from '../../util/formatDate';
+import { notify } from '../../helper/notify';
 
 const ListAddFriend: React.FC = () => {
   const { apiRequest } = useFetchApi();
@@ -42,6 +43,12 @@ const ListAddFriend: React.FC = () => {
         { id: id, status: mode }
       );
       if (response.status == 204) {
+        notify(
+          mode === 'REJECTED'
+            ? 'Từ chối lời mời kết bạn thành công'
+            : 'Đồng ý kết bạn thành công',
+          'success'
+        );
         getListAddFriends();
       }
     } catch (error) {
@@ -57,6 +64,7 @@ const ListAddFriend: React.FC = () => {
         'friend/cancel-send-request/' + id
       );
       if (response.status == 204) {
+        notify('Thu hồi lời mời kết bạn thành công', 'success');
         getListSendAddFriends();
       }
     } catch (error) {

@@ -80,17 +80,11 @@ export interface INotificationNewMessage {
     is_locked: boolean;
     infor: {
       avt_url: string;
-      ban: string;
-      msnv: string;
-      nhom: string;
       email: string;
-      avt_url: string;
-      bo_phan: string;
-      cap_bac: string;
-      full_name: string;
-      phong_phu: string;
       dien_thoai: string;
-      phong_chinh: string;
+      msnv: string;
+      full_name: string;
     };
+    position_infor: IPositionInfo[];
   };
 }

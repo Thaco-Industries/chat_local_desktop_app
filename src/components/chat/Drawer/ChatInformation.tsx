@@ -156,6 +156,7 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
     const response = await deleteFriend(roomInfo.userRoom[0].user_id);
     if (response.status === 204) {
       setOpenConfirmDeleteFriendModal(false);
+      roomInfo.userRoom[0].friendStatus = 'NOTFRIEND';
     }
   };
 

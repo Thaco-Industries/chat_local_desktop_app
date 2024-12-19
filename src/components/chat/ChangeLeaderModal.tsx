@@ -74,7 +74,7 @@ function ChangeLeaderModal({
       onClose={() => setOpenChangeLeaderModal(false)}
       theme={{
         content: {
-          base: 'w-[400px] h-[80vh]',
+          base: 'w-[450px] h-[80vh]',
         },
       }}
       position="center"
