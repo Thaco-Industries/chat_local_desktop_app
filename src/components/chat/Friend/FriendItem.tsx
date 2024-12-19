@@ -5,6 +5,7 @@ import { useFriendService } from '../../../services/FriendService';
 import { Spinner } from 'flowbite-react';
 import clsx from 'clsx';
 import FriendInfoModal from './FriendInfoModal';
+import { notify } from '../../../helper/notify';
 
 type Props = {
   friendItem: IFriendInfo;
@@ -64,6 +65,7 @@ export default function FriendItem({ friendItem }: Props) {
       };
       const response = await actionRequestFriend(userId, payload);
       if (response.status === 204) {
+        notify('Đồng ý kết bạn thành công');
         setIsShowButton(false);
       }
     } catch (error) {

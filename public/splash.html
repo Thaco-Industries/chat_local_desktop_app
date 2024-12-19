@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Splash Screen</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #ffffff; /* Màu nền splash */
+      }
+      #logo {
+        width: 150px; /* Kích thước logo */
+        height: auto;
+      }
+      #loader {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <img id="logo" src="icon.png" alt="App Logo" />
+    <div id="loader">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="40"
+        height="40"
+        viewBox="0 0 50 50"
+        style="animation: rotate 1s linear infinite"
+      >
+        <circle
+          cx="25"
+          cy="25"
+          r="20"
+          fill="none"
+          stroke-width="5"
+          stroke="#0078d4"
+          stroke-dasharray="31.4 31.4"
+          style="animation: dash 1.5s ease-in-out infinite"
+        ></circle>
+      </svg>
+    </div>
+  </body>
+</html>

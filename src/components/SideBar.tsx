@@ -128,7 +128,12 @@ export const SideBar: React.FC = () => {
   const content = (
     <div className="w-56">
       <div className="px-[20px] py-[10px]">
-        <p className="cursor-pointer text-lg">Thông tin tài khoản</p>
+        <p
+          className="cursor-pointer text-lg"
+          onClick={() => navigate('/profile')}
+        >
+          Thông tin tài khoản
+        </p>
         <p className="mt-xxs cursor-pointer text-lg" onClick={handleLogout}>
           Đăng xuất
         </p>
@@ -137,7 +142,7 @@ export const SideBar: React.FC = () => {
   );
 
   return (
-    <div className="w-[70px] h-full bg-primary rounded-ee-sm rounded-se-sm py-xs flex flex-col justify-start items-center gap-7">
+    <div className="w-[70px] h-full bg-primary py-xs flex flex-col justify-start items-center gap-xs">
       <Popover
         content={content}
         placement="bottom"
@@ -161,6 +166,7 @@ export const SideBar: React.FC = () => {
               className={clsx('flex flex-col min-w-[70px] h-xl', {
                 'bg-[rgba(255,255,255,0.15)]': currentPath === item.url,
               })}
+              title={item.title}
             >
               <span className="m-auto flex items-center justify-center">
                 <div className="indicator">

@@ -16,11 +16,13 @@ const Badge = require('electron-windows-badge');
 const badgeIcon = path.join(__dirname, 'badge-icon.png');
 const defaultIcon = path.join(__dirname, 'icon.png');
 const isDev = !app.isPackaged;
+const gotTheLock = app.requestSingleInstanceLock();
 
 let notificationWindow = null;
 let mainWindow;
 let tray;
 let lastNotificationMessage = null;
+let splashWindow = null;
 let badge;
 
 const baseDir = path.resolve(__dirname, '..');
@@ -28,10 +30,7 @@ const dotenvPath = isDev
   ? path.join(baseDir, '.env')
   : path.join(process.resourcesPath, '.env');
 dotenv.config({ path: dotenvPath });
-// autoUpdater.autoDownload = false;
-// autoUpdater.autoInstallOnAppQuit = true;
-console.log('Loaded ENV from:', dotenvPath);
-console.log('Environment Variable:', process.env.REACT_APP_PRODUCT_URL);
+
 const productUrl = process.env.REACT_APP_PRODUCT_URL;
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -66,9 +65,31 @@ function createWindow() {
   });
 
   // Automatically open Chrome's DevTools in development mode.
-  // if (!app.isPackaged) {
-  mainWindow.webContents.openDevTools();
-  // }
+  if (!app.isPackaged) {
+    mainWindow.webContents.openDevTools();
+  }
+}
+
+function createSplashScreen() {
+  splashWindow = new BrowserWindow({
+    width: 1500,
+    height: 800,
+    frame: false, // Ẩn thanh tiêu đề
+    alwaysOnTop: true,
+    transparent: true,
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+  const appURL = app.isPackaged
+    ? `file://${path.join(__dirname, '../build/splash.html')}#/`
+    : `file://${path.join(__dirname, 'splash.html')}`;
+  splashWindow.loadURL(appURL);
+
+  splashWindow.on('closed', () => {
+    splashWindow = null;
+  });
 }
 
 function setupLocalFilesNormalizerProxy() {
@@ -84,50 +105,72 @@ function setupLocalFilesNormalizerProxy() {
   );
 }
 
-app.whenReady().then(() => {
-  createWindow();
-  setupLocalFilesNormalizerProxy();
-  // Tạo Tray Icon
-  tray = new Tray(path.join(__dirname, 'icon.png')); // Thay bằng icon phù hợp
-
-  const trayMenu = Menu.buildFromTemplate([
-    {
-      label: 'Mở ứng dụng',
-      click: () => {
-        mainWindow.show();
-        mainWindow.focus();
-      },
-    },
-    {
-      label: 'Thoát',
-      click: () => {
-        app.isQuiting = true;
-        app.quit();
-      },
-    },
-  ]);
-
-  tray.setContextMenu(trayMenu);
-  tray.setToolTip('Chat Local R&D');
-
-  tray.on('click', () => {
-    mainWindow.show();
-    mainWindow.focus();
-  });
-
-  app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    } else {
-      const mainWindow = BrowserWindow.getAllWindows()[0];
-      if (mainWindow) {
-        mainWindow.focus();
+if (!gotTheLock) {
+  app.quit(); // Thoát nếu không có quyền sở hữu instance
+} else {
+  app.on('second-instance', (event, argv, workingDirectory) => {
+    // Khi có yêu cầu mở instance thứ hai
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore(); // Khôi phục nếu bị thu nhỏ
       }
+      mainWindow.show(); // Hiển thị cửa sổ
+      mainWindow.focus(); // Đưa cửa sổ lên foreground
     }
   });
+  app.whenReady().then(() => {
+    createSplashScreen();
 
-  // autoUpdater.checkForUpdates();
-});
+    // Giả lập thời gian tải ứng dụng (ví dụ: 3 giây)
+    setTimeout(() => {
+      if (splashWindow) {
+        splashWindow.close(); // Đóng splash screen
+      }
+      createWindow();
+      setupLocalFilesNormalizerProxy();
+      // Tạo Tray Icon
+      tray = new Tray(path.join(__dirname, 'icon.png')); // Thay bằng icon phù hợp
+
+      const trayMenu = Menu.buildFromTemplate([
+        {
+          label: 'Mở ứng dụng',
+          click: () => {
+            mainWindow.show();
+            mainWindow.focus();
+          },
+        },
+        {
+          label: 'Thoát',
+          click: () => {
+            app.isQuiting = true;
+            app.quit();
+          },
+        },
+      ]);
+
+      tray.setContextMenu(trayMenu);
+      tray.setToolTip('Chat Local R&D');
+
+      tray.on('click', () => {
+        mainWindow.show();
+        mainWindow.focus();
+      });
+
+      app.on('activate', function () {
+        if (BrowserWindow.getAllWindows().length === 0) {
+          createWindow();
+        } else {
+          const mainWindow = BrowserWindow.getAllWindows()[0];
+          if (mainWindow) {
+            mainWindow.focus();
+          }
+        }
+      });
+
+      // autoUpdater.checkForUpdates();
+    });
+  }, 3000); // Thời gian hiển thị splash screen
+}
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {

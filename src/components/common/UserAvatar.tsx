@@ -8,6 +8,7 @@ type Props = {
   senderId: string;
   showSenderInfo?: boolean;
   fullName: string | undefined;
+  fontSize?: number;
   size?: number;
 };
 
@@ -16,6 +17,7 @@ function UserAvatar({
   senderId,
   showSenderInfo = true,
   fullName,
+  fontSize,
   size,
 }: Props) {
   const urlFile = url;
@@ -48,7 +50,9 @@ function UserAvatar({
           )}
         >
           <div className="absolute inset-0 bg-black bg-opacity-15 rounded-full"></div>
-          <p className="z-10 uppercase">{shortName}</p>
+          <p className="z-10 uppercase" style={{ fontSize: `${fontSize}px` }}>
+            {shortName}
+          </p>
         </div>
       )}
     </div>

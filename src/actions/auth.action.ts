@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { IPositionInfo } from '../interfaces';
 
 // Định nghĩa kiểu dữ liệu cho giá trị xác thực người dùng
 interface UserAuth {
@@ -12,18 +13,13 @@ interface UserAuth {
     role: string;
     is_VIP: boolean;
     infor: {
-      ban: string;
-      msnv: string;
-      nhom: string;
-      email: string;
       avt_url: string;
-      bo_phan: string;
-      cap_bac: string;
-      full_name: string;
-      phong_phu: string;
+      email: string;
       dien_thoai: string;
-      phong_chinh: string;
+      msnv: string;
+      full_name: string;
     };
+    position_infor: IPositionInfo[];
   };
   expiredTime: string;
 }

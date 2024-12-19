@@ -3,6 +3,7 @@ import AddFriendIcon from '../../assets/icons/add-friend';
 import { useFetchApi } from '../../context/ApiContext';
 import UserAvatar from '../../components/common/UserAvatar';
 import { formatDate } from '../../util/formatDate';
+import { notify } from '../../helper/notify';
 
 const ListAddGroup: React.FC = () => {
   const { apiRequest } = useFetchApi();
@@ -26,6 +27,12 @@ const ListAddGroup: React.FC = () => {
     try {
       const response = await apiRequest('PUT', urlHandle + id);
       if (response.status == 200) {
+        notify(
+          mode === 'REJECTED'
+            ? 'Từ chối lời mời tham gia nhom thành công'
+            : 'Tham gia nhóm thành công',
+          'success'
+        );
         getListAddGroups();
       }
     } catch (error) {
