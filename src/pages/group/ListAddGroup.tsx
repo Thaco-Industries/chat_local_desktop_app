@@ -4,13 +4,17 @@ import { useFetchApi } from '../../context/ApiContext';
 import UserAvatar from '../../components/common/UserAvatar';
 import { formatDate } from '../../util/formatDate';
 import { notify } from '../../helper/notify';
+import { useRoomService } from '../../services/RoomService';
+import { useMessageContext } from '../../context/MessageContext';
 
 const ListAddGroup: React.FC = () => {
+  const { setNumberOfInvitedRoom } = useMessageContext();
   const { apiRequest } = useFetchApi();
   const [listAddGroups, setListAddGroups] = useState([]);
   useEffect(() => {
     getListAddGroups();
   }, []);
+
   const getListAddGroups = async () => {
     try {
       const response = await apiRequest('GET', 'invited-rooms');
@@ -26,7 +30,7 @@ const ListAddGroup: React.FC = () => {
     if (mode === 'REJECTED') urlHandle = 'invited-rooms/reject-invited-room/';
     try {
       const response = await apiRequest('PUT', urlHandle + id);
-      if (response.status == 200) {
+      if (response.status == 204) {
         notify(
           mode === 'REJECTED'
             ? 'Từ chối lời mời tham gia nhom thành công'
@@ -34,6 +38,7 @@ const ListAddGroup: React.FC = () => {
           'success'
         );
         getListAddGroups();
+        setNumberOfInvitedRoom((prev) => prev - 1);
       }
     } catch (error) {
       console.error('Error fetching data:', error);

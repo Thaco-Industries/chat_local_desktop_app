@@ -4,6 +4,8 @@ import { useFetchApi } from '../../context/ApiContext';
 import UserAvatar from '../../components/common/UserAvatar';
 import { formatDate } from '../../util/formatDate';
 import { notify } from '../../helper/notify';
+import { useFriendService } from '../../services/FriendService';
+import { useMessageContext } from '../../context/MessageContext';
 
 interface ListAddFriendMobileProps {
   setIsShowListAddFriends: React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,6 +16,7 @@ const ListAddFriendMobile: React.FC<ListAddFriendMobileProps> = ({
   setIsShowListAddFriends,
   setIsShowMain,
 }) => {
+  const { setNumberOfFriendRequest } = useMessageContext();
   const { apiRequest } = useFetchApi();
   const [listAddFriends, setListAddFriends] = useState([]);
   const [listSendAddFriends, setListSendAddFriends] = useState([]);
@@ -58,6 +61,8 @@ const ListAddFriendMobile: React.FC<ListAddFriendMobileProps> = ({
           'success'
         );
         getListAddFriends();
+
+        setNumberOfFriendRequest((prevReq) => prevReq - 1);
       }
     } catch (error) {
       console.error('Error fetching data:', error);

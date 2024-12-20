@@ -6,6 +6,10 @@ interface MessageContextProps {
   setRoomList: React.Dispatch<React.SetStateAction<IRoom[]>>;
   setUnreadRooms: React.Dispatch<React.SetStateAction<number>>;
   unreadRooms: number;
+  setNumberOfFriendRequest: React.Dispatch<React.SetStateAction<number>>;
+  numberOfFriendRequest: number;
+  setNumberOfInvitedRoom: React.Dispatch<React.SetStateAction<number>>;
+  numberOfInvitedRoom: number;
   isSearchMessage: boolean;
   setIsSearchMessage: React.Dispatch<React.SetStateAction<boolean>>;
   roomId: string;
@@ -44,9 +48,12 @@ export const MessageProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [roomList, setRoomList] = useState<IRoom[]>([]);
   const [unreadRooms, setUnreadRooms] = useState<number>(0);
+  const [numberOfFriendRequest, setNumberOfFriendRequest] = useState<number>(0);
+  const [numberOfInvitedRoom, setNumberOfInvitedRoom] = useState<number>(0);
   const [isSearchMessage, setIsSearchMessage] = useState<boolean>(false);
   const [roomId, setRoomId] = useState<string>('');
   const [roomInfo, setRoomInfo] = useState<IRoom>(defaultRoom);
+
   return (
     <MessageContext.Provider
       value={{
@@ -56,6 +63,10 @@ export const MessageProvider: React.FC<{ children: ReactNode }> = ({
         setRoomId,
         unreadRooms,
         setUnreadRooms,
+        numberOfFriendRequest,
+        numberOfInvitedRoom,
+        setNumberOfFriendRequest,
+        setNumberOfInvitedRoom,
         isSearchMessage,
         setIsSearchMessage,
         roomInfo,

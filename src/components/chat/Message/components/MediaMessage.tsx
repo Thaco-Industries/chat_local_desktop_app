@@ -48,11 +48,11 @@ const MediaMessage: React.FC<Props> = ({
     return (
       <div className="flex justify-end">
         {isVideo || (isVideo && thumbnail_url_display) ? (
-          <div className="relative w-[220px] lg:w-[350px] h-[350px] bg-white rounded overflow-hidden flex items-center justify-center">
+          <div className="relative max-w-[220px] lg:max-w-[350px] max-h-[350px] bg-white rounded overflow-hidden flex items-center justify-center">
             {/* Hình ảnh full nằm dưới spinner */}
             <img
               src={thumbnail_url_display}
-              className="w-[220px] lg:w-[350px] h-[350px] object-contain rounded"
+              className="w-full h-full object-contain rounded"
               alt="uploading file"
             />
             {/* Spinner hiển thị ở giữa */}
@@ -61,7 +61,7 @@ const MediaMessage: React.FC<Props> = ({
             </div>
           </div>
         ) : (
-          <div className="relative w-[220px] lg:w-[350px] h-[70px] bg-white rounded overflow-hidden flex items-center justify-center">
+          <div className="relative max-w-[220px] lg:max-w-[350px] h-[70px] bg-white rounded overflow-hidden flex items-center justify-center">
             <Spinner size="xl" className="relative z-10" />
           </div>
         )}

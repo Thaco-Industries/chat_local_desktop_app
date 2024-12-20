@@ -12,6 +12,7 @@ import UserAvatar from '../../common/UserAvatar';
 import moment from 'moment';
 import { useMessageContext } from '../../../context/MessageContext';
 import unidecode from 'unidecode';
+import clsx from 'clsx';
 
 type Props = {
   roomId: string;
@@ -32,6 +33,7 @@ const SearchForm: React.FC<Props> = ({ roomId }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [messageList, setMessageList] = useState<IMessage[]>([]);
   const [numberOfResult, setNumberOfResult] = useState<number>(0);
+  const [selectedMessageId, setSelectedMessageId] = useState<string>('');
 
   const formik = useFormik({
     initialValues: {
@@ -86,6 +88,7 @@ const SearchForm: React.FC<Props> = ({ roomId }) => {
 
   const handleRedirect = async (messageId: string) => {
     // debugger;
+    setSelectedMessageId(messageId);
     const response = await getRedirectMessage(roomId, 15, true, messageId);
     if (response.data) {
       const newMessages = response.data.map((msg: IMessage) => ({
@@ -212,7 +215,9 @@ const SearchForm: React.FC<Props> = ({ roomId }) => {
         ) : (
           messageList.map((message: IMessage) => (
             <div
-              className="flex gap-4 px-5 py-3 cursor-pointer"
+              className={clsx('flex gap-4 px-5 py-3 cursor-pointer', {
+                'bg-[#91CFFB33]': message.id === selectedMessageId,
+              })}
               key={message.id}
               onClick={() => handleRedirect(message.id)}
             >

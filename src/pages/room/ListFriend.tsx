@@ -9,12 +9,14 @@ import { useChatContext } from '../../context/ChatContext';
 import { useRoomService } from '../../services/RoomService';
 import { useMessageService } from '../../services/MessageService';
 import { notify } from '../../helper/notify';
+import { useFriendService } from '../../services/FriendService';
 
 const ListFriend: React.FC = () => {
   const [listFriends, setListFriends] = useState([]);
   const { apiRequest } = useFetchApi();
   const navigate = useNavigate();
-  const { setRoomId, setRoomInfo } = useMessageContext();
+  const { setRoomId, setRoomInfo, setNumberOfFriendRequest } =
+    useMessageContext();
   const {
     setListMember,
     setIsFirstLoad,
@@ -62,7 +64,6 @@ const ListFriend: React.FC = () => {
       const response = await getRoomById(item.room_id);
       if (response.data) {
         const room = response.data;
-        console.log(room);
         setRoomId(room.id);
         setListMember(null);
         markAsRead(room.id);

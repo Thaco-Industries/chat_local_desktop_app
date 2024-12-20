@@ -4,6 +4,8 @@ import ArrowLeft from '../../assets/icons/arrow-left';
 import UserAvatar from '../../components/common/UserAvatar';
 import { formatDate } from '../../util/formatDate';
 import { notify } from '../../helper/notify';
+import { useMessageContext } from '../../context/MessageContext';
+import { useRoomService } from '../../services/RoomService';
 
 interface ListAddGroupMobileProps {
   setIsShowListAddFriends: React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,6 +16,8 @@ const ListAddGroupMobile: React.FC<ListAddGroupMobileProps> = ({
   setIsShowListAddFriends,
   setIsShowMain,
 }) => {
+  const { setNumberOfInvitedRoom } = useMessageContext();
+  const { getInvitedRoom } = useRoomService();
   const { apiRequest } = useFetchApi();
   const [listAddGroups, setListAddGroups] = useState([]);
   useEffect(() => {
@@ -29,12 +33,20 @@ const ListAddGroupMobile: React.FC<ListAddGroupMobileProps> = ({
       console.error('API call failed: ', err);
     }
   };
+
+  const getNumberInvitation = async () => {
+    const response = await getInvitedRoom();
+    if (response.data) {
+      setNumberOfInvitedRoom(response.data.length);
+    }
+  };
+
   const handleGroup = async (id: string, mode: string) => {
     var urlHandle = 'invited-rooms/accept-invited-room/';
     if (mode === 'REJECTED') urlHandle = 'invited-rooms/reject-invited-room/';
     try {
       const response = await apiRequest('PUT', urlHandle + id);
-      if (response.status == 200) {
+      if (response.status == 204) {
         notify(
           mode === 'REJECTED'
             ? 'Từ chối lời mời tham gia nhom thành công'
@@ -42,6 +54,7 @@ const ListAddGroupMobile: React.FC<ListAddGroupMobileProps> = ({
           'success'
         );
         getListAddGroups();
+        getNumberInvitation();
       }
     } catch (error) {
       console.error('Error fetching data:', error);
