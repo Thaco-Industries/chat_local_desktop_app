@@ -2,20 +2,10 @@ import { IModalImageSetData } from './common';
 import { IUserInRoomInfo } from './User';
 
 export interface IMessage {
-  // id: string;
-  // text?: string;
-  // sender: string;
-  // timestamp: string;
-  // type: 'video' | 'file' | 'image' | 'text';
-  // fileUrl?: string;
-  // videoUrl?: string;
-  // fileName?: string;
-  // fileSize?: string;
   created_at: string;
   room_id: string;
   sender_id: string;
   sender?: IUserInRoomInfo | null;
-
   message_type:
     | 'TEXT'
     | 'FILE'
@@ -24,7 +14,7 @@ export interface IMessage {
     | 'STICKER'
     | 'NOTIFICATION'
     | 'TEXT_TAG';
-  reply_id: IMessageReply;
+  reply_id?: IMessageReply | null;
   file_id?: IFileMessage;
   seen_by: string[];
   deleted_by: [];

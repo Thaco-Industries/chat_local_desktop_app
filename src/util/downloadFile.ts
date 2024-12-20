@@ -26,7 +26,7 @@ export const FileHandle = () => {
     }
   };
 
-  const createThumbnail = async (file: File, seekTo = 0.0) => {
+  const createThumbnail = async (file: File, seekTo = 0.0): Promise<string> => {
     return new Promise((resolve, reject) => {
       if (!file.type.startsWith('video/')) {
         reject('File không phải là video.');
@@ -34,7 +34,7 @@ export const FileHandle = () => {
       }
 
       const videoPlayer = document.createElement('video');
-      const fileURL = URL.createObjectURL(file); // Tạo URL đối tượng
+      const fileURL = URL.createObjectURL(file);
       videoPlayer.src = fileURL;
 
       videoPlayer.addEventListener('error', (ex) => {
@@ -44,11 +44,10 @@ export const FileHandle = () => {
       videoPlayer.addEventListener('loadedmetadata', () => {
         if (videoPlayer.duration < seekTo) {
           reject('Thời gian video ngắn hơn vị trí seek.');
-          URL.revokeObjectURL(fileURL); // Giải phóng tài nguyên
+          URL.revokeObjectURL(fileURL);
           return;
         }
 
-        // Đợi video load đủ để thay đổi currentTime
         videoPlayer.currentTime = seekTo;
 
         videoPlayer.addEventListener('seeked', () => {
@@ -66,7 +65,7 @@ export const FileHandle = () => {
             ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
 
             const base64Image = canvas.toDataURL('image/jpeg', 0.75);
-            URL.revokeObjectURL(fileURL); // Giải phóng tài nguyên
+            URL.revokeObjectURL(fileURL);
 
             resolve(base64Image);
           } catch (error) {
@@ -138,9 +137,10 @@ export const FileHandle = () => {
       replyId: string;
       roomId: string;
       onProgress?: (progress: number) => void;
+      clearTempMessage: () => void; // Hàm để xóa temp message
     }
   ) {
-    const { fileId, replyId, roomId, onProgress } = options;
+    const { fileId, replyId, roomId, onProgress, clearTempMessage } = options;
 
     const chunkSize = 10 * 1024 * 1024; // Kích thước mỗi chunk
     const totalChunks = Math.ceil(file.size / chunkSize);
@@ -160,6 +160,8 @@ export const FileHandle = () => {
         console.error('Lỗi khi tạo thumbnail:', error);
       }
     }
+
+    let uploadSuccess = false;
 
     for (let i = 0; i < totalChunks; i++) {
       const start = i * chunkSize;
@@ -192,6 +194,11 @@ export const FileHandle = () => {
             `Chunk ${i + 1} upload failed with status ${response.status}`
           );
         }
+
+        if (response.data?.message === 'Upload and merge complete') {
+          uploadSuccess = true;
+          break;
+        }
       } catch (error) {
         console.error('Error uploading chunk:', error);
         break;
@@ -202,6 +209,11 @@ export const FileHandle = () => {
       if (onProgress) {
         onProgress(progress); // Gọi callback để cập nhật tiến trình
       }
+    }
+
+    // Nếu upload hoàn thành, xóa temp message
+    if (uploadSuccess) {
+      clearTempMessage();
     }
   }
 
@@ -214,5 +226,11 @@ export const FileHandle = () => {
     return response;
   }
 
-  return { handleFileDownload, uploadFileInChunks, checkFileBeforeUpload };
+  return {
+    handleFileDownload,
+    uploadFileInChunks,
+    checkFileBeforeUpload,
+    compressThumbnail,
+    createThumbnail,
+  };
 };
