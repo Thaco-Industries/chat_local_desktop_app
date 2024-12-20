@@ -1,4 +1,5 @@
 import { useFetchApi } from '../context/ApiContext';
+import { notify } from '../helper/notify';
 
 export const FileHandle = () => {
   const { apiRequest } = useFetchApi();
@@ -195,13 +196,16 @@ export const FileHandle = () => {
           );
         }
 
-        console.log(response);
-
         if (response.data === 'Upload and merge complete') {
           uploadSuccess = true;
           break;
         }
-      } catch (error) {
+      } catch (error: any) {
+        const errorMessage = error?.response?.data?.message || error.message;
+        console.log(errorMessage);
+
+        // console.error('Error message:', errorMessage);
+        notify(errorMessage, 'error');
         console.error('Error uploading chunk:', error);
         break;
       }

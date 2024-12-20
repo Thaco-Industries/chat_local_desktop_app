@@ -34,6 +34,22 @@ export interface IChatDrawerDetail extends IModalImageSetData {
   friendStatus?: string;
 }
 
+export interface IConfigSystem {
+  _id: string;
+  deleted_at: string;
+  created_at: string;
+  code: 'CONFIG_SYSTEM';
+  value: {
+    time_revoke_mssg: number;
+    time_remove_file: number;
+    end_file: string[];
+    max_capacity_file: number;
+    max_capacity_file_per_cycle: number;
+    join_group_system: string;
+  };
+  updated_at: string;
+}
+
 declare global {
   interface Window {
     electronAPI: {

@@ -24,7 +24,9 @@ const Profile: React.FC = () => {
           <p className="text-textBody flex items-center">
             {mainPosition ? (
               <>
-                <PositionIcon />
+                <div className="basis-[20px]">
+                  <PositionIcon />
+                </div>
                 <span className="ml-xs">
                   {mainPosition.position} - {mainPosition.ban_name}
                 </span>
@@ -42,7 +44,9 @@ const Profile: React.FC = () => {
             {secondaryPositions.length > 0 ? (
               secondaryPositions.map((item, index) => (
                 <div key={index} className="flex items-center">
-                  <PositionIcon />
+                  <div className="basis-[20px]">
+                    <PositionIcon />
+                  </div>
                   <span className="ml-xs">
                     {item.position} - {item.ban_name}
                   </span>
@@ -61,7 +65,7 @@ const Profile: React.FC = () => {
     <div className="w-full h-full bg-white px-md py-lg">
       <h1 className="text-title font-semibold">Thông tin tài khoản</h1>
       {userInfor && (
-        <div className="flex flex-col md:flex-row gap-sm md:gap-xl mt-xs md:mt-[35px] overflow-y-auto h-[calc(100%-15px)]">
+        <div className="flex flex-col sm:flex-col sm:gap-sm md:flex-row gap-sm md:gap-xl mt-xs md:mt-[35px] overflow-y-auto h-[calc(100%-15px)] md:h-[335px]">
           <div className="flex flex-col gap-xs items-center">
             <UserAvatar
               fullName={userInfor.infor.full_name}

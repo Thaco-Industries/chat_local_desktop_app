@@ -17,6 +17,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { IMessage, IRoom } from '../../interfaces';
 import { useFriendService } from '../../services/FriendService';
 import { getAuthCookie } from '../../actions/auth.action';
+import { useConfigSystemService } from '../../services/ConfigSystemService';
+import { useMessageContext } from '../../context/MessageContext';
 
 interface ChatInputProps {
   onSendMessage: (
@@ -33,6 +35,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   roomId,
   roomInfo,
 }) => {
+  const { configSystemValue } = useMessageContext();
   const { searchUserById } = useFriendService();
   const [text, setText] = useState<string>('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -103,7 +106,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     if (!files || files.length === 0) return;
 
+    const validExtensions = configSystemValue.value?.end_file || [];
+
     for (const file of files) {
+      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+
+      if (!fileExtension || !validExtensions.includes(fileExtension)) {
+        // Hiển thị thông báo lỗi
+        notify('Loại tệp không được hỗ trợ. Vui lòng chọn lại tệp', 'error');
+        continue;
+      }
+
       let fileSize = file.size / 1024 / 1024;
       try {
         const response = await checkFileBeforeUpload(fileSize);
@@ -153,8 +166,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
         message_display: 'Đang xử lý...',
       };
 
-      console.log(tempMessage);
-
       setMessages((prevMessages) => [tempMessage, ...prevMessages]);
 
       if (file.type.startsWith('video/')) {
@@ -162,7 +173,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
         const thumbnailBase64 = await createThumbnail(file, 1.0); // Seek tại giây 1
         const compressedThumbnail = await compressThumbnail(thumbnailBase64);
-        console.log(compressedThumbnail);
 
         // Cập nhật thumbnail vào tin nhắn
         setMessages((prevMessages) =>
@@ -196,8 +206,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
         roomId: roomId,
         onProgress: onProgress,
         clearTempMessage: () => {
-          console.log('delete');
-
           setMessages((prevMessage) =>
             prevMessage.filter((msg) => msg.id !== tempMessageId)
           );

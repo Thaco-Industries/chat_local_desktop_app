@@ -7,7 +7,7 @@ interface FileProps {
 }
 
 export const FileSection: React.FC<{
-  files: FileProps[];
+  files: IFileInfor[];
   handleFileDownload: (url: string, fileName: string) => void;
 }> = ({ files, handleFileDownload }) => {
   const getFileExtension = (fileName: string) => {
@@ -29,34 +29,72 @@ export const FileSection: React.FC<{
 
   return (
     <>
-      {files.slice(0, 3).map(({ url_display, file_name, file_size }, idx) => (
-        <div
-          key={idx}
-          className="rounded-[2px] border border-primary p-xs relative cursor-pointer"
-          onClick={() =>
-            handleFileDownload(
-              `${process.env.REACT_APP_API_URL}/media/view/${url_display}`,
-              file_name
-            )
-          }
-        >
-          <div className="flex">
-            <p className="truncate text-sm leading-[15px] max-w-[220px]">
-              {removeExtensionFileName(file_name)}
+      {files
+        .slice(0, 3)
+        .map(({ url_display, file_name, file_size, system_deleted }, idx) => (
+          <div
+            key={idx}
+            className="rounded-[2px] border border-primary p-xs relative cursor-pointer"
+            onClick={() =>
+              handleFileDownload(
+                `${process.env.REACT_APP_API_URL}/media/view/${url_display}`,
+                file_name
+              )
+            }
+          >
+            <div className="flex">
+              <p className="truncate text-sm leading-[15px] max-w-[220px]">
+                {removeExtensionFileName(file_name)}
+              </p>
+              <span className="text-sm leading-[15px]">
+                .{getFileExtension(file_name)}
+              </span>
+            </div>
+            <p className="text-sm text-lightText mt-xxs">
+              {convertFileSize(file_size)}
             </p>
-            <span className="text-sm leading-[15px]">
-              .{getFileExtension(file_name)}
-            </span>
+            {system_deleted && (
+              <div className="flex gap-xxs">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M7.9987 14.6615C11.6654 14.6615 14.6654 11.6615 14.6654 7.99479C14.6654 4.32812 11.6654 1.32812 7.9987 1.32812C4.33203 1.32812 1.33203 4.32812 1.33203 7.99479C1.33203 11.6615 4.33203 14.6615 7.9987 14.6615Z"
+                    stroke="#C60808"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M8 5.32812V8.66146"
+                    stroke="#C60808"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M7.99609 10.6719H8.00208"
+                    stroke="#C60808"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <p className="text-red-700">File đã bị xóa</p>
+              </div>
+            )}
+            {!system_deleted && (
+              <DownloadButton
+                url={`${process.env.REACT_APP_API_URL}/media/view/${url_display}`}
+                file_name={file_name}
+              />
+            )}
           </div>
-          <p className="text-sm text-lightText mt-xxs">
-            {convertFileSize(file_size)}
-          </p>
-          <DownloadButton
-            url={`${process.env.REACT_APP_API_URL}/media/view/${url_display}`}
-            file_name={file_name}
-          />
-        </div>
-      ))}
+        ))}
     </>
   );
 };

@@ -16,6 +16,7 @@ const ChatDrawer: React.FC<IChatDrawer> = ({
   setRoomId,
   setRoomInfo,
   friendStatus,
+  setIsVideo,
 }) => {
   const closeDrawer = () => {
     setIsCollapsed(false);
@@ -46,6 +47,7 @@ const ChatDrawer: React.FC<IChatDrawer> = ({
             setIsCollapsed={setIsCollapsed}
             setRoomInfo={setRoomInfo}
             friendStatus={friendStatus}
+            setIsVideo={setIsVideo}
           />
         </div>
       )}
