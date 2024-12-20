@@ -27,26 +27,31 @@ const isElectron = navigator.userAgent.toLowerCase().includes('electron');
 root.render(
   <HashRouter>
     <ApiProvider>
-      <SocketProvider>
-        <MessageProvider>
-          <ChatProvider>
-            <ToastContent />
-            <Routes>
-              <Route
-                path="/login"
-                element={<PublicRoute element={<Login />} />}
-              />
-              <Route path="/" element={<ProtectedRoute element={<Layout />} />}>
-                <Route index element={<Message />} />
-                <Route path="room" element={<Room />} />
-                <Route path="group" element={<Group />} />
-                <Route path="setting" element={<Setting />} />
-                <Route path="profile" element={<Profile />} />
-              </Route>
-            </Routes>
-          </ChatProvider>
-        </MessageProvider>
-      </SocketProvider>
+      <MessageProvider>
+        <ChatProvider>
+          <ToastContent />
+          <Routes>
+            <Route
+              path="/login"
+              element={<PublicRoute element={<Login />} />}
+            />
+            <Route
+              path="/"
+              element={
+                <SocketProvider>
+                  <ProtectedRoute element={<Layout />} />
+                </SocketProvider>
+              }
+            >
+              <Route index element={<Message />} />
+              <Route path="room" element={<Room />} />
+              <Route path="group" element={<Group />} />
+              <Route path="setting" element={<Setting />} />
+              <Route path="profile" element={<Profile />} />
+            </Route>
+          </Routes>
+        </ChatProvider>
+      </MessageProvider>
     </ApiProvider>
   </HashRouter>
 );

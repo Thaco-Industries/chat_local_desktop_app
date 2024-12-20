@@ -1,3 +1,4 @@
+// SocketContext.tsx
 import React, {
   createContext,
   useContext,
@@ -38,10 +39,8 @@ const socketUrl = process.env.REACT_APP_SOCKET_URL;
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const socketRef = useRef<Socket | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
-  const userAuth = getAuthCookie();
 
   const disconnectSocket = () => {
-    console.log('Disconnecting socket...');
     if (socketRef.current) {
       socketRef.current.disconnect();
       socketRef.current = null;
@@ -50,7 +49,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   };
 
   const reconnectSocket = (token: string) => {
-    console.log('Attempting to reconnect socket with token:', token);
     if (!socketRef.current) {
       socketRef.current = io(
         `${socketUrl}/${process.env.REACT_APP_SOCKET_CHANNEL}`,
@@ -59,35 +57,36 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
           transports: ['websocket'],
         }
       );
-
-      setSocket(socketRef.current);
-
-      // Handle connection errors
+      setSocket(socketRef.current); // Lắng nghe sự kiện lỗi và tự động kết nối lại
       socketRef.current.on('connect_error', (error) => {
         console.error('Socket connection error:', error.message);
+        // Thử kết nối lại sau 3 giây
         setTimeout(() => {
-          const userAuth = getAuthCookie();
-          if (userAuth?.token?.accessToken) {
-            reconnectSocket(userAuth.token.accessToken);
+          if (socketRef.current && !socketRef.current.connected) {
+            const userAuth = getAuthCookie();
+            if (userAuth?.token?.accessToken) {
+              reconnectSocket(userAuth.token.accessToken);
+            }
           }
         }, 3000);
       });
 
-      // Handle disconnection
       socketRef.current.on('disconnect', (reason) => {
         console.warn('Socket disconnected:', reason);
-        const userAuth = getAuthCookie();
-        if (userAuth?.token?.accessToken) {
-          reconnectSocket(userAuth.token.accessToken);
+        // Xử lý ngắt kết nối, ví dụ: hiển thị thông báo lỗi
+        if (reason === 'io server disconnect') {
+          // Nếu server ngắt kết nối, thực hiện kết nối lại
+          const userAuth = getAuthCookie();
+          if (userAuth?.token?.accessToken) {
+            reconnectSocket(userAuth.token.accessToken);
+          }
         }
       });
 
-      // Reconnection attempt
       socketRef.current.on('reconnect_attempt', () => {
         console.log('Attempting to reconnect...');
       });
 
-      // Successful reconnection
       socketRef.current.on('reconnect', () => {
         console.log('Socket reconnected successfully.');
       });
@@ -95,55 +94,17 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    console.log('User Auth:', userAuth);
-
+    // Kiểm tra và tạo kết nối nếu chưa tồn tại
+    const userAuth = getAuthCookie();
     if (userAuth?.token?.accessToken) {
       reconnectSocket(userAuth.token.accessToken);
-
-      const handleSocketEvents = () => {
-        if (socketRef.current) {
-          const testData = { key: 'test', value: Math.random() };
-          console.log('Emitting test data:', testData);
-
-          // Emit test data to 'greeting'
-          socketRef.current.emit('greeting', testData);
-
-          // Clean up existing listeners before adding new ones
-          socketRef.current.off('welcome');
-          socketRef.current.on('welcome', (receivedData) => {
-            console.log('Data received from welcome:', receivedData);
-            if (JSON.stringify(receivedData) !== JSON.stringify(testData)) {
-              console.warn('Data mismatch, reconnecting socket...');
-              disconnectSocket();
-              reconnectSocket(userAuth.token.accessToken);
-            }
-          });
-        }
-      };
-
-      if (socketRef.current) {
-        socketRef.current.off('connect');
-        socketRef.current.on('connect', () => {
-          console.log('Socket connected.');
-          handleSocketEvents();
-        });
-
-        socketRef.current.off('disconnect');
-        socketRef.current.on('disconnect', (reason) => {
-          console.warn('Socket disconnected:', reason);
-          const userAuth = getAuthCookie();
-          if (userAuth?.token?.accessToken) {
-            reconnectSocket(userAuth.token.accessToken);
-          }
-        });
-      }
     }
 
     return () => {
-      console.log('Cleaning up and disconnecting socket...');
       disconnectSocket();
     };
-  }, [userAuth]);
+  }, []);
+  // Re-run effect when the user changes
 
   return (
     <SocketContext.Provider
