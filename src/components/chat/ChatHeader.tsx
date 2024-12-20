@@ -10,7 +10,7 @@ import ChangeLogoIcon from '../../assets/icons/change-logo';
 import { useRoomService } from '../../services/RoomService';
 import { notify } from '../../helper/notify';
 import * as Yup from 'yup';
-import { Field, Form, Formik } from 'formik';
+import { Form, Formik } from 'formik';
 import { useEffect, useRef, useState } from 'react';
 import Edit from '../../assets/icons/edit';
 import CustomField from '../common/customField';
