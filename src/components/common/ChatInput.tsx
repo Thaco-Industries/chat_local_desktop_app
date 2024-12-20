@@ -317,7 +317,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           {isReplyMessage && messageReply && (
             <div
               className={clsx(
-                'join-item px-6 py-5 grid grid-cols-[40px_1fr_auto] items-start border-b border-b-border'
+                'join-item px-6 py-5 grid grid-cols-[40px_1fr_auto] bg-white items-start border-b border-b-border'
               )}
             >
               <div>
