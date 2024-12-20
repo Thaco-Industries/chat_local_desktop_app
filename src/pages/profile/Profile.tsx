@@ -17,7 +17,7 @@ const Profile: React.FC = () => {
     const secondaryPositions = data.filter((item) => item.priority !== 0);
     return (
       <div>
-        <div className="grid grid-cols-[200px_auto] gap-y-xs">
+        <div className="grid grid-cols-1 gap-y-xs md:grid-cols-[200px_auto]">
           <p className="text-textBody font-semibold">
             Chức vụ đảm nhiệm chính{' '}
           </p>
@@ -36,7 +36,7 @@ const Profile: React.FC = () => {
             )}
           </p>
         </div>
-        <div className="grid grid-cols-[200px_auto] gap-y-xs mt-sm">
+        <div className="grid grid-cols-1 gap-y-xs md:grid-cols-[200px_auto] mt-sm">
           <p className="text-textBody font-semibold">Chức vụ kiêm nhiệm</p>
           <div className="text-textBody">
             {secondaryPositions.length > 0 ? (
@@ -61,7 +61,7 @@ const Profile: React.FC = () => {
     <div className="w-full h-full bg-white px-md py-lg">
       <h1 className="text-title font-semibold">Thông tin tài khoản</h1>
       {userInfor && (
-        <div className="flex gap-xl mt-[35px]">
+        <div className="flex flex-col md:flex-row gap-sm md:gap-xl mt-xs md:mt-[35px] overflow-y-auto h-[calc(100%-15px)]">
           <div className="flex flex-col gap-xs items-center">
             <UserAvatar
               fullName={userInfor.infor.full_name}
@@ -89,14 +89,17 @@ const Profile: React.FC = () => {
               <div className="text-red-700">Đăng xuất</div>
             </button>
           </div>
-          <div className="min-h-full border-r border-r-border"></div>
+          <div className="min-h-full border-r border-r-border hidden md:block"></div>
+          <div className="min-W-full border-t border-t-border block md:hidden"></div>
           <div className="flex flex-col gap-sm">
-            <h1 className="text-title">Thông tin cá nhân</h1>
-            <div className="grid grid-cols-[200px_auto] gap-y-xs">
+            <h1 className="text-title font-semibold">Thông tin cá nhân</h1>
+            <div className="grid grid-cols-[100px_auto] md:grid-cols-[200px_auto] gap-y-xs">
               {personalInfo.map((info, index) => (
                 <React.Fragment key={index}>
                   <p className="text-title">{info.label}:</p>
-                  <p className="text-textBody">{info.value}</p>
+                  <span className="text-textBody font-semibold">
+                    {info.value}
+                  </span>
                 </React.Fragment>
               ))}
             </div>
