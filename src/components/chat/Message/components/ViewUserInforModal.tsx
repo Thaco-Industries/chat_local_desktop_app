@@ -147,14 +147,14 @@ function ViewUserInforModal({
         <p className="text-textBody font-semibold">Chức vụ đảm nhiệm chính </p>
         <p className="mt-xs flex items-center">
           {mainPosition ? (
-            <div>
+            <>
               <div className="basis-[20px]">
                 <PositionIcon />
               </div>
               <span className="ml-xs text-textBody">
                 {mainPosition.position} - {mainPosition.ban_name}
               </span>
-            </div>
+            </>
           ) : (
             <span className="text-[#C0C0C0]">
               Chưa có chức vụ đảm nhiệm chính
