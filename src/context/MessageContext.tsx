@@ -1,5 +1,5 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { IRoom } from '../interfaces';
+import { IConfigSystem, IRoom } from '../interfaces';
 
 interface MessageContextProps {
   roomList: IRoom[];
@@ -16,6 +16,10 @@ interface MessageContextProps {
   setRoomId: React.Dispatch<React.SetStateAction<string>>;
   roomInfo: IRoom;
   setRoomInfo: React.Dispatch<React.SetStateAction<IRoom>>;
+  configSystemValue: Partial<IConfigSystem>;
+  setConfigSystemValue: React.Dispatch<
+    React.SetStateAction<Partial<IConfigSystem>>
+  >;
 }
 
 const defaultRoom: IRoom = {
@@ -53,6 +57,9 @@ export const MessageProvider: React.FC<{ children: ReactNode }> = ({
   const [isSearchMessage, setIsSearchMessage] = useState<boolean>(false);
   const [roomId, setRoomId] = useState<string>('');
   const [roomInfo, setRoomInfo] = useState<IRoom>(defaultRoom);
+  const [configSystemValue, setConfigSystemValue] = useState<
+    Partial<IConfigSystem>
+  >({});
 
   return (
     <MessageContext.Provider
@@ -71,6 +78,8 @@ export const MessageProvider: React.FC<{ children: ReactNode }> = ({
         setIsSearchMessage,
         roomInfo,
         setRoomInfo,
+        configSystemValue,
+        setConfigSystemValue,
       }}
     >
       {children}

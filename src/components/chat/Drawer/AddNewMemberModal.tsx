@@ -76,10 +76,12 @@ function AddNewMemberModal({
       onClose={() => setOpenAddMemberModal(false)}
       theme={{
         root: {
-          base: 'z-[100]',
+          base: 'z-[100] min-h-[80vh]',
         },
         content: {
-          base: 'w-[450px] h-[80vh]',
+          base: 'w-[450px] min-h-[80vh]',
+          inner:
+            'relative flex flex-col rounded-lg bg-white shadow dark:bg-gray-700 min-h-[80vh]',
         },
       }}
       position="center"

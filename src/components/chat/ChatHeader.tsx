@@ -112,7 +112,7 @@ const ChatHeader: React.FC<IChatHeader> = ({
         return (
           <div className="flex items-center gap-xs text-textBody text-sm">
             <div className="w-xs h-xs rounded-full bg-green-300"></div>
-            Online
+            Đang hoạt động
           </div>
         );
       } else {

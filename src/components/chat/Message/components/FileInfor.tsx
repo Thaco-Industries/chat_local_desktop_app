@@ -40,6 +40,7 @@ export default function FileInfo({
     url: string,
     file_name: string
   ) => {
+    if (isDelete) return;
     e.stopPropagation();
     handleFileDownload(url, file_name);
   };
@@ -95,7 +96,7 @@ export default function FileInfo({
           </div>
         )}
       </div>
-      <DownloadButton url={url} file_name={file_name} />
+      {!isDelete && <DownloadButton url={url} file_name={file_name} />}
     </div>
   );
 }

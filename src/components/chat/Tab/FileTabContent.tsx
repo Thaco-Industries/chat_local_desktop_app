@@ -87,8 +87,8 @@ export const FileTabContent: React.FC<IFileTabContentProps> = ({
                       <div className="flex justify-between">
                         <p
                           className={clsx('text-sm text-title truncate', {
-                            'lg:max-w-[190px]': !isDelete,
-                            'lg:max-w-[155px]': isDelete,
+                            'lg:max-w-[220px]': !isDelete,
+                            'lg:max-w-[195px]': isDelete,
                           })}
                         >
                           {removeExtensionFileName(file_name)}
@@ -100,8 +100,44 @@ export const FileTabContent: React.FC<IFileTabContentProps> = ({
                       <p className="text-sm text-lightText">
                         {convertFileSize(file_size)}
                       </p>
+                      {file.system_deleted && (
+                        <div className="flex gap-xxs">
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M7.9987 14.6615C11.6654 14.6615 14.6654 11.6615 14.6654 7.99479C14.6654 4.32812 11.6654 1.32812 7.9987 1.32812C4.33203 1.32812 1.33203 4.32812 1.33203 7.99479C1.33203 11.6615 4.33203 14.6615 7.9987 14.6615Z"
+                              stroke="#C60808"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M8 5.32812V8.66146"
+                              stroke="#C60808"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M7.99609 10.6719H8.00208"
+                              stroke="#C60808"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          <p className="text-red-700">File đã bị xóa</p>
+                        </div>
+                      )}
                     </div>
-                    <DownloadButton url={url_display} file_name={file_name} />
+                    {!file.system_deleted && (
+                      <DownloadButton url={url_display} file_name={file_name} />
+                    )}
                   </div>
                 </div>
               );

@@ -106,7 +106,7 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
     listMember?.[userAuth.user.id]?.userRoom?.[0]?.permission === 'LEADER'
   );
 
-  const handleViewAllClick = (section: 'image' | 'video' | 'file') => {
+  const handleViewAllClick = (section: 'image' | 'video' | 'other') => {
     setActiveTab(section);
   };
   const handleViewImageClick = (url: string, isVideo: boolean) => {
@@ -327,7 +327,7 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
                 </div>
                 <p
                   className="text-center text-primary cursor-pointer mt-sm"
-                  onClick={() => handleViewAllClick('file')}
+                  onClick={() => handleViewAllClick('other')}
                 >
                   Xem tất cả
                 </p>
