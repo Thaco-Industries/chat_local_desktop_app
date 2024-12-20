@@ -40,6 +40,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   const disconnectSocket = () => {
+    console.log('Disconnecting socket...');
     if (socketRef.current) {
       socketRef.current.disconnect();
       socketRef.current = null;
@@ -48,6 +49,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   };
 
   const reconnectSocket = (token: string) => {
+    console.log('Attempting to reconnect socket with token:', token);
     if (!socketRef.current) {
       socketRef.current = io(
         `${socketUrl}/${process.env.REACT_APP_SOCKET_CHANNEL}`,
@@ -93,6 +95,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const userAuth = getAuthCookie();
+    console.log('User Auth:', userAuth);
 
     if (userAuth?.token?.accessToken) {
       reconnectSocket(userAuth.token.accessToken);
@@ -100,6 +103,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       const handleSocketEvents = () => {
         if (socketRef.current) {
           const testData = { key: 'test', value: Math.random() };
+          console.log('Emitting test data:', testData);
 
           // Emit test data to 'greeting'
           socketRef.current.emit('greeting', testData);
@@ -136,6 +140,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     }
 
     return () => {
+      console.log('Cleaning up and disconnecting socket...');
       disconnectSocket();
     };
   }, []);
