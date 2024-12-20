@@ -29,7 +29,7 @@ export const PhotoTabContent: React.FC<IPhotoTabContentProps> = ({
               return (
                 <div
                   key={photo.id}
-                  className="relative w-16 h-16 bg-black rounded-img overflow-hidden cursor-pointer"
+                  className="relative w-16 h-16 bg-black rounded-img overflow-hidden cursor-pointer border-border border"
                   onClick={() => {
                     handleFileChoosen(photo.id, urlFile, null);
                   }}
@@ -62,7 +62,7 @@ export const PhotoTabContent: React.FC<IPhotoTabContentProps> = ({
                     </>
                   ) : (
                     <div
-                      className="w-full h-full bg-[#EAEAEA] flex justify-center items-center border-border border rounded-[2px]"
+                      className="w-full h-full bg-[#EAEAEA] flex justify-center items-center"
                       onClick={() =>
                         handleFileChoosen(photo.id, urlFile, isVideoTab)
                       }

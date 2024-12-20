@@ -45,7 +45,7 @@ export const MediaSection = ({
               </div>
             ) : (
               <div
-                className="w-full h-full bg-[#EAEAEA] flex justify-center items-center border-border border rounded-[2px]"
+                className="w-full h-full bg-[#EAEAEA] flex justify-center items-center"
                 onClick={() => handleViewImageClick(urlFile, isVideoSection)}
               >
                 {!isVideoSection ? <GallerySlash /> : <VideoSlash />}
