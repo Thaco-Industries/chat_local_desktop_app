@@ -270,6 +270,14 @@ export const RoomList: React.FC<IRoomList> = ({
   };
 
   const handleRoomInforChange = (room: IRoom) => {
+    setRoomInfo((prevRoomInfo) => {
+      return {
+        ...prevRoomInfo,
+        room_name: room.room_name,
+        avatar_url: room.avatar_url,
+      };
+    });
+
     setRoomList((prevRoomList) => {
       let updatedInfor = prevRoomList.map((r) =>
         r.id === room.id
