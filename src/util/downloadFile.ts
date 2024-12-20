@@ -195,7 +195,9 @@ export const FileHandle = () => {
           );
         }
 
-        if (response.data?.message === 'Upload and merge complete') {
+        console.log(response);
+
+        if (response.data === 'Upload and merge complete') {
           uploadSuccess = true;
           break;
         }

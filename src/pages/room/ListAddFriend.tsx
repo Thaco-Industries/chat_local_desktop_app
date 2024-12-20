@@ -4,8 +4,12 @@ import { useFetchApi } from '../../context/ApiContext';
 import UserAvatar from '../../components/common/UserAvatar';
 import { formatDate } from '../../util/formatDate';
 import { notify } from '../../helper/notify';
+import { useFriendService } from '../../services/FriendService';
+import { useMessageContext } from '../../context/MessageContext';
 
 const ListAddFriend: React.FC = () => {
+  const { setNumberOfFriendRequest } = useMessageContext();
+
   const { apiRequest } = useFetchApi();
   const [listAddFriends, setListAddFriends] = useState([]);
   const [listSendAddFriends, setListSendAddFriends] = useState([]);
@@ -50,6 +54,7 @@ const ListAddFriend: React.FC = () => {
           'success'
         );
         getListAddFriends();
+        setNumberOfFriendRequest((prevReq) => prevReq - 1);
       }
     } catch (error) {
       console.error('Error fetching data:', error);

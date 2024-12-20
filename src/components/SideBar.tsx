@@ -24,6 +24,10 @@ export const SideBar: React.FC = () => {
     setRoomList,
     setIsSearchMessage,
     setRoomId,
+    setNumberOfFriendRequest,
+    numberOfFriendRequest,
+    numberOfInvitedRoom,
+    setNumberOfInvitedRoom,
   } = useMessageContext();
   const { getInvitedRoom } = useRoomService();
   const { getFriendRequests } = useFriendService();
@@ -33,9 +37,6 @@ export const SideBar: React.FC = () => {
   const currentPath = location.pathname;
   const navigate = useNavigate();
   const userAuth = getAuthCookie();
-
-  const [numberOfFriendRequest, setNumberOfFriendRequest] = useState<number>();
-  const [numberOfInvitedRoom, setNumberOfInvitedRoom] = useState<number>();
 
   useEffect(() => {
     handleNewFriendRequest();

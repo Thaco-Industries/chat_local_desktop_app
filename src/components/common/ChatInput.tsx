@@ -190,18 +190,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
         );
       };
 
-      const response = await uploadFileInChunks(file, {
+      await uploadFileInChunks(file, {
         fileId: uuidv4(),
         replyId: messageReply?.id || '',
         roomId: roomId,
         onProgress: onProgress,
         clearTempMessage: () => {
+          console.log('delete');
+
           setMessages((prevMessage) =>
             prevMessage.filter((msg) => msg.id !== tempMessageId)
           );
         },
       }); // Gọi hàm upload từng file
-      console.log(response);
     } catch (error) {
       console.error(`Failed to upload file ${file.name}`, error);
       alert(`Error uploading file: ${file.name}`);
