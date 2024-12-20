@@ -14,4 +14,5 @@ export interface IChatScreen extends IChatDrawerDetail {
   setRoomId: React.Dispatch<React.SetStateAction<string>>;
   isDesktopCollapsed: boolean;
   setIsDesktopCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+  isVideo: boolean;
 }

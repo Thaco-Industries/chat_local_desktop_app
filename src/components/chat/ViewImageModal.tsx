@@ -1,10 +1,13 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import DownloadOutlineIcon from '../../assets/icons/download-outline';
 import { FileHandle } from '../../util/downloadFile';
+import GallerySlash from '../../assets/icons/gallery-slash';
+import VideoSlash from '../../assets/icons/video-slash';
 
 type Props = {
   title: string;
   visible: boolean;
+  isVideo: boolean;
   setVisible: Dispatch<SetStateAction<boolean>>;
   imageView: string;
 };
@@ -14,8 +17,10 @@ const ViewImageModal: React.FC<Props> = ({
   setVisible,
   visible,
   imageView,
+  isVideo,
 }) => {
-  const isVideo = /\.(mp4|webm|ogg)$/i.test(imageView);
+  const [isUrlValid, setIsUrlValid] = useState<boolean>(true);
+  // const isVideo = /\.(mp4|webm|ogg)$/i.test(imageView);
   const { handleFileDownload } = FileHandle();
 
   const handleDownload = async (url: string, file_name: string) => {
@@ -25,6 +30,21 @@ const ViewImageModal: React.FC<Props> = ({
   const closeModal = () => {
     setVisible(false);
   };
+
+  useEffect(() => {
+    if (visible) {
+      // Kiểm tra xem URL có hợp lệ hay không
+      const checkUrlValidity = async () => {
+        try {
+          const response = await fetch(imageView, { method: 'HEAD' });
+          setIsUrlValid(response.ok);
+        } catch (error) {
+          setIsUrlValid(false);
+        }
+      };
+      checkUrlValidity();
+    }
+  }, [imageView, visible]);
 
   if (!visible) return null;
 
@@ -72,32 +92,40 @@ const ViewImageModal: React.FC<Props> = ({
               </div>
               {/* Modal body */}
               <div className="flex-1 flex items-center justify-center p-6 overflow-hidden">
-                {isVideo ? (
-                  <video
-                    className="max-w-full max-h-full object-contain"
-                    autoPlay
-                    controls
-                  >
-                    <source src={imageView} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
+                {isUrlValid ? (
+                  isVideo ? (
+                    <video
+                      className="max-w-full max-h-full object-contain"
+                      autoPlay
+                      controls
+                    >
+                      <source src={imageView} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <img
+                      className="max-w-full max-h-full object-contain"
+                      src={imageView}
+                      alt={title}
+                    />
+                  )
+                ) : !isVideo ? (
+                  <GallerySlash />
                 ) : (
-                  <img
-                    className="max-w-full max-h-full object-contain"
-                    src={imageView}
-                    alt={title}
-                  />
+                  <VideoSlash />
                 )}
               </div>
               {/* Modal footer */}
               <div className="flex items-center justify-center p-4 border-t border-t-[#7a7a7a54] rounded-b">
-                <div
-                  className="border-[#7a7a7a54] cursor-pointer"
-                  onClick={() => handleDownload(imageView, '')}
-                  title="Tải"
-                >
-                  <DownloadOutlineIcon color="#F1F5F9" />
-                </div>
+                {isUrlValid && (
+                  <div
+                    className="border-[#7a7a7a54] cursor-pointer"
+                    onClick={() => handleDownload(imageView, '')}
+                    title="Tải"
+                  >
+                    <DownloadOutlineIcon color="#F1F5F9" />
+                  </div>
+                )}
               </div>
             </div>
           </div>

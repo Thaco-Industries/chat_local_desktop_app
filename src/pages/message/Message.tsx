@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import ChatScreen from '../../components/chat/ChatScreen';
 import clsx from 'clsx';
 import { RoomList } from '../../components/chat/RoomList/RoomList';
 import WelcomeScreen from '../../components/welcome/WelcomeScreen';
 import ChatDrawerDetail from '../../components/chat/Drawer/ChatDrawerDetail';
-import { IRoom } from '../../interfaces';
 import { useFetchApi } from '../../context/ApiContext';
-import { ChatProvider } from '../../context/ChatContext';
 import { useMessageContext } from '../../context/MessageContext';
 import SearchMessage from '../../components/chat/SearchMessage/SearchMessage';
 
@@ -22,7 +20,9 @@ const Message: React.FC = () => {
   } = useMessageContext();
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [visible, setVisible] = useState<boolean>(false);
+
   const [imageView, setImageView] = useState<string>('');
+  const [isVideo, setIsVideo] = useState<boolean>(false);
 
   const { apiRequest } = useFetchApi();
 
@@ -71,6 +71,8 @@ const Message: React.FC = () => {
             // imageView={imageView}
             imageView={imageView}
             setImageView={setImageView}
+            setIsVideo={setIsVideo}
+            isVideo={isVideo}
           />
         ) : (
           <WelcomeScreen />
@@ -88,6 +90,7 @@ const Message: React.FC = () => {
             setRoomInfo={setRoomInfo}
             setRoomId={setRoomId}
             setIsDesktopCollapsed={setIsDesktopCollapsed}
+            setIsVideo={setIsVideo}
           />
         </div>
       )}

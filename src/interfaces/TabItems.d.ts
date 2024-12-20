@@ -11,12 +11,17 @@ export interface ITabItemsProps {
   fileSelected: string[];
   setFileSelected: React.Dispatch<React.SetStateAction<string[]>>;
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsVideo: React.Dispatch<React.SetStateAction<boolean> | null>;
   setImageView: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export interface IPhotoTabContentProps {
   groupedPhotos: { [key: string]: IFileInfor[] };
-  handleFileChoosen: (id: string, url: string | null) => void;
+  handleFileChoosen: (
+    id: string,
+    url: string | null,
+    isVideo: boolean | null
+  ) => void;
   isDelete: boolean;
   fileSelected: string[];
   isVideoTab: boolean;

@@ -26,6 +26,8 @@ const ChatScreen: React.FC<IChatScreen> = ({
   setVisible,
   imageView,
   setImageView,
+  isVideo,
+  setIsVideo,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
@@ -533,6 +535,8 @@ const ChatScreen: React.FC<IChatScreen> = ({
         imageView={setImageView}
         setImageView={setImageView}
         listMember={listMember}
+        isVideo={isVideo}
+        setIsVideo={setIsVideo}
       />
       <div
         className="flex flex-col-reverse flex-1 overflow-y-auto scrollbar"
@@ -591,12 +595,14 @@ const ChatScreen: React.FC<IChatScreen> = ({
         roomInfo={roomInfo}
         setRoomId={setRoomId}
         setRoomInfo={setRoomInfo}
+        setIsVideo={setIsVideo}
       />
       <ViewImageModal
         title="Hình ảnh"
         visible={visible}
         setVisible={setVisible}
         imageView={imageView}
+        isVideo={isVideo}
       />
     </div>
   );

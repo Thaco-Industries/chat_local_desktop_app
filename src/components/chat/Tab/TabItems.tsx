@@ -25,23 +25,30 @@ const TabItems: React.FC<ITabItemsProps> = ({
   setFileSelected,
   setVisible,
   setImageView,
+  setIsVideo,
 }) => {
   const groupedPhotos = groupItemsByDate(photos);
   const groupedVideos = groupItemsByDate(videos);
   const groupedFiles = groupItemsByDate(files);
 
-  const handleFileChoosen = (id: string, url: string | null) => {
+  const handleFileChoosen = (
+    id: string,
+    url: string | null,
+    isVideo: boolean | null = null
+  ) => {
     if (isDelete) {
       setFileSelected((prev) =>
         prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
       );
     } else {
       setVisible(true);
+      setIsVideo(isVideo);
       if (url) setImageView(url);
     }
   };
 
-  const handleFileChoosenWrapper = (id: string) => handleFileChoosen(id, null);
+  const handleFileChoosenWrapper = (id: string) =>
+    handleFileChoosen(id, null, null);
 
   return (
     <div>

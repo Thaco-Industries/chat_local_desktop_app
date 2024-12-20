@@ -12,6 +12,7 @@ const TabList: React.FC<ITabItemsProps> = ({
   setFileSelected,
   setImageView,
   setVisible,
+  setIsVideo,
 }) => {
   return (
     <div className="bg-background-500 min-h-full w-[310px]">
@@ -26,6 +27,7 @@ const TabList: React.FC<ITabItemsProps> = ({
           isDelete={isDelete}
           fileSelected={fileSelected}
           setFileSelected={setFileSelected}
+          setIsVideo={setIsVideo}
         />
       </div>
     </div>
