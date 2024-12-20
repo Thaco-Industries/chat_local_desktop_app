@@ -38,6 +38,7 @@ const socketUrl = process.env.REACT_APP_SOCKET_URL;
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const socketRef = useRef<Socket | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
+  const userAuth = getAuthCookie();
 
   const disconnectSocket = () => {
     console.log('Disconnecting socket...');
@@ -94,7 +95,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    const userAuth = getAuthCookie();
     console.log('User Auth:', userAuth);
 
     if (userAuth?.token?.accessToken) {
@@ -143,7 +143,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       console.log('Cleaning up and disconnecting socket...');
       disconnectSocket();
     };
-  }, []);
+  }, [userAuth]);
 
   return (
     <SocketContext.Provider
