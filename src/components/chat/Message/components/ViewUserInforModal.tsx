@@ -145,14 +145,16 @@ function ViewUserInforModal({
     return (
       <div>
         <p className="text-textBody font-semibold">Chức vụ đảm nhiệm chính </p>
-        <p className="text-textBody mt-xs flex items-center">
+        <p className="mt-xs flex items-center">
           {mainPosition ? (
-            <>
-              <PositionIcon />
-              <span className="ml-xs">
+            <div>
+              <div className="basis-[20px]">
+                <PositionIcon />
+              </div>
+              <span className="ml-xs text-textBody">
                 {mainPosition.position} - {mainPosition.ban_name}
               </span>
-            </>
+            </div>
           ) : (
             <span className="text-[#C0C0C0]">
               Chưa có chức vụ đảm nhiệm chính
@@ -160,12 +162,14 @@ function ViewUserInforModal({
           )}
         </p>
         <p className="text-textBody font-semibold mt-sm">Chức vụ kiêm nhiệm</p>
-        <p className="text-textBody mt-xs">
+        <div className="mt-xs flex items-center">
           {secondaryPositions.length > 0 ? (
             secondaryPositions.map((item, index) => (
               <div key={index} className="flex items-center">
-                <PositionIcon />
-                <span className="ml-xs">
+                <div className="basis-[20px]">
+                  <PositionIcon />
+                </div>
+                <span className="ml-xs text-textBody">
                   {item.position} - {item.ban_name}
                 </span>
               </div>
@@ -173,7 +177,7 @@ function ViewUserInforModal({
           ) : (
             <span className="text-[#C0C0C0]">Chưa có chức vụ kiêm nhiệm</span>
           )}
-        </p>
+        </div>
       </div>
     );
   }
@@ -234,6 +238,7 @@ function ViewUserInforModal({
                     fullName={userInfor.infor.full_name}
                     senderId={userInfor.id}
                     url={userInfor.infor.avt_url}
+                    fontSize={30}
                     size={150}
                   />
                   <p className="my-xs">{userInfor.infor.full_name}</p>
