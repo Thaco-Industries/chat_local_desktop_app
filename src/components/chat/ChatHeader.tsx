@@ -188,32 +188,35 @@ const ChatHeader: React.FC<IChatHeader> = ({
             </div>
             <div className="flex-1 flex flex-col justify-center">
               <div className="group flex relative max-w-[140px] sm:max-w-[300px] tablet:max-w-[460px]">
-                <CustomField
-                  type="text"
-                  name="roomName"
-                  ref={inputRef}
-                  id="roomName"
-                  maxLength={50}
-                  className={clsx('h-[24px] focus:ring-0', {
-                    shadow: isActiveInput,
-                  })}
-                  disabled={!isActiveInput}
-                  placeholder="Nhập tên phòng"
-                  value={values.roomName || roomInfo.room_name} // Dùng giá trị từ Formik hoặc giá trị mặc định
-                  onChange={handleChange}
-                  onBlur={(e: any) => {
-                    setIsActiveInput(false);
-                    handleBlur(e);
-                    submitForm(); // Gọi submitForm khi rời khỏi ô nhập
-                  }}
-                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault(); // Ngăn form gửi mặc định
-                      submitForm(); // Gửi form
-                      setIsActiveInput(false); // Tắt chế độ chỉnh sửa
-                    }
-                  }}
-                />
+                {isActiveInput ? (
+                  <CustomField
+                    type="text"
+                    name="roomName"
+                    ref={inputRef}
+                    id="roomName"
+                    maxLength={50}
+                    className={clsx('h-[24px] focus:ring-0', {
+                      shadow: isActiveInput,
+                    })}
+                    placeholder="Nhập tên phòng"
+                    value={values.roomName || roomInfo.room_name} // Dùng giá trị từ Formik hoặc giá trị mặc định
+                    onChange={handleChange}
+                    onBlur={(e: any) => {
+                      setIsActiveInput(false);
+                      handleBlur(e);
+                      submitForm(); // Gọi submitForm khi rời khỏi ô nhập
+                    }}
+                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault(); // Ngăn form gửi mặc định
+                        submitForm(); // Gửi form
+                        setIsActiveInput(false); // Tắt chế độ chỉnh sửa
+                      }
+                    }}
+                  />
+                ) : (
+                  <p>{values.roomName || roomInfo.room_name}</p>
+                )}
                 {/* Edit Icon */}
                 {roomInfo.is_group && !isActiveInput && isLeader && (
                   <div

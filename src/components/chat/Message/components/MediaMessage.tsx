@@ -26,7 +26,6 @@ const MediaMessage: React.FC<Props> = ({
   handleReplyMessage,
   handleRecallMessage,
 }) => {
-  const { uploadProgress } = useChatContext();
   const [showMessageOption, setShowMessageOption] = useState(false);
 
   const { file_id } = message;
@@ -45,22 +44,24 @@ const MediaMessage: React.FC<Props> = ({
 
   const urlVideoThumbnail = `${process.env.REACT_APP_API_URL}/media/view/${thumbnail_url_display}`;
 
-  if (uploadProgress < 100 && message.status === 'DELIVERED' && isUserMessage) {
+  if (message.status === 'DELIVERED' && isUserMessage) {
     return (
       <div className="flex justify-end">
-        {isVideo || isVideo ? (
-          <div className="relative max-w-[220px] lg:max-w-[350px] h-[350px] bg-white rounded overflow-hidden flex items-center justify-center">
+        {isVideo || (isVideo && thumbnail_url_display) ? (
+          <div className="relative w-[220px] lg:w-[350px] h-[350px] bg-white rounded overflow-hidden flex items-center justify-center">
             {/* Hình ảnh full nằm dưới spinner */}
             <img
-              src={`${process.env.REACT_APP_API_URL}/media/view/${message.file_id?.thumbnail_url_display}`}
-              className="absolute inset-0 w-full h-full object-contain"
+              src={thumbnail_url_display}
+              className="w-[220px] lg:w-[350px] h-[350px] object-contain rounded"
               alt="uploading file"
             />
             {/* Spinner hiển thị ở giữa */}
-            <Spinner size="xl" className="relative z-10" />
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <Spinner size="xl" />
+            </div>
           </div>
         ) : (
-          <div className="relative max-w-[220px] lg:max-w-[350px] h-[70px] bg-white rounded overflow-hidden flex items-center justify-center">
+          <div className="relative w-[220px] lg:w-[350px] h-[70px] bg-white rounded overflow-hidden flex items-center justify-center">
             <Spinner size="xl" className="relative z-10" />
           </div>
         )}

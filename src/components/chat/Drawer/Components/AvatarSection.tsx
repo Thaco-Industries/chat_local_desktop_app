@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import ChangeLogoIcon from '../../../../assets/icons/change-logo';
 import UserAvatar from '../../../common/UserAvatar';
 

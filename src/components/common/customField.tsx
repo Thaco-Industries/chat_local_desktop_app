@@ -9,7 +9,7 @@ const CustomField = forwardRef<
   useEffect(() => {
     if (typeof value === 'string') {
       // Đặt chiều rộng tối thiểu là 4ch (hoặc giá trị bạn muốn)
-      const calculatedWidth = `${Math.max(value.length, 6)}ch`; // Đảm bảo chiều rộng tối thiểu
+      const calculatedWidth = `${Math.max(value.length + 5, 10)}ch`; // Đảm bảo chiều rộng tối thiểu
       setInputWidth(calculatedWidth);
     }
   }, [value]);

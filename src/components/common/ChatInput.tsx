@@ -14,8 +14,9 @@ import EmojiPickerPopover from './EmojiPickerPopover';
 import PlayButton from '../chat/Message/components/PlayButton';
 import { notify } from '../../helper/notify';
 import { v4 as uuidv4 } from 'uuid';
-import { IRoom } from '../../interfaces';
+import { IMessage, IRoom } from '../../interfaces';
 import { useFriendService } from '../../services/FriendService';
+import { getAuthCookie } from '../../actions/auth.action';
 
 interface ChatInputProps {
   onSendMessage: (
@@ -36,7 +37,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const [text, setText] = useState<string>('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
-
+  const userAuth = getAuthCookie();
   useEffect(() => {
     if (roomInfo.is_group || !roomInfo) return;
     async function handleGetUserInfor() {
@@ -77,10 +78,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
     isReplyMessage,
     setIsReplyMessage,
     textareaRef,
-    setUploadProgress,
+    setMessages,
   } = useChatContext();
 
-  const { uploadFileInChunks, checkFileBeforeUpload } = FileHandle();
+  const {
+    uploadFileInChunks,
+    checkFileBeforeUpload,
+    compressThumbnail,
+    createThumbnail,
+  } = FileHandle();
 
   useEffect(() => {
     setText('');
@@ -102,7 +108,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
       try {
         const response = await checkFileBeforeUpload(fileSize);
         if (response.status === 201) {
-          await handleUploadFie(file);
+          await handleUploadFile(file);
         }
       } catch (error: any) {
         // Lấy thông tin lỗi chi tiết
@@ -116,18 +122,86 @@ const ChatInput: React.FC<ChatInputProps> = ({
     e.target.value = ''; // Reset input sau khi tải lên
   };
 
-  const handleUploadFie = async (file: File) => {
+  const handleUploadFile = async (file: File) => {
+    const tempMessageId = uuidv4();
+
     try {
-      const onProgress = (progress: number) => {
-        setUploadProgress(progress);
+      const tempMessage: IMessage = {
+        id: tempMessageId,
+        room_id: roomId,
+        created_at: moment().toString(),
+        sender_id: userAuth?.user.id || '',
+        message_type: 'FILE',
+        reply_id: null,
+        file_id: {
+          id_file: tempMessageId,
+          file_name: file.name,
+          file_size: `${file.size} bytes`,
+          uploaded_by: userAuth?.user.id || '',
+          thumbnail_url_display: '', // Chưa có thumbnail
+          system_deleted: false,
+          file_type: getFileType(file),
+          created_at: new Date().toISOString(),
+          room_id: roomId,
+          url_display: '',
+          id: tempMessageId,
+        },
+        seen_by: [],
+        deleted_by: [],
+        status: 'DELIVERED',
+        reactions: [],
+        message_display: 'Đang xử lý...',
       };
 
-      await uploadFileInChunks(file, {
+      console.log(tempMessage);
+
+      setMessages((prevMessages) => [tempMessage, ...prevMessages]);
+
+      if (file.type.startsWith('video/')) {
+        console.log('abvac');
+
+        const thumbnailBase64 = await createThumbnail(file, 1.0); // Seek tại giây 1
+        const compressedThumbnail = await compressThumbnail(thumbnailBase64);
+        console.log(compressedThumbnail);
+
+        // Cập nhật thumbnail vào tin nhắn
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg.id === tempMessageId
+              ? {
+                  ...msg,
+                  file_id: {
+                    ...msg.file_id!,
+                    thumbnail_url_display: compressedThumbnail,
+                  },
+                }
+              : msg
+          )
+        );
+      }
+
+      const onProgress = (progress: number) => {
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg.id === tempMessageId
+              ? { ...msg, message_display: `Đang tải lên... ${progress}%` }
+              : msg
+          )
+        );
+      };
+
+      const response = await uploadFileInChunks(file, {
         fileId: uuidv4(),
         replyId: messageReply?.id || '',
         roomId: roomId,
         onProgress: onProgress,
+        clearTempMessage: () => {
+          setMessages((prevMessage) =>
+            prevMessage.filter((msg) => msg.id !== tempMessageId)
+          );
+        },
       }); // Gọi hàm upload từng file
+      console.log(response);
     } catch (error) {
       console.error(`Failed to upload file ${file.name}`, error);
       alert(`Error uploading file: ${file.name}`);
@@ -164,6 +238,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
       }
     }
+  };
+
+  const getFileType = (file: File): 'IMAGE' | 'FILE' | 'VIDEO' => {
+    const mimeType = file.type;
+    if (mimeType.startsWith('image/')) return 'IMAGE';
+    if (mimeType.startsWith('video/')) return 'VIDEO';
+    return 'FILE';
   };
 
   const handleCancelReply = () => {

@@ -52,13 +52,8 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
   const { handleFileDownload } = FileHandle();
   const { socket } = useSocket();
   const { listMember, setListMember } = useChatContext();
-  const {
-    invitedRoomList,
-    getMemberInRoom,
-    leaveRoom,
-    uploadRoomImage,
-    changeRoomInfor,
-  } = useRoomService();
+  const { invitedRoomList, leaveRoom, uploadRoomImage, changeRoomInfor } =
+    useRoomService();
   const { deleteFriend } = useFriendService();
   const userAuth = getAuthCookie();
   const [openAddMemberModal, setOpenAddMemberModal] = useState<boolean>(false);
@@ -79,6 +74,7 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
 
   useEffect(() => {
     handleGetInvitedList();
+    setAvatars(roomInfo.avatar_url);
   }, [roomInfo]);
 
   const handleChangeRoomLeader = () => {

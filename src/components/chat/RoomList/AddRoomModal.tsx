@@ -160,12 +160,14 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
           {/* Modal body */}
           <Formik
             initialValues={initialValues}
+            validationSchema={validationSchema}
             onSubmit={(values, actions) => {
               handleSubmit(values, actions);
             }}
-            validationSchema={validationSchema}
+            validateOnChange={true}
+            validateOnBlur={true}
           >
-            {({ isSubmitting }) => {
+            {({ isSubmitting, errors, touched }) => {
               return (
                 <Form className="h-[calc(100%-28px)] flex flex-col px-xs gap-sm">
                   <div
@@ -199,15 +201,16 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
                       type="text"
                       name="groupName"
                       autoFocus={true}
+                      maxLength={51}
                       className="block w-full h-md ps-1 text-sm text-lightText border-none ring-0 rounded-lg focus:border-none focus:ring-0 bg-white p-0"
                       placeholder="Nhập tên nhóm..."
                     />
                   </div>
-                  <ErrorMessage
-                    name="groupName"
-                    component="div"
-                    className="text-red-500 text-sm mt"
-                  />
+                  {touched.groupName && errors.groupName && (
+                    <div className="text-red-500 text-sm mt">
+                      {errors.groupName}
+                    </div>
+                  )}
                   <div className="relative bg-[#f5f5f5] h-[40px] rounded-3xl">
                     <div className="absolute inset-y-0 start-md flex items-center pointer-events-none">
                       <svg

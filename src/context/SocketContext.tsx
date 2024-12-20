@@ -40,6 +40,46 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const socketRef = useRef<Socket | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
 
+  useEffect(() => {
+    const userAuth = getAuthCookie();
+
+    if (userAuth?.token?.accessToken) {
+      reconnectSocket(userAuth.token.accessToken);
+
+      // Sau khi kết nối, thực hiện gửi và kiểm tra dữ liệu
+      const handleSocketEvents = () => {
+        if (socketRef.current) {
+          const testData = { key: 'test', value: Math.random() }; // Tạo dữ liệu ngẫu nhiên để kiểm tra
+
+          // Gửi dữ liệu đến sự kiện 'greeting'
+          socketRef.current.emit('greeting', testData);
+
+          // Lắng nghe phản hồi từ sự kiện 'welcome'
+          socketRef.current.on('welcome', (receivedData) => {
+            console.log('Data received from welcome:', receivedData);
+
+            // Kiểm tra dữ liệu nhận về có trùng khớp với dữ liệu gửi đi không
+            if (JSON.stringify(receivedData) !== JSON.stringify(testData)) {
+              console.warn('Data mismatch, reconnecting socket...');
+              disconnectSocket();
+              reconnectSocket(userAuth.token.accessToken); // Thực hiện reconnect nếu không khớp
+            }
+          });
+        }
+      };
+
+      // Thực thi logic khi socket đã kết nối
+      socketRef.current?.on('connect', () => {
+        console.log('Socket connected.');
+        handleSocketEvents();
+      });
+    }
+
+    return () => {
+      disconnectSocket();
+    };
+  }, []);
+
   const disconnectSocket = () => {
     if (socketRef.current) {
       socketRef.current.disconnect();
