@@ -12,9 +12,12 @@ function ImagePreview({ url, onClick, file_name, isUserMessage }: Props) {
   return (
     <div className="relative flex justify-end gap-2 flex-wrap max-w-[220px] lg:max-w-[350px]">
       <div
-        className={clsx('flex items-center w-full', {
-          'justify-end': isUserMessage,
-        })}
+        className={clsx(
+          'flex items-center w-full min-w-[150px] min-h-[60px] bg-white justify-center rounded-[10px]',
+          {
+            'justify-end': isUserMessage,
+          }
+        )}
       >
         <img
           src={url}

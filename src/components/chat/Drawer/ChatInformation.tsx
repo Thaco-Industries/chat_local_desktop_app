@@ -39,6 +39,7 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
   setIsCollapsed,
   setIsDesktopCollapsed,
   setRoomInfo,
+  setIsVideo,
 }) => {
   const initialValues = {
     roomName: roomInfo.room_name,
@@ -108,9 +109,10 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
   const handleViewAllClick = (section: 'image' | 'video' | 'file') => {
     setActiveTab(section);
   };
-  const handleViewImageClick = (url: string) => {
+  const handleViewImageClick = (url: string, isVideo: boolean) => {
     setVisible(true);
     setImageView(url);
+    setIsVideo(isVideo);
   };
 
   const handleLeaveRoom = () => {

@@ -19,4 +19,5 @@ export interface IChatInformationProps {
   setIsCollapsed: Dispatch<SetStateAction<boolean>>;
   setIsDesktopCollapsed: Dispatch<SetStateAction<boolean>>;
   setRoomInfo: React.Dispatch<React.SetStateAction<IRoom>>;
+  setIsVideo: Dispatch<SetStateAction<boolean>>;
 }

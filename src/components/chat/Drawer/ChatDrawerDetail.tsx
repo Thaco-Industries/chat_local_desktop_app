@@ -19,6 +19,7 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
   setIsDesktopCollapsed,
   setRoomInfo,
   friendStatus,
+  setIsVideo,
 }) => {
   const { getAllFilesInRoom, deleteFileMessage } = useFileService();
   const [activeTab, setActiveTab] = useState<'image' | 'other' | 'video' | ''>(
@@ -175,6 +176,7 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
             setFileSelected={setFileSelected}
             setImageView={setImageView}
             setVisible={setVisible}
+            setIsVideo={setIsVideo}
           />
         ) : viewAllMemberInRoom ? (
           <ViewAllMemberInRoom
@@ -200,6 +202,7 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
             setIsCollapsed={setIsCollapsed}
             setIsDesktopCollapsed={setIsDesktopCollapsed}
             setRoomInfo={setRoomInfo}
+            setIsVideo={setIsVideo}
           />
         )}
       </div>

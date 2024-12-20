@@ -1,4 +1,3 @@
-// SocketContext.tsx
 import React, {
   createContext,
   useContext,
@@ -40,46 +39,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const socketRef = useRef<Socket | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
 
-  useEffect(() => {
-    const userAuth = getAuthCookie();
-
-    if (userAuth?.token?.accessToken) {
-      reconnectSocket(userAuth.token.accessToken);
-
-      // Sau khi kết nối, thực hiện gửi và kiểm tra dữ liệu
-      const handleSocketEvents = () => {
-        if (socketRef.current) {
-          const testData = { key: 'test', value: Math.random() }; // Tạo dữ liệu ngẫu nhiên để kiểm tra
-
-          // Gửi dữ liệu đến sự kiện 'greeting'
-          socketRef.current.emit('greeting', testData);
-
-          // Lắng nghe phản hồi từ sự kiện 'welcome'
-          socketRef.current.on('welcome', (receivedData) => {
-            console.log('Data received from welcome:', receivedData);
-
-            // Kiểm tra dữ liệu nhận về có trùng khớp với dữ liệu gửi đi không
-            if (JSON.stringify(receivedData) !== JSON.stringify(testData)) {
-              console.warn('Data mismatch, reconnecting socket...');
-              disconnectSocket();
-              reconnectSocket(userAuth.token.accessToken); // Thực hiện reconnect nếu không khớp
-            }
-          });
-        }
-      };
-
-      // Thực thi logic khi socket đã kết nối
-      socketRef.current?.on('connect', () => {
-        console.log('Socket connected.');
-        handleSocketEvents();
-      });
-    }
-
-    return () => {
-      disconnectSocket();
-    };
-  }, []);
-
   const disconnectSocket = () => {
     if (socketRef.current) {
       socketRef.current.disconnect();
@@ -97,36 +56,35 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
           transports: ['websocket'],
         }
       );
-      setSocket(socketRef.current); // Lắng nghe sự kiện lỗi và tự động kết nối lại
+
+      setSocket(socketRef.current);
+
+      // Handle connection errors
       socketRef.current.on('connect_error', (error) => {
         console.error('Socket connection error:', error.message);
-        // Thử kết nối lại sau 3 giây
         setTimeout(() => {
-          if (socketRef.current && !socketRef.current.connected) {
-            const userAuth = getAuthCookie();
-            if (userAuth?.token?.accessToken) {
-              reconnectSocket(userAuth.token.accessToken);
-            }
-          }
-        }, 3000);
-      });
-
-      socketRef.current.on('disconnect', (reason) => {
-        console.warn('Socket disconnected:', reason);
-        // Xử lý ngắt kết nối, ví dụ: hiển thị thông báo lỗi
-        if (reason === 'io server disconnect') {
-          // Nếu server ngắt kết nối, thực hiện kết nối lại
           const userAuth = getAuthCookie();
           if (userAuth?.token?.accessToken) {
             reconnectSocket(userAuth.token.accessToken);
           }
+        }, 3000);
+      });
+
+      // Handle disconnection
+      socketRef.current.on('disconnect', (reason) => {
+        console.warn('Socket disconnected:', reason);
+        const userAuth = getAuthCookie();
+        if (userAuth?.token?.accessToken) {
+          reconnectSocket(userAuth.token.accessToken);
         }
       });
 
+      // Reconnection attempt
       socketRef.current.on('reconnect_attempt', () => {
         console.log('Attempting to reconnect...');
       });
 
+      // Successful reconnection
       socketRef.current.on('reconnect', () => {
         console.log('Socket reconnected successfully.');
       });
@@ -134,17 +92,53 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    // Kiểm tra và tạo kết nối nếu chưa tồn tại
     const userAuth = getAuthCookie();
+
     if (userAuth?.token?.accessToken) {
       reconnectSocket(userAuth.token.accessToken);
+
+      const handleSocketEvents = () => {
+        if (socketRef.current) {
+          const testData = { key: 'test', value: Math.random() };
+
+          // Emit test data to 'greeting'
+          socketRef.current.emit('greeting', testData);
+
+          // Clean up existing listeners before adding new ones
+          socketRef.current.off('welcome');
+          socketRef.current.on('welcome', (receivedData) => {
+            console.log('Data received from welcome:', receivedData);
+            if (JSON.stringify(receivedData) !== JSON.stringify(testData)) {
+              console.warn('Data mismatch, reconnecting socket...');
+              disconnectSocket();
+              reconnectSocket(userAuth.token.accessToken);
+            }
+          });
+        }
+      };
+
+      if (socketRef.current) {
+        socketRef.current.off('connect');
+        socketRef.current.on('connect', () => {
+          console.log('Socket connected.');
+          handleSocketEvents();
+        });
+
+        socketRef.current.off('disconnect');
+        socketRef.current.on('disconnect', (reason) => {
+          console.warn('Socket disconnected:', reason);
+          const userAuth = getAuthCookie();
+          if (userAuth?.token?.accessToken) {
+            reconnectSocket(userAuth.token.accessToken);
+          }
+        });
+      }
     }
 
     return () => {
       disconnectSocket();
     };
   }, []);
-  // Re-run effect when the user changes
 
   return (
     <SocketContext.Provider
