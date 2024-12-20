@@ -17,7 +17,6 @@ const ListAddGroupMobile: React.FC<ListAddGroupMobileProps> = ({
   setIsShowMain,
 }) => {
   const { setNumberOfInvitedRoom } = useMessageContext();
-  const { getInvitedRoom } = useRoomService();
   const { apiRequest } = useFetchApi();
   const [listAddGroups, setListAddGroups] = useState([]);
   useEffect(() => {
@@ -34,19 +33,12 @@ const ListAddGroupMobile: React.FC<ListAddGroupMobileProps> = ({
     }
   };
 
-  const getNumberInvitation = async () => {
-    const response = await getInvitedRoom();
-    if (response.data) {
-      setNumberOfInvitedRoom(response.data.length);
-    }
-  };
-
   const handleGroup = async (id: string, mode: string) => {
     var urlHandle = 'invited-rooms/accept-invited-room/';
     if (mode === 'REJECTED') urlHandle = 'invited-rooms/reject-invited-room/';
     try {
       const response = await apiRequest('PUT', urlHandle + id);
-      if (response.status == 204) {
+      if (response.status == 200) {
         notify(
           mode === 'REJECTED'
             ? 'Từ chối lời mời tham gia nhom thành công'
@@ -54,7 +46,7 @@ const ListAddGroupMobile: React.FC<ListAddGroupMobileProps> = ({
           'success'
         );
         getListAddGroups();
-        getNumberInvitation();
+        setNumberOfInvitedRoom((prev) => prev - 1);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
