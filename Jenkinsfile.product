@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Hello world') {
+            steps {
+               echo 'Hello world build front end ne'
+            }
+        }
+       stage('Remove container') { 
+            steps {
+                script {
+                    def containerExists = sh(script: "docker ps -a -q -f name=chat_rd_desktop", returnStdout: true).trim()
+                    if (containerExists) {
+                        sh 'docker rm -f chat_rd_desktop'
+                    } else {
+                        echo 'Container chat_rd_desktop does not exist, skipping removal.'
+                    }
+                }
+            }
+        }
+
+        stage('edit config env file setup') {
+            steps {
+                script {
+                    dir('/var/lib/jenkins/workspace/chat_fe_desktop') {
+                        sh 'cp .env.example_product .env'
+                    }
+                }
+            }
+        }
+       stage('Remove image') {
+            steps {
+                script {
+                    def imageExists = sh(script: "docker images -q tymonstarlab/chat_rd_desktop", returnStdout: true).trim()
+                    if (imageExists != '') {
+                        try {
+                            sh 'docker rmi tymonstarlab/chat_rd_desktop'
+                        } catch (Exception e) {
+                            echo "Error removing image: ${e.message}"
+                        }
+                    } else {
+                        echo "Image 'tymonstarlab/chat_rd_desktop' does not exist, skipping removal."
+                    }
+                }
+            }
+        }
+        stage('Build images') {
+            steps {
+                script {
+                    dir('/var/lib/jenkins/workspace/chat_fe_desktop') {
+                        sh 'docker build -t tymonstarlab/chat_rd_desktop .'
+                    }
+                }
+            }
+        }
+       stage('Restart container') {
+            steps {
+                script {
+                    dir('/var/lib/jenkins/workspace/chat_fe_desktop') {
+                        sh 'docker compose up -d'
+                    }
+                }
+            }
+        }
+    }
+}
