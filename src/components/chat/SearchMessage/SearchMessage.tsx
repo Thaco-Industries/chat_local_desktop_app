@@ -87,7 +87,6 @@ const SearchForm: React.FC<Props> = ({ roomId }) => {
   };
 
   const handleRedirect = async (messageId: string) => {
-    // debugger;
     setSelectedMessageId(messageId);
     const response = await getRedirectMessage(roomId, 15, true, messageId);
     if (response.data) {

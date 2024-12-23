@@ -52,7 +52,7 @@ const ChatInformation: React.FC<IChatInformationProps> = ({
   });
   const { handleFileDownload } = FileHandle();
   const { socket } = useSocket();
-  const { listMember, setListMember } = useChatContext();
+  const { listMember } = useChatContext();
   const { invitedRoomList, leaveRoom, uploadRoomImage, changeRoomInfor } =
     useRoomService();
   const { deleteFriend } = useFriendService();

@@ -47,6 +47,7 @@ function UserAvatar({
   };
 
   useEffect(() => {
+    setValidImageUrl(null);
     const processedUrl = formatUrl(url);
     if (processedUrl) {
       checkImageUrl(processedUrl).then(setValidImageUrl); // Cập nhật URL ảnh hợp lệ
