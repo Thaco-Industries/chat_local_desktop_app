@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import AddFriendIcon from '../../assets/icons/add-friend';
 import { useFetchApi } from '../../context/ApiContext';
 import UserAvatar from '../../components/common/UserAvatar';
 import { formatDate } from '../../util/formatDate';
 import { notify } from '../../helper/notify';
-import { useRoomService } from '../../services/RoomService';
 import { useMessageContext } from '../../context/MessageContext';
+import AddGroupIcon from '../../assets/icons/add-group';
 
 const ListAddGroup: React.FC = () => {
   const { setNumberOfInvitedRoom } = useMessageContext();
@@ -49,7 +48,7 @@ const ListAddGroup: React.FC = () => {
     <div className="h-full flex-1">
       {/* top */}
       <div className="h-[65px] bg-white w-full pl-[30px] flex items-center border-b border-solid border-[#DCDCDC]">
-        <AddFriendIcon color="#485259" />
+        <AddGroupIcon color="#485259" />
         <span className="text-[16px] font-semibold ml-[10px]">
           Lời mời vào nhóm
         </span>

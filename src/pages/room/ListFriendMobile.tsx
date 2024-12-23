@@ -106,7 +106,7 @@ const ListFriendMobile: React.FC<ListFriendMobileProps> = ({
       {/* end top */}
       {/* body */}
       <div className="w-full h-full">
-        <div className="bg-white w-full h-full rounded-[6px] pt-[15px] flex flex-col">
+        <div className="bg-white w-full h-[calc(100%-65px)] rounded-[6px] pt-[15px] flex flex-col">
           <span className="font-semibold px-[20px]">
             Tổng số bạn ({listFriends.length})
           </span>

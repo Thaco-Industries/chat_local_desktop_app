@@ -135,7 +135,7 @@ const Group: React.FC = () => {
                   }}
                 >
                   <PeopleIcon color="#485259" />
-                  <span className="ml-[10px] text-[16px] font-semibold">
+                  <span className="ml-[10px] text-[14px] font-semibold">
                     Danh sách nhóm
                   </span>
                 </div>
@@ -147,7 +147,7 @@ const Group: React.FC = () => {
                   }}
                 >
                   <AddFriendIcon color="#485259" />
-                  <span className="ml-[10px] text-[16px] font-semibold">
+                  <span className="ml-[10px] text-[14px] font-semibold">
                     Lời mời vào nhóm
                   </span>
                 </div>

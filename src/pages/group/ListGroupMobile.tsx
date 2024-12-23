@@ -105,7 +105,7 @@ const ListGroupMobile: React.FC<ListGroupMobileProps> = ({
       </div>
       {/* end top */}
       <div className="w-full h-full">
-        <div className="bg-white w-full h-full rounded-[6px] pt-[15px] flex flex-col">
+        <div className="bg-white w-full h-[calc(100%-65px)] rounded-[6px] pt-[15px] flex flex-col">
           <span className="text-[14px] font-semibold px-[20px]">
             Tổng số nhóm ({listGroups.length})
           </span>
