@@ -134,7 +134,7 @@ const Room: React.FC = () => {
                   }}
                 >
                   <UserSquareIcon color="#485259" />
-                  <span className="ml-[10px] text-[16px] font-semibold">
+                  <span className="ml-[10px] text-[14px] font-semibold">
                     Danh sách bạn bè
                   </span>
                 </div>
@@ -146,7 +146,7 @@ const Room: React.FC = () => {
                   }}
                 >
                   <AddFriendIcon color="#485259" />
-                  <span className="ml-[10px] text-[16px] font-semibold">
+                  <span className="ml-[10px] text-[14px] font-semibold">
                     Lời mời kết bạn
                   </span>
                 </div>
