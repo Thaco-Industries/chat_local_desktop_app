@@ -1,7 +1,5 @@
 import clsx from 'clsx';
 import ArrowLeft from '../../assets/icons/arrow-left';
-import CallIcon from '../../assets/icons/call';
-import VideoCameraIcon from '../../assets/icons/VideoCamera';
 import CollapsdMessageIcon from '../../assets/icons/collapse-message';
 import MessageSearchIcon from '../../assets/icons/message-search';
 import { IChatHeader } from '../../interfaces/ChatScreen';

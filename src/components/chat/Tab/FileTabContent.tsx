@@ -60,12 +60,18 @@ export const FileTabContent: React.FC<IFileTabContentProps> = ({
             <h2 className="font-semibold">Ngày {date}</h2>
             {groupedFiles[date].map((file) => {
               const { url_display, file_name, file_size } = file;
+
               return (
                 <div
                   key={file.id}
                   className="flex items-center gap-[9px] cursor-pointer flex-wrap"
                   onClick={(e) =>
-                    handleFileClick(e, url_display, file_name, file.id)
+                    handleFileClick(
+                      e,
+                      `${process.env.REACT_APP_API_URL}/media/view/${url_display}`,
+                      file_name,
+                      file.id
+                    )
                   }
                 >
                   {isDelete && (

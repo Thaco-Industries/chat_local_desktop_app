@@ -84,7 +84,7 @@ const Profile: React.FC = () => {
               </span>
             </h1>
             <h1>
-              Trạng thái hoạt động:{' '}
+              Trạng thái:{' '}
               <span className="text-green-500 font-semibold">
                 Đang hoạt động
               </span>

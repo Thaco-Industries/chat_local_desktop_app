@@ -81,7 +81,7 @@ function AddNewMemberModal({
         content: {
           base: 'w-[450px] min-h-[80vh]',
           inner:
-            'relative flex flex-col rounded-lg bg-white shadow dark:bg-gray-700 min-h-[80vh]',
+            'relative flex flex-col rounded-lg bg-white shadow dark:bg-gray-700 h-[80vh]',
         },
       }}
       position="center"

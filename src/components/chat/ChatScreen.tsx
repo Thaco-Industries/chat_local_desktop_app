@@ -370,7 +370,8 @@ const ChatScreen: React.FC<IChatScreen> = ({
   }, [roomId]);
 
   useEffect(() => {
-    if (messages.length === 0 && listMember) getMessageListData();
+    if (messages.length < 10 && listMember) getMessageListData();
+    // if (messages.length < 10) getMessageListData();
   }, [roomId, listMember, getMessageListData]);
 
   useEffect(() => {
