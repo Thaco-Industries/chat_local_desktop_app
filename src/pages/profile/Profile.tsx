@@ -84,12 +84,12 @@ const Profile: React.FC = () => {
               </span>
             </h1>
             <h1>
-              Trạng thái hoạt động:{' '}
+              Trạng thái:{' '}
               <span className="text-green-500 font-semibold">
                 Đang hoạt động
               </span>
             </h1>
-            <button className="py-[6.5px] px-[17px] bg-white rounded-[40px] shadow border border-red-700 text-center">
+            <button className="py-[6.5px] px-[17px] bg-white rounded-[40px] shadow-lg border border-red-700 text-center">
               <div className="text-red-700">Đăng xuất</div>
             </button>
           </div>

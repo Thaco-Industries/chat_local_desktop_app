@@ -1,7 +1,5 @@
 import clsx from 'clsx';
 import ArrowLeft from '../../assets/icons/arrow-left';
-import CallIcon from '../../assets/icons/call';
-import VideoCameraIcon from '../../assets/icons/VideoCamera';
 import CollapsdMessageIcon from '../../assets/icons/collapse-message';
 import MessageSearchIcon from '../../assets/icons/message-search';
 import { IChatHeader } from '../../interfaces/ChatScreen';
@@ -116,7 +114,12 @@ const ChatHeader: React.FC<IChatHeader> = ({
           </div>
         );
       } else {
-        return null;
+        return (
+          <div className="flex items-center gap-xs text-textBody text-sm">
+            <div className="w-xs h-xs rounded-full bg-[#D1D5DB]"></div>
+            Không hoạt động
+          </div>
+        );
       }
     }
   };
@@ -187,7 +190,7 @@ const ChatHeader: React.FC<IChatHeader> = ({
               />
             </div>
             <div className="flex-1 flex flex-col justify-center">
-              <div className="group flex relative max-w-[140px] sm:max-w-[300px] tablet:max-w-[460px]">
+              <div className="group flex relative max-w-[140px] sm:max-w-[300px] tablet:max-w-[280px] lg:max-w-[420px]">
                 {isActiveInput ? (
                   <CustomField
                     type="text"

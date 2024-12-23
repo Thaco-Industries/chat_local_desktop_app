@@ -119,6 +119,7 @@ const MessageItem: React.FC<IMessageItem> = ({
   };
 
   const handleClickUserInRoom = (message: IMessage) => {
+    if (!showSenderInfo) return;
     setOpenFriendInfoModal(true);
     setFriendId(message.sender_id);
   };
@@ -127,7 +128,7 @@ const MessageItem: React.FC<IMessageItem> = ({
     <div className={`flex gap-xs my-[2.5px]`}>
       {!isUserMessage && (
         <div
-          className="cursor-pointer"
+          className={clsx(showSenderInfo ? 'cursor-pointer' : 'cursor-default')}
           onClick={() => handleClickUserInRoom(message)}
         >
           <UserAvatar
