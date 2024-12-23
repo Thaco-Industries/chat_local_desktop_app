@@ -50,6 +50,11 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
   const reconnectSocket = (token: string) => {
     if (!socketRef.current) {
+      console.log('Initializing socket connection...');
+      console.log('Socket URL:', socketUrl);
+      console.log('Socket Channel:', process.env.REACT_APP_SOCKET_CHANNEL);
+      console.log('Authorization Token:', token);
+
       socketRef.current = io(
         `${socketUrl}/${process.env.REACT_APP_SOCKET_CHANNEL}`,
         {
@@ -57,12 +62,18 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
           transports: ['websocket'],
         }
       );
-      setSocket(socketRef.current); // Lắng nghe sự kiện lỗi và tự động kết nối lại
+
+      setSocket(socketRef.current);
+
+      // Log sự kiện connect_error
       socketRef.current.on('connect_error', (error) => {
         console.error('Socket connection error:', error.message);
+        console.log('Socket error details:', error);
+
         // Thử kết nối lại sau 3 giây
         setTimeout(() => {
           if (socketRef.current && !socketRef.current.connected) {
+            console.log('Retrying socket connection...');
             const userAuth = getAuthCookie();
             if (userAuth?.token?.accessToken) {
               reconnectSocket(userAuth.token.accessToken);
@@ -71,11 +82,12 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         }, 3000);
       });
 
+      // Log sự kiện disconnect
       socketRef.current.on('disconnect', (reason) => {
         console.warn('Socket disconnected:', reason);
-        // Xử lý ngắt kết nối, ví dụ: hiển thị thông báo lỗi
+
         if (reason === 'io server disconnect') {
-          // Nếu server ngắt kết nối, thực hiện kết nối lại
+          console.log('Server disconnected socket. Attempting to reconnect...');
           const userAuth = getAuthCookie();
           if (userAuth?.token?.accessToken) {
             reconnectSocket(userAuth.token.accessToken);
@@ -83,12 +95,25 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         }
       });
 
+      // Log sự kiện reconnect_attempt
       socketRef.current.on('reconnect_attempt', () => {
         console.log('Attempting to reconnect...');
       });
 
+      // Log sự kiện reconnect
       socketRef.current.on('reconnect', () => {
         console.log('Socket reconnected successfully.');
+      });
+
+      // Log sự kiện connect
+      socketRef.current.on('connect', () => {
+        console.log('Socket connected successfully.');
+        console.log('Socket ID:', socketRef.current?.id);
+      });
+
+      // Log tất cả các sự kiện từ server để kiểm tra namespace
+      socketRef.current.onAny((event, ...args) => {
+        console.log('Received event:', event, 'with args:', args);
       });
     }
   };
