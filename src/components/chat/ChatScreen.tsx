@@ -14,6 +14,7 @@ import { IMessage, IUserInRoomInfo } from '../../interfaces';
 import { useRoomService } from '../../services/RoomService';
 import { notify } from '../../helper/notify';
 import { useFriendService } from '../../services/FriendService';
+import { useFileService } from '../../services/FileService';
 
 const ChatScreen: React.FC<IChatScreen> = ({
   roomId,
@@ -35,7 +36,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
   const messageEndRef = useRef<HTMLDivElement>(null);
   const listMemberRef = useRef<Record<string, IUserInRoomInfo> | null>(null);
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
-
+  const { getAllFilesInRoom } = useFileService();
   const {
     setListMember,
     listMember,
@@ -392,6 +393,20 @@ const ChatScreen: React.FC<IChatScreen> = ({
     getListMember();
   };
 
+  const handleListFileChanged = (data: any) => {
+    if (data.messageIds.length > 0) {
+      setMessages((prevMessages) => {
+        const filterMessage = prevMessages.filter(
+          (message) => !data.messageIds.includes(message.id)
+        );
+        return filterMessage;
+      });
+    }
+    getAllFilesInRoom(roomId, 'video');
+    getAllFilesInRoom(roomId, 'image');
+    getAllFilesInRoom(roomId, 'other');
+  };
+
   useEffect(() => {
     if (socket) {
       socket.on(`new-message/${roomId}`, handleNewMessage);
@@ -399,6 +414,10 @@ const ChatScreen: React.FC<IChatScreen> = ({
       socket.on(`user-join-room/${roomId}`, handleUserJoinAndOutRoom);
       socket.on(`user-out-room/${roomId}`, handleUserJoinAndOutRoom);
       socket.on(`change-room-leader/${roomInfo.id}`, handleChangeRoomLeader);
+      socket.on(
+        `list-files-in-room-changed/${roomInfo.id}`,
+        handleListFileChanged
+      );
 
       return () => {
         socket.off(`new-message/${roomId}`);
@@ -406,6 +425,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
         socket.off(`user-join-room/${roomId}`);
         socket.off(`user-out-room/${roomId}`);
         socket.off(`change-room-leader/${roomInfo.id}`);
+        socket.off(`list-files-in-room-changed/${roomInfo.id}`);
       };
     }
   }, [
