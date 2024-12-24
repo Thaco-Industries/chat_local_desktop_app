@@ -1,6 +1,6 @@
 {
   "name": "app",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "author": "THACO INDUSTRIES",
   "description": "Chat Local R&D",
@@ -20,6 +20,8 @@
     "clsx": "2.1.1",
     "daisyui": "4.12.14",
     "dotenv": "^16.4.7",
+    "electron-log": "^5.2.4",
+    "electron-updater": "^6.3.9",
     "electron-webpack": "^2.8.2",
     "electron-windows-badge": "^1.1.0",
     "emoji-picker-react": "^4.12.0",
@@ -49,7 +51,7 @@
     "dev": "npx electronmon --trace-warnings .",
     "electron:start": "concurrently -k \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && npm run dev\"",
     "electron:package:mac": "npm run build && electron-builder -m -c.extraMetadata.main=build/electron.js",
-    "electron:package:win": "npm run build && electron-builder -w -c.extraMetadata.main=build/electron.js",
+    "electron:package:win": "npm run build && electron-builder -p always -c.extraMetadata.main=build/electron.js ",
     "electron:package:linux": "npm run build && electron-builder -l -c.extraMetadata.main=build/electron.js"
   },
   "eslintConfig": {
@@ -75,6 +77,13 @@
   "build": {
     "appId": "com.electron.chatapp",
     "productName": "Chat Local R&D",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Thaco-Industries",
+        "repo": "chat_local_desktop_app"
+      }
+    ],
     "files": [
       "build/**/*",
       "node_modules/**/*"

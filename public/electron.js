@@ -11,12 +11,18 @@ const {
   shell,
 } = require('electron');
 const dotenv = require('dotenv');
+const fs = require('fs');
 const path = require('path');
 const Badge = require('electron-windows-badge');
-const badgeIcon = path.join(__dirname, 'badge-icon.png');
-const defaultIcon = path.join(__dirname, 'icon.png');
+const { autoUpdater } = require('electron-updater');
+const log = require('electron-log');
 const isDev = !app.isPackaged;
 const gotTheLock = app.requestSingleInstanceLock();
+
+log.transports.file.resolvePath = () =>
+  path.join(app.getPath('userData'), 'logs', 'main.log');
+log.info('Đường dẫn log tùy chỉnh:', log.transports.file.getFile().path);
+log.log('Application version = ' + app.getVersion());
 
 let notificationWindow = null;
 let mainWindow;
@@ -55,6 +61,16 @@ function createWindow() {
     font: '8px', // Thêm đơn vị px
   });
 
+  mainWindow.on('focus', () => {
+    // Tắt nhấp nháy khi người dùng focus vào cửa sổ chính
+    mainWindow.flashFrame(false);
+  });
+
+  mainWindow.on('show', () => {
+    // Tắt nhấp nháy khi cửa sổ được hiển thị
+    mainWindow.flashFrame(false);
+  });
+
   mainWindow.on('close', (event) => {
     // Ngăn không cho ứng dụng thoát khi đóng cửa sổ
     if (!app.isQuiting) {
@@ -64,8 +80,10 @@ function createWindow() {
   });
 
   // Automatically open Chrome's DevTools in development mode.
-  if (!app.isPackaged) {
+  if (isDev) {
     mainWindow.webContents.openDevTools();
+  } else {
+    mainWindow.webContents.setDevToolsWebContents(null);
   }
 }
 
@@ -97,34 +115,30 @@ if (!gotTheLock) {
   });
   app.whenReady().then(() => {
     createWindow();
+    autoUpdater.checkForUpdatesAndNotify();
     setupLocalFilesNormalizerProxy();
     // Tạo Tray Icon
-    tray = new Tray(path.join(__dirname, 'icon.png')); // Thay bằng icon phù hợp
+    try {
+      const iconPath = isDev
+        ? path.join(__dirname, 'icon.ico') // Dùng .ico trên Windows
+        : path.join(process.resourcesPath, 'icon.ico');
 
-    const trayMenu = Menu.buildFromTemplate([
-      {
-        label: 'Mở ứng dụng',
-        click: () => {
-          mainWindow.show();
-          mainWindow.focus();
-        },
-      },
-      {
-        label: 'Thoát',
-        click: () => {
-          app.isQuiting = true;
-          app.quit();
-        },
-      },
-    ]);
+      tray = new Tray(iconPath);
 
-    tray.setContextMenu(trayMenu);
-    tray.setToolTip('Chat Local R&D');
+      const trayMenu = Menu.buildFromTemplate([
+        { label: 'Open App', click: () => mainWindow.show() },
+        { label: 'Exit', click: () => app.quit() },
+      ]);
 
-    tray.on('click', () => {
-      mainWindow.show();
-      mainWindow.focus();
-    });
+      tray.setContextMenu(trayMenu);
+      tray.setToolTip('Chat Local R&D');
+      tray.on('click', () => {
+        mainWindow.show();
+        mainWindow.focus();
+      });
+    } catch (error) {
+      console.error('Error initializing Tray:', error.message);
+    }
 
     app.on('activate', function () {
       if (BrowserWindow.getAllWindows().length === 0) {
@@ -179,6 +193,7 @@ function initializeNotificationWindow(message) {
     height: 200,
     resizable: false,
     frame: false,
+    skipTaskbar: true,
     alwaysOnTop: true,
     transparent: true,
     webPreferences: {
@@ -209,8 +224,11 @@ function initializeNotificationWindow(message) {
 
 ipcMain.on('display-custom-notification', (event, message) => {
   //Kiểm tra trạng thái của mainWindow
-  if (mainWindow && (!mainWindow.isVisible() || mainWindow.isMinimized())) {
+  if (mainWindow && (!mainWindow.isFocused() || !mainWindow.isAlwaysOnTop())) {
     createNotificationWindow(message);
+
+    //Bật nhấp nháy trên thanh taskbar
+    mainWindow.flashFrame(true);
   }
 });
 
@@ -260,12 +278,20 @@ ipcMain.handle('send-reply-message', async (event, message) => {
 });
 
 ipcMain.on('update-badge', (event, badgeCount) => {
+  const badgeIcon = isDev
+    ? path.join(__dirname, 'badge-icon.png')
+    : path.join(process.resourcesPath, 'badge-icon.png');
+  const defaultIcon = isDev
+    ? path.join(__dirname, 'icon.png')
+    : path.join(process.resourcesPath, 'icon.png');
+
+  // Check if tray is initialized
   if (badgeCount > 0) {
-    badge.update(badgeCount); // Cập nhật badge
-    tray.setImage(badgeIcon);
+    badge.update(badgeCount); // Update the badge
+    tray.setImage(badgeIcon); // Set the badge icon
   } else {
-    badge.update(0); // Xóa badge bằng cách cập nhật thành 0
-    tray.setImage(defaultIcon);
+    badge.update(0); // Clear the badge by setting it to 0
+    tray.setImage(defaultIcon); // Set the default icon
   }
 });
 
@@ -286,5 +312,47 @@ ipcMain.handle('open-url', async (event, url) => {
   } catch (error) {
     console.error('Error opening URL:', error);
     return { success: false, error: error.message };
+  }
+});
+
+autoUpdater.on('checking-for-update', () => {
+  log.info('Đang kiểm tra bản cập nhật...');
+});
+
+autoUpdater.on('update-available', (info) => {
+  log.info('Có bản cập nhật mới:', info);
+  mainWindow.webContents.send('update-available', info); // Gửi thông báo đến giao diện người dùng
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  log.info('Không có bản cập nhật mới:', info);
+  mainWindow.webContents.send('update-not-available', info); // Gửi thông báo đến giao diện người dùng
+});
+
+autoUpdater.on('error', (err) => {
+  log.error('Lỗi khi kiểm tra cập nhật:', err);
+  mainWindow.webContents.send('update-error', err.message);
+});
+
+autoUpdater.on('download-progress', (progress) => {
+  log.info(`Tải xuống: ${Math.round(progress.percent)}%`);
+  mainWindow.webContents.send('update-progress', progress);
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  log.info('Bản cập nhật đã được tải xuống:', info);
+  mainWindow.webContents.send('update-downloaded', info);
+
+  // Hiển thị thông báo nhắc người dùng khởi động lại để cập nhật
+  const response = dialog.showMessageBoxSync(mainWindow, {
+    type: 'info',
+    buttons: ['Restart', 'Later'],
+    title: 'Cập nhật đã sẵn sàng',
+    message:
+      'Một bản cập nhật mới đã sẵn sàng. Bạn có muốn khởi động lại ứng dụng để cập nhật không?',
+  });
+
+  if (response === 0) {
+    autoUpdater.quitAndInstall(); // Khởi động lại ứng dụng và áp dụng bản cập nhật
   }
 });

@@ -1,14 +1,16 @@
 import moment from 'moment';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { IRoomItem } from '../../../interfaces';
 import UserAvatar from '../../common/UserAvatar';
 import GalleryIcon from '../../../assets/icons/gallery';
 import PaperClipIcon from '../../../assets/icons/paper-clip';
+import { getAuthCookie } from '../../../actions/auth.action';
 
 const RoomItem: React.FC<IRoomItem> = ({ room, keyword }) => {
   const { file_name } = room?.last_message?.file_id || {};
   const fileExtension = file_name?.split('.').pop()?.toLocaleLowerCase() || '';
   const isImage = ['png', 'jpg', 'jpeg', 'gif', 'svf'].includes(fileExtension);
+  const userAuth = getAuthCookie();
 
   const renderLastMessage = () => {
     let modifiedMessage = room.last_message.message_display?.toString() || '';
@@ -22,6 +24,20 @@ const RoomItem: React.FC<IRoomItem> = ({ room, keyword }) => {
       }
     });
 
+    if (
+      room.last_message.message_type !== 'NOTIFICATION' &&
+      room.last_message.message_type !== 'FILE'
+    ) {
+      const senderIndex = room.userRoom.findIndex(
+        (user) => user.user_id === room.last_message.sender_id
+      );
+      if (room.last_message.sender_id === userAuth?.user.id) {
+        modifiedMessage = `Bạn: ${modifiedMessage}`;
+      } else if (room.is_group) {
+        modifiedMessage = `${room.userRoom[senderIndex]?.user.infor.full_name}: ${modifiedMessage}`;
+      }
+    }
+
     if (room.last_message.message_type === 'RECALLED') {
       return modifiedMessage;
     }
@@ -29,12 +45,21 @@ const RoomItem: React.FC<IRoomItem> = ({ room, keyword }) => {
       if (isImage) {
         return (
           <div className="flex gap-1 items-center">
+            {room.last_message.sender_id === userAuth?.user.id && <p>Bạn:</p>}
             <GalleryIcon size="16" color="#7B87A1" /> Hình ảnh
           </div>
         );
       } else {
+        const senderIndex = room.userRoom.findIndex(
+          (user) => user.user_id === room.last_message.sender_id
+        );
+        const senderName =
+          room.last_message.sender_id === userAuth?.user.id
+            ? 'Bạn'
+            : room.userRoom[senderIndex]?.user.infor.full_name || '';
         return (
           <div className="flex gap-1 items-center">
+            <p>{senderName}</p>
             <span>
               <PaperClipIcon size="16" color="#7B87A1" />
             </span>

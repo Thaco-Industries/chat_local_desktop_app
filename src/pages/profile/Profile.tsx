@@ -65,8 +65,8 @@ const Profile: React.FC = () => {
     <div className="w-full h-full bg-white px-md py-lg">
       <h1 className="text-title font-semibold">Thông tin tài khoản</h1>
       {userInfor && (
-        <div className="flex flex-col sm:flex-col sm:gap-sm md:flex-row gap-sm md:gap-xl mt-xs md:mt-[35px] overflow-y-auto h-[calc(100%-15px)] md:h-[335px]">
-          <div className="flex flex-col gap-xs items-center">
+        <div className="flex flex-col sm:flex-col md:flex-row gap-sm tablet:gap-xl mt-xs md:mt-[35px] overflow-y-auto h-[calc(100%-15px)] md:h-[335px]">
+          <div className="flex flex-col gap-xs items-center min-w-[180px]">
             <UserAvatar
               fullName={userInfor.infor.full_name}
               senderId={userInfor.id}
@@ -95,7 +95,7 @@ const Profile: React.FC = () => {
           </div>
           <div className="min-h-full border-r border-r-border hidden md:block"></div>
           <div className="min-W-full border-t border-t-border block md:hidden"></div>
-          <div className="flex flex-col gap-sm">
+          <div className="flex flex-col gap-sm flex-1">
             <h1 className="text-title font-semibold">Thông tin cá nhân</h1>
             <div className="grid grid-cols-[100px_auto] md:grid-cols-[200px_auto] gap-y-xs">
               {personalInfo.map((info, index) => (

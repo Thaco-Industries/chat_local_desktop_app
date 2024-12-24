@@ -52,7 +52,7 @@ export default function FileInfo({
       onClick={(e) => handleDownload(e, url, file_name)}
     >
       <div className="flex">
-        <p className="truncate text-sm leading-[15px] ">
+        <p className="truncate text-sm leading-[17px] ">
           {removeExtensionFileName(file_name)}
         </p>
         <span className="text-sm leading-[15px]">

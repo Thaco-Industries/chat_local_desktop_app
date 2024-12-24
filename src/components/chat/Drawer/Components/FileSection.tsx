@@ -43,7 +43,7 @@ export const FileSection: React.FC<{
             }
           >
             <div className="flex">
-              <p className="truncate text-sm leading-[15px] max-w-[220px]">
+              <p className="truncate text-sm leading-[17px] max-w-[220px]">
                 {removeExtensionFileName(file_name)}
               </p>
               <span className="text-sm leading-[15px]">

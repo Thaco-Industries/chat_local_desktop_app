@@ -12,6 +12,7 @@ import ActionButton from './components/ActionButton';
 import PlayButton from './components/PlayButton';
 import UserAvatar from '../../common/UserAvatar';
 import ViewUserInforModal from './components/ViewUserInforModal';
+import { notify } from '../../../helper/notify';
 
 const MessageItem: React.FC<IMessageItem> = ({
   message,
@@ -57,8 +58,10 @@ const MessageItem: React.FC<IMessageItem> = ({
   const handleRecallMessage = async (roomId: string) => {
     try {
       await recallMessage(roomId);
-    } catch (err) {
-      console.error('API call failed: ', err);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error.message;
+      console.error('API call failed: ', error);
+      notify(errorMessage, 'error');
     }
   };
 

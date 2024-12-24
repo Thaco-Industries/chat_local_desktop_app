@@ -52,19 +52,18 @@ export const FileTabContent: React.FC<IFileTabContentProps> = ({
       {Object.keys(groupedFiles).map((date, dateIndex) => (
         <div
           key={date}
-          className={clsx('bg-white p-5', {
-            'mb-4': dateIndex !== Object.keys(groupedFiles).length - 1,
+          className={clsx('bg-white', {
+            'mb-[5px]': dateIndex !== Object.keys(groupedFiles).length - 1,
           })}
         >
           <div className="flex flex-col gap-4 w-full">
-            <h2 className="font-semibold">Ngày {date}</h2>
+            <h2 className="px-md pt-md font-semibold">Ngày {date}</h2>
             {groupedFiles[date].map((file) => {
               const { url_display, file_name, file_size } = file;
-
               return (
                 <div
                   key={file.id}
-                  className="flex items-center gap-[9px] cursor-pointer flex-wrap"
+                  className="px-md flex items-center gap-[9px] cursor-pointer flex-wrap"
                   onClick={(e) =>
                     handleFileClick(
                       e,
@@ -149,6 +148,7 @@ export const FileTabContent: React.FC<IFileTabContentProps> = ({
               );
             })}
           </div>
+          <div className="h-xxs bg-background-500 mt-md"></div>
         </div>
       ))}
     </div>

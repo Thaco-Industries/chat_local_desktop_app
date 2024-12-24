@@ -3,6 +3,7 @@ import { IPhotoTabContentProps } from '../../../interfaces';
 import PlayIcon from '../../../assets/icons/play';
 import GallerySlash from '../../../assets/icons/gallery-slash';
 import VideoSlash from '../../../assets/icons/video-slash';
+import React from 'react';
 
 export const PhotoTabContent: React.FC<IPhotoTabContentProps> = ({
   groupedPhotos,
@@ -12,16 +13,16 @@ export const PhotoTabContent: React.FC<IPhotoTabContentProps> = ({
   isVideoTab,
 }) => {
   return (
-    <div>
+    <React.Fragment>
       {Object.keys(groupedPhotos).map((date, dateIndex) => (
         <div
           key={date}
-          className={clsx('bg-white p-5', {
-            'mb-4': dateIndex !== Object.keys(groupedPhotos).length - 1,
+          className={clsx('bg-white', {
+            'mb-[5px]': dateIndex !== Object.keys(groupedPhotos).length - 1,
           })}
         >
-          <h2 className="font-semibold mb-4">Ngày {date}</h2>
-          <div className="grid grid-cols-4 gap-xxs">
+          <h2 className="px-md pt-md font-semibold mb-4">Ngày {date}</h2>
+          <div className="px-md pb-md grid grid-cols-4 gap-xxs">
             {groupedPhotos[date].map((photo, index) => {
               const urlFile = `${process.env.REACT_APP_API_URL}/media/view/${photo.url_display}`;
               const urlThumbnail = `${process.env.REACT_APP_API_URL}/media/view/${photo.thumbnail_url_display}`;
@@ -74,8 +75,9 @@ export const PhotoTabContent: React.FC<IPhotoTabContentProps> = ({
               );
             })}
           </div>
+          <div className="h-xxs bg-background-500"></div>
         </div>
       ))}
-    </div>
+    </React.Fragment>
   );
 };

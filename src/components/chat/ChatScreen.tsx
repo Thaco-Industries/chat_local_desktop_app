@@ -439,11 +439,10 @@ const ChatScreen: React.FC<IChatScreen> = ({
   useEffect(() => {
     const handleScroll = () => {
       if (messageListRef.current) {
-        const scrollPosition = messageListRef.current.scrollTop;
-        const scrollHeight = messageListRef.current.scrollHeight;
-        const clientHeight = messageListRef.current.clientHeight;
+        const { scrollTop, scrollHeight, clientHeight } =
+          messageListRef.current;
 
-        if (scrollPosition === clientHeight - scrollHeight && hasMoreData) {
+        if (scrollTop <= clientHeight - scrollHeight + 10 && hasMoreData) {
           getMessageListData();
         }
       }
@@ -454,6 +453,23 @@ const ChatScreen: React.FC<IChatScreen> = ({
       messageListRef.current?.removeEventListener('scroll', handleScroll);
     };
   }, [getMessageListData, hasMoreData]);
+
+  useEffect(() => {
+    const checkScrollHeight = () => {
+      if (messageListRef.current) {
+        const scrollHeight = messageListRef.current.scrollHeight;
+        const clientHeight = messageListRef.current.clientHeight;
+
+        // Nếu không có scrollbar và vẫn còn dữ liệu, tải thêm tin nhắn
+        if (scrollHeight <= clientHeight && hasMoreData) {
+          getMessageListData();
+        }
+      }
+    };
+
+    // Kiểm tra ngay khi render hoặc khi danh sách tin nhắn thay đổi
+    checkScrollHeight();
+  }, [messages, hasMoreData, getMessageListData]);
 
   useEffect(() => {
     if (isSearching) {
