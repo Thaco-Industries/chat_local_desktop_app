@@ -27,7 +27,7 @@ function ConfirmModal({
       </Modal.Header>
       <Modal.Body>
         <div className="space-y-6">
-          <p className="text-title text-[18px] text-center">{content}</p>
+          <p className="text-title text-[16px] text-center">{content}</p>
         </div>
         <div className="flex gap-lg justify-center mt-sm">
           <button

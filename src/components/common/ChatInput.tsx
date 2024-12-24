@@ -108,8 +108,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    console.log(disabled);
-
     if (!disabled) {
       timer = setTimeout(() => {
         textareaRef.current?.focus();
