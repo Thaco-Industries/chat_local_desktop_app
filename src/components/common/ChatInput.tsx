@@ -107,6 +107,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   }, [roomId, roomInfo.is_group, roomInfo.userRoom[0]?.friendStatus]);
 
   useEffect(() => {
+    setText('');
     let timer: NodeJS.Timeout;
     if (!disabled) {
       timer = setTimeout(() => {
