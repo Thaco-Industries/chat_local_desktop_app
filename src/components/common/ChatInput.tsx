@@ -17,7 +17,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { IMessage, IRoom } from '../../interfaces';
 import { useFriendService } from '../../services/FriendService';
 import { getAuthCookie } from '../../actions/auth.action';
-import { useConfigSystemService } from '../../services/ConfigSystemService';
 import { useMessageContext } from '../../context/MessageContext';
 
 interface ChatInputProps {
@@ -40,6 +39,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const [text, setText] = useState<string>('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const [disabled, setDisabled] = useState(false);
   const userAuth = getAuthCookie();
   useEffect(() => {
     if (roomInfo.is_group || !roomInfo) return;
@@ -92,9 +92,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
   } = FileHandle();
 
   useEffect(() => {
-    setText('');
-    textareaRef.current?.focus();
-  }, [roomId, textareaRef]);
+    if (roomInfo.userRoom[0]?.friendStatus) {
+      // Mặc định là disable
+      setDisabled(false);
+
+      // Xử lý trạng thái disable
+      if (
+        roomInfo.is_group === false &&
+        roomInfo.userRoom[0]?.friendStatus !== 'FRIEND'
+      ) {
+        setDisabled(true);
+      }
+    }
+  }, [roomId, roomInfo.is_group, roomInfo.userRoom[0]?.friendStatus]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    console.log(disabled);
+
+    if (!disabled) {
+      timer = setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 200); // Thêm một độ trễ nhỏ
+    }
+
+    return () => clearTimeout(timer);
+  }, [disabled, roomId]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -353,10 +376,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             className={clsx(
               'min-h-[50px] max-h-[150px] input flex items-center focus:outline-none focus-within:outline-none rounded-[30px] border-none join-item',
               { 'transition-[height 0.2s ease-in-out]': true },
-              roomInfo.is_group === true ||
-                roomInfo.userRoom[0].friendStatus === 'FRIEND'
-                ? 'bg-white'
-                : 'bg-[#F1F1F1]'
+              !disabled ? 'bg-white' : 'bg-[#F1F1F1]'
             )}
             style={{ height: `${formHeight}px` }}
           >
@@ -368,12 +388,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 className="inline-flex justify-center p-2 text-gray-500  cursor-pointer"
                 title="Gửi hình ảnh"
                 onClick={() => document.getElementById('imageUpload')?.click()}
-                disabled={
-                  roomInfo.is_group === true ||
-                  roomInfo.userRoom[0].friendStatus === 'FRIEND'
-                    ? false
-                    : true
-                }
+                disabled={disabled}
               >
                 <GalleryIcon />
 
@@ -387,24 +402,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 accept=".jpg, .jpeg, .png, .gif, .webp, .jxl"
                 onChange={handleFileChange}
                 title="gửi ảnh"
-                disabled={
-                  roomInfo.is_group === true ||
-                  roomInfo.userRoom[0].friendStatus === 'FRIEND'
-                    ? false
-                    : true
-                }
+                disabled={disabled}
               />
               <button
                 type="button"
                 title="Đính kèm file"
                 onClick={() => document.getElementById('fileUpload')?.click()}
                 className="p-2 text-gray-500 cursor-pointer"
-                disabled={
-                  roomInfo.is_group === true ||
-                  roomInfo.userRoom[0].friendStatus === 'FRIEND'
-                    ? false
-                    : true
-                }
+                disabled={disabled}
               >
                 <PaperClipIcon />
                 <span className="sr-only">Add emoji</span>
@@ -417,12 +422,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 accept="*"
                 onChange={handleFileChange}
                 title="gửi file"
-                disabled={
-                  roomInfo.is_group === true ||
-                  roomInfo.userRoom[0].friendStatus === 'FRIEND'
-                    ? false
-                    : true
-                }
+                disabled={disabled}
               />
             </div>
             <textarea
@@ -434,30 +434,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
               value={text}
               className={clsx(
                 'block resize-none p-2.5 w-full text-[#252525]  border-0 focus:ring-0 max-h-[130px] scrollbar rounded-s-[10px]',
-                roomInfo.is_group === true ||
-                  roomInfo.userRoom[0].friendStatus === 'FRIEND'
-                  ? 'bg-white'
-                  : 'bg-[#F1F1F1]'
+                !disabled ? 'bg-white' : 'bg-[#F1F1F1]'
               )}
               placeholder="Nhập tin nhắn"
-              disabled={
-                roomInfo.is_group === true ||
-                roomInfo.userRoom[0].friendStatus === 'FRIEND'
-                  ? false
-                  : true
-              }
+              disabled={disabled}
             />
             <div className="flex items-center">
               <button
                 type="button"
                 title="Biểu cảm"
                 onClick={() => setShowEmojiPicker((prev) => !prev)}
-                disabled={
-                  roomInfo.is_group === true ||
-                  roomInfo.userRoom[0].friendStatus === 'FRIEND'
-                    ? false
-                    : true
-                }
+                disabled={disabled}
               >
                 <SmileIcon />
               </button>
@@ -475,12 +462,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
               type="submit"
               title="Gửi"
               className="inline-flex justify-center p-2 text-blue-600  cursor-pointer ml-xs"
-              disabled={
-                roomInfo.is_group === true ||
-                roomInfo.userRoom[0].friendStatus === 'FRIEND'
-                  ? false
-                  : true
-              }
+              disabled={disabled}
             >
               <SendIcon />
               <span className="sr-only">Send message</span>

@@ -15,7 +15,7 @@ const TabList: React.FC<ITabItemsProps> = ({
   setIsVideo,
 }) => {
   return (
-    <div className="bg-background-500 min-h-full w-[310px]">
+    <div className="bg-white min-h-full w-[310px]">
       <div className="overflow-y-auto scrollbar">
         <TabItems
           setImageView={setImageView}

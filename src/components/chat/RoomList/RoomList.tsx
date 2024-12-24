@@ -14,6 +14,7 @@ import GalleryIcon from '../../../assets/icons/gallery';
 import RoomListSkeleton from './RoomListSkeleton';
 import { useMessageContext } from '../../../context/MessageContext';
 import { notify } from '../../../helper/notify';
+import { useFriendService } from '../../../services/FriendService';
 
 const defaultRoom: IRoom = {
   id: '',
@@ -55,6 +56,7 @@ export const RoomList: React.FC<IRoomList> = ({
   const { markAsReadMessage, sendMessage } = useMessageService();
   const { getMemberInRoom, getRoomById } = useRoomService();
   const { setUnreadRooms } = useMessageContext();
+  const { searchUserById } = useFriendService();
   const { socket } = useSocket();
   const userAuth = getAuthCookie();
 
@@ -62,6 +64,7 @@ export const RoomList: React.FC<IRoomList> = ({
   const [roomListSearch, setRoomListSearch] = useState<IRoom[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const newMessageRoomInfoRef = useRef<IRoom>(defaultRoom);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     if (keyword === '') {
@@ -114,14 +117,23 @@ export const RoomList: React.FC<IRoomList> = ({
 
   useEffect(() => {
     const handleNotification = async (data: INotificationNewMessage) => {
-      if (data && data.message.room_id) {
-        const newRoomId = data.message.room_id;
-        if (newRoomId === roomId) return;
+      try {
+        if (data?.message?.room_id) {
+          const newRoomId = data.message.room_id;
 
-        const response = await getRoomById(newRoomId);
-        if (response.data) {
-          handleRoomClick(response.data);
+          // Nếu roomId trùng, thoát sớm
+          if (newRoomId === roomId) return;
+
+          // Gọi API lấy thông tin phòng
+          const response = await getRoomById(newRoomId);
+          if (response.data) {
+            // Thêm thông tin người dùng vào phòng
+            const roomData = await handleGetUserInfor(response.data);
+            handleRoomClick(roomData); // Cập nhật giao diện
+          }
         }
+      } catch (error) {
+        console.error('Error handling notification:', error);
       }
     };
 
@@ -135,6 +147,32 @@ export const RoomList: React.FC<IRoomList> = ({
       );
     };
   }, []);
+
+  async function handleGetUserInfor(roomInfo: IRoom) {
+    try {
+      // Gọi API để lấy thông tin bạn bè
+      const response = await searchUserById(roomInfo.userRoom[0]?.user_id);
+      if (response?.data) {
+        // Trả về thông tin phòng sau khi thêm trạng thái bạn bè
+        const updatedRoomInfo = {
+          ...roomInfo,
+          userRoom: roomInfo.userRoom.map((userRoom, index) =>
+            index === 0
+              ? {
+                  ...userRoom,
+                  friendStatus: response.data.status,
+                }
+              : userRoom
+          ),
+        };
+        return updatedRoomInfo;
+      }
+      return roomInfo; // Trả về dữ liệu ban đầu nếu không tìm thấy thông tin bạn bè
+    } catch (error) {
+      console.error('Error getting user information:', error);
+      return roomInfo; // Trả về dữ liệu ban đầu nếu lỗi
+    }
+  }
 
   const handleNewMessage = useCallback(
     (message: INotificationNewMessage) => {
@@ -356,19 +394,28 @@ export const RoomList: React.FC<IRoomList> = ({
     }
   };
 
-  const handleRoomClick = (room: IRoom) => {
+  const handleRoomClick = async (room: IRoom) => {
     const newRoomId = room.id;
-    if (newRoomId === roomId) return;
+    if (isProcessing || newRoomId === roomId) return;
 
-    setRoomId(newRoomId);
-    setListMember(null);
-    markAsRead(room.id);
-    setRoomInfo(room);
-    setMessages([]);
-    setLastMessageId('');
-    getListMember(room.id);
-    setHasMoreData(true);
-    setIsFirstLoad(true);
+    setIsProcessing(true);
+
+    try {
+      setRoomId(newRoomId);
+      setListMember(null);
+      markAsRead(room.id);
+      setRoomInfo(room);
+      setMessages([]);
+      setLastMessageId('');
+      await getListMember(room.id); // Đợi quá trình lấy danh sách member
+      setHasMoreData(true);
+      setIsFirstLoad(true);
+    } catch (error) {
+      console.error('Error handling room click:', error);
+    } finally {
+      // Xử lý xong, cho phép thao tác tiếp
+      setIsProcessing(false);
+    }
   };
 
   return (

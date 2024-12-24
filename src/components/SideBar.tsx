@@ -221,11 +221,10 @@ export const SideBar: React.FC = () => {
             </Link>
           ))}
       </div>
-      <div
-        className="min-w-[70px] h-xl flex-1 flex items-end justify-center cursor-pointer"
-        onClick={openFeedbackForm} // Xử lý sự kiện onClick
-      >
-        <FeedbackIcon />
+      <div className="min-w-[70px] h-xl flex-1 flex items-end justify-center">
+        <div className="cursor-pointer" onClick={openFeedbackForm}>
+          <FeedbackIcon />
+        </div>
       </div>
     </div>
   );

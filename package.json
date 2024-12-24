@@ -20,6 +20,8 @@
     "clsx": "2.1.1",
     "daisyui": "4.12.14",
     "dotenv": "^16.4.7",
+    "electron-log": "^5.2.4",
+    "electron-updater": "^6.3.9",
     "electron-webpack": "^2.8.2",
     "electron-windows-badge": "^1.1.0",
     "emoji-picker-react": "^4.12.0",
@@ -75,6 +77,11 @@
   "build": {
     "appId": "com.electron.chatapp",
     "productName": "Chat Local R&D",
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ],
     "files": [
       "build/**/*",
       "node_modules/**/*"

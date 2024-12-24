@@ -51,7 +51,7 @@ const TabItems: React.FC<ITabItemsProps> = ({
     handleFileChoosen(id, null, null);
 
   return (
-    <div>
+    <React.Fragment>
       {activeTab === 'image' && (
         <PhotoTabContent
           fileSelected={fileSelected}
@@ -78,7 +78,7 @@ const TabItems: React.FC<ITabItemsProps> = ({
           isDelete={isDelete}
         />
       )}
-    </div>
+    </React.Fragment>
   );
 };
 

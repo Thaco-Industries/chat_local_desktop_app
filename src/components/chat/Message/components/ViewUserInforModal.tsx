@@ -129,8 +129,6 @@ function ViewUserInforModal({
   const getFriendById = async (id: string) => {
     const response = await searchUserById(id);
     if (response.data) {
-      console.log(response.data);
-
       setFriendInfor(response.data);
     }
   };
@@ -145,7 +143,7 @@ function ViewUserInforModal({
     return (
       <div>
         <p className="text-textBody font-semibold">Chức vụ đảm nhiệm chính </p>
-        <p className="mt-xs flex items-center">
+        <div className="mt-xs flex items-center">
           {mainPosition ? (
             <>
               <div className="basis-[20px]">
@@ -160,7 +158,7 @@ function ViewUserInforModal({
               Chưa có chức vụ đảm nhiệm chính
             </span>
           )}
-        </p>
+        </div>
         <p className="text-textBody font-semibold mt-sm">Chức vụ kiêm nhiệm</p>
         <div className="mt-xs flex items-center">
           {secondaryPositions.length > 0 ? (
@@ -230,7 +228,7 @@ function ViewUserInforModal({
             </button>
           </div>
           {/* Modal body */}
-          <div className="h-full flex flex-col">
+          <div className="h-full flex flex-col overflow-y-auto">
             {userInfor && (
               <div className="w-full pb-md">
                 <div className="flex flex-col items-center px-5 mb-sm">
@@ -241,7 +239,9 @@ function ViewUserInforModal({
                     fontSize={30}
                     size={150}
                   />
-                  <p className="my-xs">{userInfor.infor.full_name}</p>
+                  <p className="my-xs text-[18px] font-semibold">
+                    {userInfor.infor.full_name}
+                  </p>
                   {friendInfor && isShowButton && (
                     <button
                       type="button"

@@ -55,6 +55,16 @@ function createWindow() {
     font: '8px', // Thêm đơn vị px
   });
 
+  mainWindow.on('focus', () => {
+    // Tắt nhấp nháy khi người dùng focus vào cửa sổ chính
+    mainWindow.flashFrame(false);
+  });
+
+  mainWindow.on('show', () => {
+    // Tắt nhấp nháy khi cửa sổ được hiển thị
+    mainWindow.flashFrame(false);
+  });
+
   mainWindow.on('close', (event) => {
     // Ngăn không cho ứng dụng thoát khi đóng cửa sổ
     if (!app.isQuiting) {
@@ -66,6 +76,8 @@ function createWindow() {
   // Automatically open Chrome's DevTools in development mode.
   if (!app.isPackaged) {
     mainWindow.webContents.openDevTools();
+  } else {
+    mainWindow.webContents.setDevToolsWebContents(null);
   }
 }
 
@@ -100,6 +112,7 @@ if (!gotTheLock) {
     setupLocalFilesNormalizerProxy();
     // Tạo Tray Icon
     tray = new Tray(path.join(__dirname, 'icon.png')); // Thay bằng icon phù hợp
+    console.log('Tray object:', tray);
 
     const trayMenu = Menu.buildFromTemplate([
       {
@@ -179,6 +192,7 @@ function initializeNotificationWindow(message) {
     height: 200,
     resizable: false,
     frame: false,
+    skipTaskbar: true,
     alwaysOnTop: true,
     transparent: true,
     webPreferences: {
@@ -209,8 +223,11 @@ function initializeNotificationWindow(message) {
 
 ipcMain.on('display-custom-notification', (event, message) => {
   //Kiểm tra trạng thái của mainWindow
-  if (mainWindow && (!mainWindow.isVisible() || mainWindow.isMinimized())) {
+  if (mainWindow && (!mainWindow.isFocused() || !mainWindow.isAlwaysOnTop())) {
     createNotificationWindow(message);
+
+    //Bật nhấp nháy trên thanh taskbar
+    mainWindow.flashFrame(true);
   }
 });
 
@@ -260,12 +277,17 @@ ipcMain.handle('send-reply-message', async (event, message) => {
 });
 
 ipcMain.on('update-badge', (event, badgeCount) => {
-  if (badgeCount > 0) {
-    badge.update(badgeCount); // Cập nhật badge
-    tray.setImage(badgeIcon);
+  if (tray) {
+    // Check if tray is initialized
+    if (badgeCount > 0) {
+      badge.update(badgeCount); // Update the badge
+      tray.setImage(badgeIcon); // Set the badge icon
+    } else {
+      badge.update(0); // Clear the badge by setting it to 0
+      tray.setImage(defaultIcon); // Set the default icon
+    }
   } else {
-    badge.update(0); // Xóa badge bằng cách cập nhật thành 0
-    tray.setImage(defaultIcon);
+    console.error('Tray is not initialized. Cannot update badge.');
   }
 });
 
