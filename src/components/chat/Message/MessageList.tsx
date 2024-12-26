@@ -11,6 +11,7 @@ const MessageList: React.FC<IMessageList> = ({
   setImageView,
   setVisible,
   isLoading,
+  setIsVideo,
 }) => {
   const groupedMessages = messages.reduce((acc, message) => {
     const dateLabel = getDateLabel(message.created_at);
@@ -64,6 +65,7 @@ const MessageList: React.FC<IMessageList> = ({
                       setImageView={setImageView}
                       setVisible={setVisible}
                       showSenderInfo={showSenderInfo}
+                      setIsVideo={setIsVideo}
                     />
                   );
                 })}

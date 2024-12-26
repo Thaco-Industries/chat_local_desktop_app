@@ -19,6 +19,7 @@ export interface File extends Item {
 export interface IModalImageSetData {
   setVisible: Dispatch<SetStateAction<boolean>>;
   setImageView: Dispatch<SetStateAction<string>>;
+  setIsVideo: Dispatch<SetStateAction<boolean>>;
 }
 
 export interface IChatDrawerDetail extends IModalImageSetData {

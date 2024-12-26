@@ -1,3 +1,4 @@
+import { Dispatch } from 'react';
 import { IModalImageSetData } from './common';
 import { IUserInRoomInfo } from './User';
 

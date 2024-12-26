@@ -157,10 +157,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
     e.target.value = ''; // Reset input sau khi tải lên
   };
 
-  const handlePaste = async (event: React.ClipboardEvent) => {
-    // Ngừng hành động mặc định
-    event.preventDefault();
+  const getClipboardText = (item: DataTransferItem): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      item.getAsString((text: string) => {
+        if (text) {
+          resolve(text);
+        } else {
+          reject(new Error('Không thể lấy văn bản từ clipboard'));
+        }
+      });
+    });
+  };
 
+  const handlePaste = async (event: React.ClipboardEvent) => {
     // Lấy dữ liệu từ clipboard
     const items = event.clipboardData.items;
 

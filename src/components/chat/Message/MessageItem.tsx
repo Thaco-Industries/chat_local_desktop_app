@@ -19,6 +19,7 @@ const MessageItem: React.FC<IMessageItem> = ({
   setImageView,
   setVisible,
   showSenderInfo,
+  setIsVideo,
 }) => {
   const userId = getAuthCookie()?.user.id || '';
   const { recallMessage } = useMessageService();
@@ -50,8 +51,9 @@ const MessageItem: React.FC<IMessageItem> = ({
     }
   }, [listMember, message]);
 
-  const handleClickMedia = (url: string) => {
+  const handleClickMedia = (url: string, isVideo: boolean) => {
     setImageView(url);
+    setIsVideo(isVideo);
     setVisible(true);
   };
 
