@@ -599,6 +599,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
             messages={messages}
             setImageView={setImageView}
             setVisible={setVisible}
+            setIsVideo={setIsVideo}
           />
           <div ref={messageEndRef} />
         </div>

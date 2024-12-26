@@ -13,8 +13,6 @@ const {
 const dotenv = require('dotenv');
 const path = require('path');
 const Badge = require('electron-windows-badge');
-const badgeIcon = path.join(__dirname, 'badge-icon.png');
-const defaultIcon = path.join(__dirname, 'icon.png');
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log');
 
@@ -40,6 +38,10 @@ dotenv.config({ path: dotenvPath });
 
 const productUrl = process.env.REACT_APP_PRODUCT_URL;
 function createWindow() {
+  const iconPath = isDev
+    ? path.join(__dirname, 'icon.png')
+    : path.join(process.resourcesPath, 'icon.png');
+
   mainWindow = new BrowserWindow({
     width: 1500,
     height: 800,
@@ -51,16 +53,26 @@ function createWindow() {
       enableRemoteModule: false,
       nodeIntegration: false,
     },
-    icon: path.join(__dirname, 'icon.png'),
+    icon: iconPath,
   });
 
-  const appURL = !isDev ? productUrl : 'http://localhost:3000/';
+  const appURL = isDev ? 'http://localhost:3000/' : productUrl;
   // `file://${path.join(__dirname, '../build/index.html')}#/`;
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL(appURL);
 
   badge = new Badge(mainWindow, {
     font: '8px', // Thêm đơn vị px
+  });
+
+  mainWindow.on('focus', () => {
+    // Tắt nhấp nháy khi người dùng focus vào cửa sổ chính
+    mainWindow.flashFrame(false);
+  });
+
+  mainWindow.on('show', () => {
+    // Tắt nhấp nháy khi cửa sổ được hiển thị
+    mainWindow.flashFrame(false);
   });
 
   mainWindow.on('close', (event) => {
@@ -72,8 +84,10 @@ function createWindow() {
   });
 
   // Automatically open Chrome's DevTools in development mode.
-  if (!app.isPackaged) {
+  if (isDev) {
     mainWindow.webContents.openDevTools();
+  } else {
+    mainWindow.webContents.setDevToolsWebContents(null);
   }
 }
 
@@ -90,96 +104,26 @@ function setupLocalFilesNormalizerProxy() {
   );
 }
 
-if (!gotTheLock) {
-  app.quit(); // Thoát nếu không có quyền sở hữu instance
-} else {
-  app.on('second-instance', (event, argv, workingDirectory) => {
-    // Khi có yêu cầu mở instance thứ hai
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) {
-        mainWindow.restore(); // Khôi phục nếu bị thu nhỏ
-      }
-      mainWindow.show(); // Hiển thị cửa sổ
-      mainWindow.focus(); // Đưa cửa sổ lên foreground
-    }
-  });
-  app.whenReady().then(() => {
-    createWindow();
-    autoUpdater.checkForUpdatesAndNotify();
-    setupLocalFilesNormalizerProxy();
-    // Tạo Tray Icon
-    tray = new Tray(path.join(__dirname, 'icon.png')); // Thay bằng icon phù hợp
-
-    const trayMenu = Menu.buildFromTemplate([
-      {
-        label: 'Mở ứng dụng',
-        click: () => {
-          mainWindow.show();
-          mainWindow.focus();
-        },
-      },
-      {
-        label: 'Thoát',
-        click: () => {
-          app.isQuiting = true;
-          app.quit();
-        },
-      },
-    ]);
-
-    tray.setContextMenu(trayMenu);
-    tray.setToolTip('Chat Local R&D');
-
-    tray.on('click', () => {
-      mainWindow.show();
-      mainWindow.focus();
-    });
-
-    app.on('activate', function () {
-      if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow();
-      } else {
-        const mainWindow = BrowserWindow.getAllWindows()[0];
-        if (mainWindow) {
-          mainWindow.focus();
-        }
-      }
-    });
-
-    // autoUpdater.checkForUpdates();
-  });
-}
-
-app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-const allowedNavigationDestinations = 'https://my-electron-app.com';
-app.on('web-contents-created', (event, contents) => {
-  contents.on('will-navigate', (event, navigationUrl) => {
-    const parsedUrl = new URL(navigationUrl);
-
-    if (!allowedNavigationDestinations.includes(parsedUrl.origin)) {
-      event.preventDefault();
-    }
-  });
-});
-
 function createNotificationWindow(message) {
-  lastNotificationMessage = message;
+  // lastNotificationMessage = message;
+  // if (notificationWindow && !notificationWindow.isDestroyed()) {
+  //   notificationWindow.close();
+  //   notificationWindow.once('closed', () => {
+  //     initializeNotificationWindow(message);
+  //   });
+  // } else {
+  //   initializeNotificationWindow(message);
+  // }
   if (notificationWindow && !notificationWindow.isDestroyed()) {
     notificationWindow.close();
-    notificationWindow.once('closed', () => {
-      initializeNotificationWindow(message);
-    });
-  } else {
-    initializeNotificationWindow(message);
   }
+  notificationWindow = initializeNotificationWindow(message);
 }
 
 function initializeNotificationWindow(message) {
+  const iconPath = isDev
+    ? path.join(__dirname, 'icon.png')
+    : path.join(process.resourcesPath, 'icon.png');
   const display = screen.getPrimaryDisplay();
   const { width, height } = display.workAreaSize;
 
@@ -188,19 +132,20 @@ function initializeNotificationWindow(message) {
     height: 200,
     resizable: false,
     frame: false,
+    skipTaskbar: true,
     alwaysOnTop: true,
     transparent: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
-    icon: path.join(__dirname, 'icon.png'),
+    icon: iconPath,
     x: width - 400,
-    y: height - 200,
+    y: height - 230,
   });
 
-  const appURL = app.isPackaged
-    ? `file://${path.join(__dirname, '../build/notification.html')}#/`
-    : `file://${path.join(__dirname, 'notification.html')}`;
+  const appURL = isDev
+    ? `file://${path.join(__dirname, 'notification.html')}`
+    : `file://${path.join(__dirname, '../build/notification.html')}`;
 
   notificationWindow.setMenuBarVisibility(false);
   notificationWindow.loadURL(appURL);
@@ -214,12 +159,87 @@ function initializeNotificationWindow(message) {
       notificationWindow.webContents.send('notification-message', message);
     }
   });
+
+  return notificationWindow;
 }
 
+function setupTray() {
+  try {
+    const iconPath = isDev
+      ? path.join(__dirname, 'icon.png')
+      : path.join(process.resourcesPath, 'icon.png');
+    tray = new Tray(iconPath);
+
+    const trayMenu = Menu.buildFromTemplate([
+      { label: 'Mở ứng dụng', click: () => mainWindow.show() },
+      { label: 'Exit', click: () => exitApp() },
+    ]);
+
+    tray.setContextMenu(trayMenu);
+    tray.setToolTip('Chat Local R&D');
+    tray.on('click', () => {
+      mainWindow.show();
+      mainWindow.focus();
+    });
+
+    log.info('Tray icon created successfully');
+  } catch (error) {
+    log.error('Error creating tray icon: ', error.message);
+  }
+}
+
+function exitApp() {
+  if (mainWindow) {
+    mainWindow.close();
+  }
+  if (tray) {
+    tray.destroy();
+  }
+  app.quit();
+}
+
+if (!gotTheLock) {
+  app.quit(); // Thoát nếu không có quyền sở hữu instance
+} else {
+  app.on('second-instance', (event, argv, workingDirectory) => {
+    // Khi có yêu cầu mở instance thứ hai
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore(); // Khôi phục nếu bị thu nhỏ
+      }
+      mainWindow.show(); // Hiển thị cửa sổ
+      mainWindow.focus(); // Đưa cửa sổ lên foreground
+    }
+  });
+}
+
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+const allowedNavigationDestinations = productUrl;
+app.on('web-contents-created', (event, contents) => {
+  contents.on('will-navigate', (event, navigationUrl) => {
+    const parsedUrl = new URL(navigationUrl);
+    if (!allowedNavigationDestinations.includes(parsedUrl.origin)) {
+      event.preventDefault();
+    }
+  });
+});
+
 ipcMain.on('display-custom-notification', (event, message) => {
-  //Kiểm tra trạng thái của mainWindow
-  if (mainWindow && (!mainWindow.isVisible() || mainWindow.isMinimized())) {
+  const shouldCreateNotification = [
+    mainWindow.isMinimized(),
+    !mainWindow.isVisible(),
+    !mainWindow.isFocused(),
+    !mainWindow.isAlwaysOnTop(),
+  ].some(Boolean);
+
+  if (shouldCreateNotification) {
     createNotificationWindow(message);
+    mainWindow.flashFrame(true);
   }
 });
 
@@ -269,12 +289,17 @@ ipcMain.handle('send-reply-message', async (event, message) => {
 });
 
 ipcMain.on('update-badge', (event, badgeCount) => {
-  if (badgeCount > 0) {
-    badge.update(badgeCount); // Cập nhật badge
-    tray.setImage(badgeIcon);
-  } else {
-    badge.update(0); // Xóa badge bằng cách cập nhật thành 0
-    tray.setImage(defaultIcon);
+  if (tray && badge) {
+    const badgeIcon = path.join(__dirname, 'badge-icon.png');
+    const defaultIcon = path.join(__dirname, 'icon.png');
+
+    if (badgeCount > 0) {
+      badge.update(badgeCount);
+      tray.setImage(badgeIcon);
+    } else {
+      badge.update(0);
+      tray.setImage(defaultIcon);
+    }
   }
 });
 
@@ -286,16 +311,16 @@ ipcMain.handle('close-notification-window', async () => {
 });
 
 ipcMain.handle('open-url', async (event, url) => {
-  try {
-    if (url) {
-      await shell.openExternal(url); // Sử dụng shell để mở URL trong trình duyệt
+  if (url) {
+    try {
+      await shell.openExternal(url);
       return { success: true };
+    } catch (error) {
+      log.error('Error opening URL: ', error);
+      return { success: false, error: error.message };
     }
-    return { success: false, error: 'Invalid URL' };
-  } catch (error) {
-    console.error('Error opening URL:', error);
-    return { success: false, error: error.message };
   }
+  return { success: false, error: 'Invalid URL' };
 });
 
 autoUpdater.on('checking-for-update', () =>
@@ -312,3 +337,21 @@ autoUpdater.on('download-progress', (progress) =>
 autoUpdater.on('update-downloaded', (info) =>
   log.info('Update downloaded: ', info)
 );
+
+app.on('ready', () => {
+  createWindow();
+  setupTray();
+  autoUpdater.checkForUpdatesAndNotify();
+  setupLocalFilesNormalizerProxy();
+});
+
+app.on('activate', function () {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  } else {
+    const mainWindow = BrowserWindow.getAllWindows()[0];
+    if (mainWindow) {
+      mainWindow.focus();
+    }
+  }
+});

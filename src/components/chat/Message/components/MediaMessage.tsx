@@ -14,7 +14,7 @@ import VideoSlash from '../../../../assets/icons/video-slash';
 type Props = {
   message: IMessage;
   isUserMessage: boolean;
-  handleClickMedia: (url: string) => void;
+  handleClickMedia: (url: string, isVideo: boolean) => void;
   handleReplyMessage: (message: IMessage) => void;
   handleRecallMessage: (messageId: string) => void;
 };
@@ -88,7 +88,7 @@ const MediaMessage: React.FC<Props> = ({
             className={clsx('flex', {
               'justify-end': isUserMessage,
             })}
-            onClick={() => handleClickMedia(urlFile)}
+            onClick={() => handleClickMedia(urlFile, isVideo)}
           >
             <div className="relative">
               <img
@@ -117,7 +117,7 @@ const MediaMessage: React.FC<Props> = ({
         ) : (
           <ImagePreview
             url={urlFile}
-            onClick={() => handleClickMedia(urlFile)}
+            onClick={() => handleClickMedia(urlFile, isVideo)}
             file_name={file_name}
             isUserMessage={isUserMessage}
           />

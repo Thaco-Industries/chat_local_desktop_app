@@ -1,6 +1,6 @@
 {
   "name": "app",
-  "version": "1.0.8",
+  "version": "1.0.0",
   "private": true,
   "author": "THACO INDUSTRIES",
   "description": "Chat Local R&D",
@@ -86,7 +86,8 @@
     ],
     "files": [
       "build/**/*",
-      "node_modules/**/*"
+      "node_modules/**/*",
+      "icon.png"
     ],
     "extraFiles": [
       {
