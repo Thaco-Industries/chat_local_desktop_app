@@ -87,7 +87,7 @@ const MessageItem: React.FC<IMessageItem> = ({
   const isImage = ['png', 'jpg', 'jpeg', 'gif', 'svf'].includes(fileExtension);
 
   const renderReplyMedia = () => {
-    if (isImage && url_display && message.message_type === 'RECALLED') {
+    if (isImage && url_display && message.message_type !== 'RECALLED') {
       return (
         <img
           src={`${process.env.REACT_APP_API_URL}/media/view/${url_display}`}
@@ -100,7 +100,7 @@ const MessageItem: React.FC<IMessageItem> = ({
     if (
       isVideo &&
       thumbnail_url_display &&
-      message.message_type === 'RECALLED'
+      message.message_type !== 'RECALLED'
     ) {
       return (
         <div className="relative">

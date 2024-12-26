@@ -59,6 +59,7 @@ export interface IMessageItem extends IModalImageSetData {
 
 export interface IMessageList extends IModalImageSetData {
   messages: IMessage[];
+  isLoading: boolean;
 }
 
 export interface INotificationNewMessage {

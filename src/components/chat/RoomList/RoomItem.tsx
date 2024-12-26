@@ -43,9 +43,16 @@ const RoomItem: React.FC<IRoomItem> = ({ room, keyword }) => {
     }
     if (room.last_message.message_type === 'FILE') {
       if (isImage) {
+        const senderIndex = room.userRoom.findIndex(
+          (user) => user.user_id === room.last_message.sender_id
+        );
         return (
           <div className="flex gap-1 items-center">
-            {room.last_message.sender_id === userAuth?.user.id && <p>Bạn:</p>}
+            {room.last_message.sender_id === userAuth?.user.id ? (
+              <p>Bạn: </p>
+            ) : (
+              `${room.userRoom[senderIndex]?.user.infor.full_name}:`
+            )}
             <GalleryIcon size="16" color="#7B87A1" /> Hình ảnh
           </div>
         );
@@ -55,7 +62,7 @@ const RoomItem: React.FC<IRoomItem> = ({ room, keyword }) => {
         );
         const senderName =
           room.last_message.sender_id === userAuth?.user.id
-            ? 'Bạn'
+            ? 'Bạn: '
             : room.userRoom[senderIndex]?.user.infor.full_name || '';
         return (
           <div className="flex gap-1 items-center">

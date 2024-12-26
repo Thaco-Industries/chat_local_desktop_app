@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 
 body {
+  overflow: hidden;
   font-family: 'Nunito';
 }
 
@@ -53,6 +54,10 @@ body {
 
 .notification-message {
   max-width: 330px;
+  -webkit-line-clamp: 2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  height: 38px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
