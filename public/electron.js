@@ -21,7 +21,7 @@ const gotTheLock = app.requestSingleInstanceLock();
 
 log.transports.file.resolvePath = () =>
   path.join(app.getPath('userData'), 'logs', 'main.log');
-log.info('path: ', path.join(__dirname, 'icon.png'));
+log.info('path: ', path.join(process.resourcesPath, 'icon.png'));
 log.info('Đường dẫn log tùy chỉnh test:', log.transports.file.getFile().path);
 log.log('Application version = ' + app.getVersion());
 
