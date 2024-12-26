@@ -120,7 +120,6 @@ if (!gotTheLock) {
     // Tạo Tray Icon
     try {
       const iconPath = path.join(__dirname, 'icon.png');
-      log.info(iconPath);
 
       tray = new Tray(iconPath);
 
@@ -294,6 +293,7 @@ ipcMain.handle('send-reply-message', async (event, message) => {
 
 ipcMain.on('update-badge', (event, badgeCount) => {
   if (!tray) {
+    log.info('path: ', path.join(__dirname, 'icon.png'));
     log.info('Tray is not initialized!');
     console.error('Tray is not initialized!');
     return; // Không thực hiện tiếp nếu tray chưa được khởi tạo

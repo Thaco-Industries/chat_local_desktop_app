@@ -70,6 +70,7 @@ function ChangeLeaderModal({
 
   return (
     <Modal
+      dismissible
       show={openChangeLeaderModal}
       onClose={() => setOpenChangeLeaderModal(false)}
       theme={{
