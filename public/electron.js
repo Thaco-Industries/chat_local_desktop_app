@@ -119,9 +119,7 @@ if (!gotTheLock) {
     setupLocalFilesNormalizerProxy();
     // Tạo Tray Icon
     try {
-      const iconPath = isDev
-        ? path.join(__dirname, 'icon.png') // Dùng .ico trên Windows
-        : path.join(process.resourcesPath, 'icon.png');
+      const iconPath = path.join(__dirname, 'icon.png');
       console.log(iconPath);
 
       tray = new Tray(iconPath);
