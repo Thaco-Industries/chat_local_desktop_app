@@ -4,11 +4,13 @@ import MessageItem from './MessageItem';
 import { IMessageList } from '../../../interfaces/Message';
 import moment from 'moment';
 import { getDateLabel } from '../../../util/getDateLabel';
+import { Spinner } from 'flowbite-react';
 
 const MessageList: React.FC<IMessageList> = ({
   messages,
   setImageView,
   setVisible,
+  isLoading,
 }) => {
   const groupedMessages = messages.reduce((acc, message) => {
     const dateLabel = getDateLabel(message.created_at);
@@ -16,6 +18,14 @@ const MessageList: React.FC<IMessageList> = ({
     acc[dateLabel].push(message);
     return acc;
   }, {} as Record<string, IMessageList['messages']>);
+
+  if (isLoading) {
+    return (
+      <div className="text-center mb-2">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-1 px-6 pb-xxs tablet:px-lg relative ">

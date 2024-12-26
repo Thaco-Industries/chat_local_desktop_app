@@ -37,6 +37,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
   const listMemberRef = useRef<Record<string, IUserInRoomInfo> | null>(null);
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
   const { getAllFilesInRoom } = useFileService();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const {
     setListMember,
     listMember,
@@ -266,7 +267,6 @@ const ChatScreen: React.FC<IChatScreen> = ({
   const getMessageListData = useCallback(
     async (customLastMessageId = lastMessageId) => {
       if (!hasMoreData || !listMember || isAutoScrolling) return;
-
       const previousScrollTop = messageListRef.current?.scrollTop || 0;
 
       try {
@@ -371,7 +371,20 @@ const ChatScreen: React.FC<IChatScreen> = ({
   }, [roomId]);
 
   useEffect(() => {
-    if (messages.length < 10 && listMember) getMessageListData();
+    const fetchData = async () => {
+      if (messages.length < 10 && listMember) {
+        setIsLoading(true); // Bật loading khi bắt đầu gọi getMessageListData
+        try {
+          await getMessageListData(); // Gọi getMessageListData và đợi cho đến khi hoàn thành
+        } catch (error) {
+          console.error('Error fetching messages:', error);
+        } finally {
+          setIsLoading(false); // Tắt loading khi dữ liệu đã được tải xong (hoặc có lỗi)
+        }
+      }
+    };
+
+    fetchData();
     // if (messages.length < 10) getMessageListData();
   }, [roomId, listMember, getMessageListData]);
 
@@ -582,6 +595,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
       >
         <div className="flex flex-col">
           <MessageList
+            isLoading={isLoading}
             messages={messages}
             setImageView={setImageView}
             setVisible={setVisible}

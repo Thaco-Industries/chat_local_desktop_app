@@ -21,7 +21,7 @@ const gotTheLock = app.requestSingleInstanceLock();
 
 log.transports.file.resolvePath = () =>
   path.join(app.getPath('userData'), 'logs', 'main.log');
-log.info('Đường dẫn log tùy chỉnh:', log.transports.file.getFile().path);
+log.info('Đường dẫn log tùy chỉnh test:', log.transports.file.getFile().path);
 log.log('Application version = ' + app.getVersion());
 
 let notificationWindow = null;
@@ -120,14 +120,22 @@ if (!gotTheLock) {
     // Tạo Tray Icon
     try {
       const iconPath = isDev
-        ? path.join(__dirname, 'icon.ico') // Dùng .ico trên Windows
-        : path.join(process.resourcesPath, 'icon.ico');
+        ? path.join(__dirname, 'icon.png') // Dùng .ico trên Windows
+        : path.join(process.resourcesPath, 'icon.png');
+      console.log(iconPath);
 
       tray = new Tray(iconPath);
 
       const trayMenu = Menu.buildFromTemplate([
-        { label: 'Open App', click: () => mainWindow.show() },
-        { label: 'Exit', click: () => app.quit() },
+        { label: 'Mở ứng dụng', click: () => mainWindow.show() },
+        {
+          label: 'Exit',
+          click: () => {
+            mainWindow.close(); // Đóng cửa sổ chính
+            tray.destroy(); // Xóa tray icon
+            app.quit();
+          },
+        },
       ]);
 
       tray.setContextMenu(trayMenu);
@@ -201,7 +209,7 @@ function initializeNotificationWindow(message) {
     },
     icon: path.join(__dirname, 'icon.png'),
     x: width - 400,
-    y: height - 200,
+    y: height - 230,
   });
 
   const appURL = app.isPackaged
@@ -224,10 +232,19 @@ function initializeNotificationWindow(message) {
 
 ipcMain.on('display-custom-notification', (event, message) => {
   //Kiểm tra trạng thái của mainWindow
-  if (mainWindow && (!mainWindow.isFocused() || !mainWindow.isAlwaysOnTop())) {
+  const isWindowMinimized = mainWindow.isMinimized();
+  const isWindowHidden = !mainWindow.isVisible(); // Nếu cửa sổ không hiển thị
+  const isWindowFocused = mainWindow.isFocused();
+  const isAlwaysOnTop = mainWindow.isAlwaysOnTop();
+
+  if (
+    (isWindowMinimized || isWindowHidden || !isWindowFocused) &&
+    !isAlwaysOnTop
+  ) {
+    // Nếu cửa sổ bị thu nhỏ, ẩn dưới các cửa sổ khác hoặc không được focus, và không ở trên cùng
     createNotificationWindow(message);
 
-    //Bật nhấp nháy trên thanh taskbar
+    // Bật nhấp nháy trên thanh taskbar
     mainWindow.flashFrame(true);
   }
 });
@@ -278,20 +295,34 @@ ipcMain.handle('send-reply-message', async (event, message) => {
 });
 
 ipcMain.on('update-badge', (event, badgeCount) => {
-  const badgeIcon = isDev
-    ? path.join(__dirname, 'badge-icon.png')
-    : path.join(process.resourcesPath, 'badge-icon.png');
-  const defaultIcon = isDev
-    ? path.join(__dirname, 'icon.png')
-    : path.join(process.resourcesPath, 'icon.png');
+  if (!tray) {
+    log.info('Tray is not initialized!');
+    console.error('Tray is not initialized!');
+    return; // Không thực hiện tiếp nếu tray chưa được khởi tạo
+  }
 
-  // Check if tray is initialized
-  if (badgeCount > 0) {
-    badge.update(badgeCount); // Update the badge
-    tray.setImage(badgeIcon); // Set the badge icon
-  } else {
-    badge.update(0); // Clear the badge by setting it to 0
-    tray.setImage(defaultIcon); // Set the default icon
+  if (!badge) {
+    log.info('Badge is not initialized!');
+
+    console.error('Badge is not initialized!');
+    return; // Không thực hiện tiếp nếu badge chưa được khởi tạo
+  }
+
+  try {
+    console.log('Tray is initialized!');
+
+    const badgeIcon = path.join(__dirname, 'badge-icon.png');
+    const defaultIcon = path.join(__dirname, 'icon.png');
+
+    if (badgeCount > 0) {
+      badge.update(badgeCount);
+      tray.setImage(badgeIcon); // Cập nhật icon tray khi có badge
+    } else {
+      badge.update(0); // Xóa badge nếu số lượng bằng 0
+      tray.setImage(defaultIcon); // Sử dụng icon mặc định
+    }
+  } catch (error) {
+    console.error('Error updating badge or tray icon:', error);
   }
 });
 

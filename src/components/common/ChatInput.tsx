@@ -157,6 +157,28 @@ const ChatInput: React.FC<ChatInputProps> = ({
     e.target.value = ''; // Reset input sau khi tải lên
   };
 
+  const handlePaste = async (event: React.ClipboardEvent) => {
+    // Ngừng hành động mặc định
+    event.preventDefault();
+
+    // Lấy dữ liệu từ clipboard
+    const items = event.clipboardData.items;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      // Kiểm tra nếu dữ liệu là hình ảnh
+      if (item.type.startsWith('image')) {
+        const file = item.getAsFile();
+
+        if (file) {
+          //gọi hàm gửi hình ảnh
+          await handleUploadFile(file);
+        }
+      }
+    }
+  };
+
   const handleUploadFile = async (file: File) => {
     const tempMessageId = uuidv4();
 
@@ -427,6 +449,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <textarea
               rows={1}
               autoFocus={true}
+              onPaste={handlePaste}
               onChange={handleInputChange}
               onKeyDown={(e) => handleKeyDown(e, submitForm)}
               ref={textareaRef}
