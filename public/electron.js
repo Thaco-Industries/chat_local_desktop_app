@@ -120,7 +120,7 @@ if (!gotTheLock) {
     // Tạo Tray Icon
     try {
       const iconPath = path.join(__dirname, 'icon.png');
-      console.log(iconPath);
+      log.info(iconPath);
 
       tray = new Tray(iconPath);
 
