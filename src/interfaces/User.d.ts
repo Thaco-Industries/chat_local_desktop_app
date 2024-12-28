@@ -34,6 +34,7 @@ export interface IPositionInfo {
 export interface IUserInRoomInfo {
   id: string;
   userName: string;
+  isOnline: boolean;
   infor: {
     avt_url: string;
     email: string;

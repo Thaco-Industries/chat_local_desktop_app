@@ -2,12 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Notification</title>
+    <title>Request Notification</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="./notification.css" />
   </head>
   <body>
-    <div class="notification-container">
+    <div class="notification-container" id="request-notification">
       <div class="notification-header">
         <div class="notification-title">
           <i class="icon-info"><img src="icon.png" width="20" alt="đóng" /></i>
@@ -18,17 +18,11 @@
         </button>
       </div>
       <div class="notification-body">
-        <p class="notification-user" id="sender"></p>
-        <p class="notification-message" id="message_display"></p>
-        <div class="notification-reply">
-          <input type="text" placeholder="Trả lời tin nhắn" />
-          <button class="reply-btn" title="gửi">
-            <i class="icon-send"><img src="images/send.svg" alt="gửi" /></i>
-          </button>
-        </div>
+        <p class="notification-user" id="request-sender"></p>
+        <p class="notification-message" id="request-message_display"></p>
       </div>
     </div>
 
-    <script src="notification.js"></script>
+    <script src="request-notification.js"></script>
   </body>
 </html>

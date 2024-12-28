@@ -80,3 +80,8 @@ export interface INotificationNewMessage {
     position_infor: IPositionInfo[];
   };
 }
+export interface INotificationRequest {
+  title: string;
+  description: string;
+  type: string;
+}

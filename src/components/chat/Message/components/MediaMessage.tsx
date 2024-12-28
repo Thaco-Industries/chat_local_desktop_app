@@ -1,15 +1,15 @@
 import clsx from 'clsx';
 import { Spinner } from 'flowbite-react';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import PlayButton from './PlayButton';
 import DownloadButton from './DownloadButton';
 import FileInfo from './FileInfor';
 import ImagePreview from './ImagePreview';
 import { IMessage } from '../../../../interfaces';
 import ActionButton from './ActionButton';
-import { useChatContext } from '../../../../context/ChatContext';
 import GallerySlash from '../../../../assets/icons/gallery-slash';
 import VideoSlash from '../../../../assets/icons/video-slash';
+import _ from 'lodash';
 
 type Props = {
   message: IMessage;
@@ -40,14 +40,59 @@ const MediaMessage: React.FC<Props> = ({
     fileExtension || ''
   );
 
-  const urlFile = `${process.env.REACT_APP_API_URL}/media/view/${url_display}`;
+  const urlFile = `${process.env.REACT_APP_FILE_URL}/media/view/${url_display}`;
 
   const urlVideoThumbnail = `${process.env.REACT_APP_API_URL}/media/view/${thumbnail_url_display}`;
 
   if (message.status === 'DELIVERED' && isUserMessage) {
+    const convertFileSize = (fileSize: string | undefined) => {
+      if (!fileSize) return;
+      const changeFileSizeToNumber = Number(fileSize) / 1024 / 1024;
+
+      if (changeFileSizeToNumber < 1) {
+        return `${(changeFileSizeToNumber * 1024).toFixed(3)} KB`;
+      } else {
+        return `${changeFileSizeToNumber.toFixed(3)} MB`;
+      }
+    };
+
+    const getFileExtension = (fileName: string) => {
+      const index = fileName.lastIndexOf('.');
+      return index !== -1 ? fileName.slice(index + 1) : '';
+    };
+
+    const removeExtensionFileName = (fileName: string) => {
+      const index = fileName.lastIndexOf('.');
+      return index !== -1 ? fileName.slice(0, index) : '';
+    };
+
     return (
       <div className="flex justify-end">
-        {isVideo || (isVideo && thumbnail_url_display) ? (
+        {isVideo ? (
+          _.isEmpty(thumbnail_url_display) ? (
+            <div className="relative w-[220px] lg:w-[350px] h-[100px] bg-white rounded overflow-hidden flex items-center justify-center">
+              {/* Spinner hiển thị ở giữa */}
+              <div className="absolute inset-0 flex items-center justify-center z-10">
+                <Spinner size="xl" />
+              </div>
+            </div>
+          ) : (
+            // Trường hợp không có `thumbnail_url_display` -> Background trắng và spinner
+            <div className="relative max-w-[220px] lg:max-w-[350px] max-h-[350px] bg-white rounded overflow-hidden flex items-center justify-center">
+              {/* Hình ảnh full nằm dưới spinner */}
+              <img
+                src={thumbnail_url_display}
+                className="w-full h-full object-contain rounded"
+                alt="uploading file"
+              />
+              {/* Spinner hiển thị ở giữa */}
+              <div className="absolute inset-0 flex items-center justify-center z-10">
+                <Spinner size="xl" />
+              </div>
+            </div>
+          )
+        ) : isImage ? (
+          // Trường hợp có `thumbnail_url_display`
           <div className="relative max-w-[220px] lg:max-w-[350px] max-h-[350px] bg-white rounded overflow-hidden flex items-center justify-center">
             {/* Hình ảnh full nằm dưới spinner */}
             <img
@@ -61,8 +106,30 @@ const MediaMessage: React.FC<Props> = ({
             </div>
           </div>
         ) : (
-          <div className="relative max-w-[220px] lg:max-w-[350px] h-[70px] bg-white rounded overflow-hidden flex items-center justify-center">
-            <Spinner size="xl" className="relative z-10" />
+          <div
+            title={file_name}
+            className="border rounded-lg bg-[#91CFFB80] p-xs relative min-w-0 flex-grow max-w-[220px] lg:max-w-[350px] max-h-[350px] box-border"
+          >
+            <div className="flex justify-between mb-1 gap-3">
+              <div className="flex justify-between">
+                <p
+                  className={clsx(
+                    'text-sm text-title truncate lg:max-w-[220px]'
+                  )}
+                >
+                  {removeExtensionFileName(file_name)}
+                </p>
+                <span>.{getFileExtension(file_name)}</span>
+              </div>
+            </div>
+            <div className="flex gap-3 flex-shrink-0 flex-grow-0">
+              <p className="text-sm text-lightText">
+                {convertFileSize(file_size)}
+              </p>
+              <Spinner size="xl" />
+            </div>
+
+            <DownloadButton url={url_display} file_name={file_name} />
           </div>
         )}
       </div>
@@ -107,6 +174,7 @@ const MediaMessage: React.FC<Props> = ({
             url={urlFile}
             fileSize={file_size}
             file_name={file_name}
+            isUserMessage={isUserMessage}
             isDelete={message.file_id?.system_deleted}
           />
         ) : message.file_id?.system_deleted ? (
@@ -132,6 +200,7 @@ const MediaMessage: React.FC<Props> = ({
             url={urlFile}
             fileSize={file_size}
             file_name={file_name}
+            isUserMessage={isUserMessage}
             isDelete={message.file_id?.system_deleted}
           />
         </div>

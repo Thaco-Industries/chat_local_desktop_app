@@ -24,15 +24,15 @@ export const PhotoTabContent: React.FC<IPhotoTabContentProps> = ({
           <h2 className="px-md pt-md font-semibold mb-4">Ngày {date}</h2>
           <div className="px-md pb-md grid grid-cols-4 gap-xxs">
             {groupedPhotos[date].map((photo, index) => {
-              const urlFile = `${process.env.REACT_APP_API_URL}/media/view/${photo.url_display}`;
-              const urlThumbnail = `${process.env.REACT_APP_API_URL}/media/view/${photo.thumbnail_url_display}`;
+              const urlFile = `${process.env.REACT_APP_FILE_URL}/media/view/${photo.url_display}`;
+              const urlThumbnail = `${process.env.REACT_APP_FILE_URL}/media/view/${photo.thumbnail_url_display}`;
 
               return (
                 <div
                   key={photo.id}
                   className="relative w-16 h-16 bg-black rounded-img overflow-hidden cursor-pointer border-border border"
                   onClick={() => {
-                    handleFileChoosen(photo.id, urlFile, null);
+                    handleFileChoosen(photo.id, urlFile, isVideoTab);
                   }}
                 >
                   {!photo.system_deleted ? (
@@ -62,12 +62,7 @@ export const PhotoTabContent: React.FC<IPhotoTabContentProps> = ({
                       )}
                     </>
                   ) : (
-                    <div
-                      className="w-full h-full bg-[#EAEAEA] flex justify-center items-center"
-                      onClick={() =>
-                        handleFileChoosen(photo.id, urlFile, isVideoTab)
-                      }
-                    >
+                    <div className="w-full h-full bg-[#EAEAEA] flex justify-center items-center">
                       {!isVideoTab ? <GallerySlash /> : <VideoSlash />}
                     </div>
                   )}

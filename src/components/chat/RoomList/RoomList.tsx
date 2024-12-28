@@ -55,7 +55,8 @@ export const RoomList: React.FC<IRoomList> = ({
 
   const { markAsReadMessage, sendMessage } = useMessageService();
   const { getMemberInRoom, getRoomById } = useRoomService();
-  const { setUnreadRooms } = useMessageContext();
+  const { setUnreadRooms, isChangeRoomProcessing, setIsChangeRoomProcessing } =
+    useMessageContext();
   const { searchUserById } = useFriendService();
   const { socket } = useSocket();
   const userAuth = getAuthCookie();
@@ -64,7 +65,6 @@ export const RoomList: React.FC<IRoomList> = ({
   const [roomListSearch, setRoomListSearch] = useState<IRoom[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const newMessageRoomInfoRef = useRef<IRoom>(defaultRoom);
-  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     if (keyword === '') {
@@ -396,25 +396,26 @@ export const RoomList: React.FC<IRoomList> = ({
 
   const handleRoomClick = async (room: IRoom) => {
     const newRoomId = room.id;
-    if (isProcessing || newRoomId === roomId) return;
+    if (isChangeRoomProcessing || newRoomId === roomId) return;
 
-    setIsProcessing(true);
-
+    setIsChangeRoomProcessing(true);
     try {
       setRoomId(newRoomId);
       setListMember(null);
-      markAsRead(room.id);
-      setRoomInfo(room);
       setMessages([]);
       setLastMessageId('');
-      await getListMember(room.id); // Đợi quá trình lấy danh sách member
       setHasMoreData(true);
       setIsFirstLoad(true);
+
+      markAsRead(newRoomId);
+      setRoomInfo(room);
+
+      await getListMember(newRoomId); // Đợi quá trình lấy danh sách member
     } catch (error) {
       console.error('Error handling room click:', error);
     } finally {
       // Xử lý xong, cho phép thao tác tiếp
-      setIsProcessing(false);
+      setIsChangeRoomProcessing(false);
     }
   };
 

@@ -46,8 +46,10 @@ function ViewUserInforModal({
 
   useEffect(() => {
     if (friendInfor) {
+      console.log(friendInfor);
+
       // Cập nhật isRequest và isShowButton dựa trên friendInfor
-      setIsRequest(friendInfor.status !== 'FRIEND');
+      setIsRequest(friendInfor.status === 'SENT_REQUEST');
       setIsShowButton(friendInfor.status !== 'FRIEND');
     }
   }, [friendInfor]);

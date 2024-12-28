@@ -26,14 +26,9 @@ body {
   font-size: 14px;
   font-weight: 600;
   line-height: 14.4px;
-}
-
-.notification-title .icon-info {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  text-align: center;
-  line-height: 16px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .close-btn {

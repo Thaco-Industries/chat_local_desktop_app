@@ -1,5 +1,6 @@
 import { IChatDrawerDetail } from './common';
 import { IRoom } from './Room';
+import { IUserInRoomInfo } from './User';
 
 export interface IChatHeader extends IChatScreen {
   isCollapsed: boolean;

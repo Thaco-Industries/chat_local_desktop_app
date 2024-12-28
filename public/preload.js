@@ -11,8 +11,22 @@ process.once('loaded', () => {
         callback(data);
       });
     },
-    // Các phương thức khác
     notificationClicked: () => ipcRenderer.invoke('notification-clicked'),
+
+    notifyRequest: (message) => {
+      ipcRenderer.send('display-request-notification', message);
+    },
+    receiveRequestNotification: (callback) =>
+      ipcRenderer.on('request-notification', callback),
+    requestNotificationClicked: () =>
+      ipcRenderer.invoke('request-notification-clicked'),
+    onRequestNotificationClicked: (callback) => {
+      ipcRenderer.on('request-notification-clicked', (_, data) => {
+        callback(data);
+      });
+    },
+
+    // Các phương thức khác
     onReplyNotification: (callback) => {
       ipcRenderer.on('send-reply-message', (_, data) => {
         callback(data);

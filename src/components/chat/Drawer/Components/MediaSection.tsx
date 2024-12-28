@@ -16,8 +16,8 @@ export const MediaSection = ({
   return (
     <div className="grid grid-cols-4 gap-xxs">
       {items.slice(0, 8).map((item, index) => {
-        const urlFile = `${process.env.REACT_APP_API_URL}/media/view/${item.url_display}`;
-        const urlThumbnail = `${process.env.REACT_APP_API_URL}/media/view/${item.thumbnail_url_display}`;
+        const urlFile = `${process.env.REACT_APP_FILE_URL}/media/view/${item.url_display}`;
+        const urlThumbnail = `${process.env.REACT_APP_FILE_URL}/media/view/${item.thumbnail_url_display}`;
 
         return (
           <div

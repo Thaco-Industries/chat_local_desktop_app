@@ -41,21 +41,21 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const [disabled, setDisabled] = useState(false);
   const userAuth = getAuthCookie();
-  useEffect(() => {
-    if (roomInfo.is_group || !roomInfo) return;
-    async function handleGetUserInfor() {
-      const response = await searchUserById(roomInfo.userRoom[0].user_id);
-      if (response.data) {
-        // setFriendStatus(response.data.status);
-        roomInfo.userRoom[0] = {
-          ...roomInfo.userRoom[0],
-          friendStatus: response.data.status,
-        };
-      }
-    }
+  // useEffect(() => {
+  //   if (roomInfo.is_group || !roomInfo) return;
+  //   async function handleGetUserInfor() {
+  //     const response = await searchUserById(roomInfo.userRoom[0].user_id);
+  //     if (response.data) {
+  //       // setFriendStatus(response.data.status);
+  //       roomInfo.userRoom[0] = {
+  //         ...roomInfo.userRoom[0],
+  //         friendStatus: response.data.status,
+  //       };
+  //     }
+  //   }
 
-    handleGetUserInfor();
-  }, [roomId]);
+  //   handleGetUserInfor();
+  // }, [roomId]);
 
   const [formHeight, setFormHeight] = useState<number>(40);
 
@@ -125,17 +125,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-
     if (!files || files.length === 0) return;
 
     const validExtensions = configSystemValue.value?.end_file || [];
-
+    const validFiles: File[] = [];
+    const invalidFiles: File[] = [];
     for (const file of files) {
       const fileExtension = file.name.split('.').pop()?.toLowerCase();
 
       if (!fileExtension || !validExtensions.includes(fileExtension)) {
         // Hiển thị thông báo lỗi
         notify('Loại tệp không được hỗ trợ. Vui lòng chọn lại tệp', 'error');
+        invalidFiles.push(file);
         continue;
       }
 
@@ -143,30 +144,26 @@ const ChatInput: React.FC<ChatInputProps> = ({
       try {
         const response = await checkFileBeforeUpload(fileSize);
         if (response.status === 201) {
-          await handleUploadFile(file);
+          validFiles.push(file);
         }
       } catch (error: any) {
         // Lấy thông tin lỗi chi tiết
         const errorMessage = error?.response?.data?.message || error.message;
-        console.log(errorMessage);
-
         // console.error('Error message:', errorMessage);
         notify(errorMessage, 'error');
       }
     }
     e.target.value = ''; // Reset input sau khi tải lên
-  };
-
-  const getClipboardText = (item: DataTransferItem): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      item.getAsString((text: string) => {
-        if (text) {
-          resolve(text);
-        } else {
-          reject(new Error('Không thể lấy văn bản từ clipboard'));
-        }
-      });
-    });
+    if (validFiles.length > 0) {
+      try {
+        // Upload tất cả các file cùng một lúc
+        await Promise.all(validFiles.map((file) => handleUploadFile(file)));
+        notify('Upload tất cả các file thành công!', 'success');
+      } catch (error) {
+        console.error('Failed to upload files', error);
+        notify('Đã xảy ra lỗi khi upload file.', 'error');
+      }
+    }
   };
 
   const handlePaste = async (event: React.ClipboardEvent) => {
@@ -195,14 +192,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
       const tempMessage: IMessage = {
         id: tempMessageId,
         room_id: roomId,
-        created_at: moment().toString(),
+        created_at: new Date().toISOString(),
         sender_id: userAuth?.user.id || '',
         message_type: 'FILE',
         reply_id: null,
         file_id: {
           id_file: tempMessageId,
           file_name: file.name,
-          file_size: `${file.size} bytes`,
+          file_size: `${file.size}`,
           uploaded_by: userAuth?.user.id || '',
           thumbnail_url_display: '', // Chưa có thumbnail
           system_deleted: false,
@@ -222,8 +219,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
       setMessages((prevMessages) => [tempMessage, ...prevMessages]);
 
       if (file.type.startsWith('video/')) {
-        console.log('abvac');
-
         const thumbnailBase64 = await createThumbnail(file, 1.0); // Seek tại giây 1
         const compressedThumbnail = await compressThumbnail(thumbnailBase64);
 
@@ -333,7 +328,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     if (isImage && url_display) {
       return (
         <img
-          src={`${process.env.REACT_APP_API_URL}/media/view/${url_display}`}
+          src={`${process.env.REACT_APP_FILE_URL}/media/view/${url_display}`}
           alt="reply"
           className="w-[120px] h-[120px] object-cover"
         />

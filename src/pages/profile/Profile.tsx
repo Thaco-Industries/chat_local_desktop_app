@@ -21,7 +21,7 @@ const Profile: React.FC = () => {
           <p className="text-textBody font-semibold">
             Chức vụ đảm nhiệm chính{' '}
           </p>
-          <p className="text-textBody flex items-center">
+          <div className="text-textBody flex items-center">
             {mainPosition ? (
               <>
                 <div className="basis-[20px]">
@@ -36,7 +36,7 @@ const Profile: React.FC = () => {
                 Chưa có chức vụ đảm nhiệm chính
               </span>
             )}
-          </p>
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-y-xs md:grid-cols-[200px_auto] mt-sm">
           <p className="text-textBody font-semibold">Chức vụ kiêm nhiệm</p>

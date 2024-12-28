@@ -29,7 +29,7 @@ const ListAddGroup: React.FC = () => {
     if (mode === 'REJECTED') urlHandle = 'invited-rooms/reject-invited-room/';
     try {
       const response = await apiRequest('PUT', urlHandle + id);
-      if (response.status == 200) {
+      if (response.status == 200 || response.status == 204) {
         notify(
           mode === 'REJECTED'
             ? 'Từ chối lời mời tham gia nhom thành công'

@@ -15,6 +15,7 @@ import FeedbackIcon from '../assets/icons/feedback';
 import ProfileIcon from '../assets/icons/profile';
 import { useFriendService } from '../services/FriendService';
 import { useRoomService } from '../services/RoomService';
+import { INotificationRequest } from '../interfaces';
 
 export const SideBar: React.FC = () => {
   const {
@@ -38,9 +39,11 @@ export const SideBar: React.FC = () => {
   const navigate = useNavigate();
   const userAuth = getAuthCookie();
 
+  const [open, setOpen] = useState(false);
+
   useEffect(() => {
-    handleNewFriendRequest();
-    handleNewInvitation();
+    handleNewFriendRequest(null);
+    handleNewInvitation(null);
     if (currentPath !== '/') {
       // setUnreadRooms(0);
       setRoomList([]);
@@ -87,13 +90,60 @@ export const SideBar: React.FC = () => {
     await updateUnreadRooms();
   }, [roomList]);
 
-  const handleNewFriendRequest = async () => {
+  const handleNewFriendRequest = async (message: any) => {
+    if (window.electronAPI) {
+      if (!message) return;
+      const notifyContent: INotificationRequest = {
+        title: message.title || 'Thông báo mới',
+        description: message.description || 'Bạn có một yêu cầu kết bạn mới.',
+        type: 'friendRequest',
+      };
+      window.electronAPI.notifyRequest(notifyContent);
+    } else {
+      console.error('electronAPI.notifyRequest không được định nghĩa');
+    }
     const response = await getFriendRequests();
     if (response.data) {
       setNumberOfFriendRequest(response.data.length);
     }
   };
-  const handleNewInvitation = async () => {
+
+  useEffect(() => {
+    const handleNotification = async (data: INotificationRequest) => {
+      try {
+        if (data.type === 'friendRequest') {
+          navigate('/room');
+        } else if (data.type === 'groupInvite') {
+          navigate('/group');
+        }
+      } catch (error) {
+        console.error('Error handling notification:', error);
+      }
+    };
+
+    window.electronAPI.onRequestNotificationClicked(handleNotification);
+
+    return () => {
+      // Clean up listener
+      window.electronAPI.removeListener(
+        'request-notification-clicked',
+        handleNotification
+      );
+    };
+  }, []);
+
+  const handleNewInvitation = async (message: any) => {
+    if (window.electronAPI) {
+      if (!message) return;
+      const notifyContent: INotificationRequest = {
+        title: message.title || 'Thông báo mới',
+        description: message.description || 'Bạn có một yêu cầu kết bạn mới.',
+        type: 'groupInvite',
+      };
+      window.electronAPI.notifyRequest(notifyContent);
+    } else {
+      console.error('electronAPI.notifyRequest không được định nghĩa');
+    }
     const response = await getInvitedRoom();
     if (response.data) {
       setNumberOfInvitedRoom(response.data.length);
@@ -159,7 +209,10 @@ export const SideBar: React.FC = () => {
       <div className="px-[20px] py-[10px]">
         <p
           className="cursor-pointer text-lg"
-          onClick={() => navigate('/profile')}
+          onClick={() => {
+            setOpen(false);
+            navigate('/profile');
+          }}
         >
           Thông tin tài khoản
         </p>
@@ -174,6 +227,8 @@ export const SideBar: React.FC = () => {
     <div className="w-[70px] h-full bg-primary py-xs flex flex-col justify-start items-center gap-xs">
       <Popover
         content={content}
+        open={open}
+        onOpenChange={setOpen}
         placement="bottom"
         className="absolute z-20 inline-block w-max max-w-[100vw] bg-white outline-none border border-gray-200 rounded-[4px] shadow-sm"
       >

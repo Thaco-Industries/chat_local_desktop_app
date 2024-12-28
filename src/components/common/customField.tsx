@@ -6,13 +6,13 @@ const CustomField = forwardRef<
 >(({ value, placeholder = '', style, ...props }, ref) => {
   const [inputWidth, setInputWidth] = useState('auto');
 
-  useEffect(() => {
-    if (typeof value === 'string') {
-      // Đặt chiều rộng tối thiểu là 4ch (hoặc giá trị bạn muốn)
-      const calculatedWidth = `${Math.max(value.length + 5, 10)}ch`; // Đảm bảo chiều rộng tối thiểu
-      setInputWidth(calculatedWidth);
-    }
-  }, [value]);
+  // useEffect(() => {
+  //   if (typeof value === 'string') {
+  //     // Đặt chiều rộng tối thiểu là 4ch (hoặc giá trị bạn muốn)
+  //     const calculatedWidth = `${Math.max(value.length + 5, 10)}ch`; // Đảm bảo chiều rộng tối thiểu
+  //     setInputWidth(calculatedWidth);
+  //   }
+  // }, [value]);
 
   return (
     <div className="relative inline-block">
@@ -23,9 +23,8 @@ const CustomField = forwardRef<
         placeholder={placeholder}
         style={{
           ...style,
-          width: inputWidth, // Sử dụng chiều dài của text để điều chỉnh width
         }}
-        className={`text-title h-[24px] rounded-sm border-none outline-none bg-transparent p-2 ${props.className}`}
+        className={`text-title max-w-[200px] sm:max-w-[300px] tablet:max-w-[280px] lg:max-w-[420px] h-[24px] rounded-sm border-none outline-none bg-transparent p-2 ${props.className}`}
       />
     </div>
   );

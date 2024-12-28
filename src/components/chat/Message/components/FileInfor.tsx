@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { FileHandle } from '../../../../util/downloadFile';
 import DownloadButton from './DownloadButton';
 
@@ -6,12 +7,14 @@ interface Props {
   fileSize?: string;
   file_name: string;
   isDelete?: boolean;
+  isUserMessage: boolean;
 }
 export default function FileInfo({
   url,
   fileSize,
   file_name,
   isDelete,
+  isUserMessage,
 }: Props) {
   const { handleFileDownload } = FileHandle();
 
@@ -29,9 +32,9 @@ export default function FileInfo({
     if (!fileSize) return;
     const changeFileSizeToNumber = Number(fileSize);
     if (changeFileSizeToNumber < 1) {
-      return `${(changeFileSizeToNumber * 1024).toFixed(0)} KB`;
+      return `${(changeFileSizeToNumber * 1024).toFixed(3)} KB`;
     } else {
-      return `${changeFileSizeToNumber} MB`;
+      return `${changeFileSizeToNumber.toFixed(3)} MB`;
     }
   };
 
@@ -47,7 +50,10 @@ export default function FileInfo({
 
   return (
     <div
-      className="w-[220px] lg:w-[350px] relative bg-white rounded-[10px] p-4 shadow cursor-pointer"
+      className={clsx(
+        'w-[220px] lg:w-[350px] relative rounded-[10px] p-4 shadow cursor-pointer',
+        isUserMessage ? 'bg-[#91CFFB80]' : 'bg-white'
+      )}
       title={file_name}
       onClick={(e) => handleDownload(e, url, file_name)}
     >

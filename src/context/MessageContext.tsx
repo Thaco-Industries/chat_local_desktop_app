@@ -12,6 +12,8 @@ interface MessageContextProps {
   numberOfInvitedRoom: number;
   isSearchMessage: boolean;
   setIsSearchMessage: React.Dispatch<React.SetStateAction<boolean>>;
+  isChangeRoomProcessing: boolean;
+  setIsChangeRoomProcessing: React.Dispatch<React.SetStateAction<boolean>>;
   roomId: string;
   setRoomId: React.Dispatch<React.SetStateAction<string>>;
   roomInfo: IRoom;
@@ -60,6 +62,8 @@ export const MessageProvider: React.FC<{ children: ReactNode }> = ({
   const [configSystemValue, setConfigSystemValue] = useState<
     Partial<IConfigSystem>
   >({});
+  const [isChangeRoomProcessing, setIsChangeRoomProcessing] =
+    useState<boolean>(false);
 
   return (
     <MessageContext.Provider
@@ -80,6 +84,8 @@ export const MessageProvider: React.FC<{ children: ReactNode }> = ({
         setRoomInfo,
         configSystemValue,
         setConfigSystemValue,
+        isChangeRoomProcessing,
+        setIsChangeRoomProcessing,
       }}
     >
       {children}

@@ -14,6 +14,8 @@ import Edit from '../../assets/icons/edit';
 import CustomField from '../common/customField';
 import { getAuthCookie } from '../../actions/auth.action';
 import { useMessageContext } from '../../context/MessageContext';
+import { useSocket } from '../../context/SocketContext';
+import { IUserInRoomInfo } from '../../interfaces';
 
 const ChatHeader: React.FC<IChatHeader> = ({
   roomInfo,
@@ -29,10 +31,16 @@ const ChatHeader: React.FC<IChatHeader> = ({
     roomName: roomInfo.room_name,
     avatar: roomInfo.avatar_url,
   };
+  const { socket } = useSocket();
   const { uploadRoomImage, changeRoomInfor } = useRoomService();
   const { isSearchMessage, setIsSearchMessage } = useMessageContext();
   const [avatar, setAvatar] = useState(roomInfo.avatar_url);
   const [isActiveInput, setIsActiveInput] = useState<boolean>(false);
+  const [isFriendOnline, setIsFriendOnline] = useState<boolean>(false);
+  const [memberCount, setMemberCount] = useState<number>(0);
+
+  const listMemberRef = useRef<Record<string, IUserInRoomInfo> | null>(null);
+
   const validationSchema = Yup.object().shape({
     roomName: Yup.string()
       .required('Tên nhóm không được để trống')
@@ -40,6 +48,44 @@ const ChatHeader: React.FC<IChatHeader> = ({
   });
   const userAuth = getAuthCookie();
   const [isLeader, setIsLeader] = useState(false);
+
+  //Lắng nghe sự kiện
+  useEffect(() => {
+    if (socket) {
+      socket.on(`user-onlines/${roomInfo.id}`, handleUserChangeStatus);
+
+      return () => {
+        socket.off(`user-onlines/${roomInfo.id}`);
+      };
+    }
+  }, [socket, roomInfo.id]);
+
+  async function handleUserChangeStatus(message: any) {
+    const status = Object.values(listMemberRef.current ?? {}).some((member) => {
+      return (
+        member.id !== userAuth?.user.id &&
+        message.listUserIdsOnline.includes(member.id)
+      );
+    });
+    setIsFriendOnline(status);
+  }
+
+  useEffect(() => {
+    if (!listMember) return;
+    listMemberRef.current = listMember;
+
+    const filteredMembers = Object.values(listMemberRef.current ?? {}).filter(
+      (member) => member.userRoom[0].deleted_at === null
+    );
+
+    // Số lượng thành viên
+    setMemberCount(filteredMembers.length);
+    setIsFriendOnline(
+      filteredMembers.some(
+        (member) => member.id !== userAuth?.user.id && member.isOnline === true
+      )
+    );
+  }, [listMember]);
 
   useEffect(() => {
     if (listMember && userAuth?.user?.id) {
@@ -93,16 +139,6 @@ const ChatHeader: React.FC<IChatHeader> = ({
   };
 
   const renderStatusHeader = () => {
-    const filteredMembers = Object.values(listMember ?? {}).filter(
-      (member) => member.userRoom[0].deleted_at === null
-    );
-
-    // Số lượng thành viên
-    const memberCount = filteredMembers.length;
-    const isFriendOnline = filteredMembers.some(
-      (member) => member.id !== userAuth?.user.id && member.isOnline === true
-    );
-
     if (roomInfo.is_group) {
       return `${memberCount} thành viên`;
     } else {
@@ -190,7 +226,7 @@ const ChatHeader: React.FC<IChatHeader> = ({
               />
             </div>
             <div className="flex-1 flex flex-col justify-center">
-              <div className="group flex relative max-w-[140px] sm:max-w-[300px] tablet:max-w-[280px] lg:max-w-[420px]">
+              <div className="group flex relative max-w-full sm:max-w-[300px] tablet:max-w-[280px] lg:max-w-[420px]">
                 {isActiveInput ? (
                   <CustomField
                     type="text"
@@ -223,7 +259,11 @@ const ChatHeader: React.FC<IChatHeader> = ({
                 {/* Edit Icon */}
                 {roomInfo.is_group && !isActiveInput && isLeader && (
                   <div
-                    className="group-hover:flex justify-center items-center hidden cursor-pointer flex-shrink-0 w-6 h-6 bg-white rounded-full shadow"
+                    className={clsx(
+                      'group-hover:flex justify-center items-center hidden cursor-pointer flex-shrink-0 w-6 h-6 bg-white rounded-full shadow',
+                      'absolute right-0 -translate-x-[80px]', // Vị trí mặc định
+                      'sm:relative sm:right-auto sm:translate-x-0'
+                    )}
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsActiveInput(true);
@@ -239,12 +279,12 @@ const ChatHeader: React.FC<IChatHeader> = ({
               {renderStatusHeader()}
             </div>
           </div>
-          <div className="flex bg-white items-center h-full absolute right-0 top-0 bottom-0 z-10 px-1">
+          <div className="flex bg-white items-center h-full absolute right-0 top-0 bottom-0 z-10 px-xxs gap-xxs">
             <button
               type="button"
               title="tìm kiếm tin nhắn"
               className={clsx(
-                'w-10 h-10 p-xs hover:bg-[#CEE5FF80] flex justify-center items-center rounded-sm',
+                'w-[40px] h-[40px] p-xs hover:bg-[#CEE5FF80] flex justify-center items-center rounded-sm',
                 { 'bg-[#CEE5FF80]': isSearchMessage }
               )}
               onClick={() => setIsSearchMessage((prev) => !prev)}
@@ -256,14 +296,14 @@ const ChatHeader: React.FC<IChatHeader> = ({
             {/* <button
               type="button"
               title="cuộc gọi thoại"
-              className="w-10 h-10 p-xs hover:bg-[#CEE5FF80] flex justify-center items-center rounded-sm"
+              className="w-[40px] h-[40px] p-xs hover:bg-[#CEE5FF80] flex justify-center items-center rounded-sm"
             >
               <CallIcon />
             </button>
             <button
               type="button"
               title="cuộc gọi thoại"
-              className="w-10 h-10 p-xs hover:bg-[#CEE5FF80] flex justify-center items-center rounded-sm"
+              className="w-[40px] h-[40px] p-xs hover:bg-[#CEE5FF80] flex justify-center items-center rounded-sm"
             >
               <VideoCameraIcon />
             </button> */}
@@ -272,7 +312,7 @@ const ChatHeader: React.FC<IChatHeader> = ({
                 htmlFor="collapsedMenu"
                 title="thông tin hội thoại"
                 className={clsx(
-                  'w-10 h-10 p-xs hover:bg-[#CEE5FF80] flex justify-center items-center rounded-sm hover:stroke-primary drawer-button',
+                  'w-[40px] h-[40px] p-xs hover:bg-[#CEE5FF80] flex justify-center items-center rounded-sm hover:stroke-primary drawer-button',
                   { 'bg-[#CEE5FF80]': isCollapsed }
                 )}
                 onClick={() => setIsCollapsed(true)}
@@ -286,7 +326,7 @@ const ChatHeader: React.FC<IChatHeader> = ({
               type="button"
               title="thông tin hội thoại"
               className={clsx(
-                'hidden xl:flex w-10 h-10 p-[10px] hover:bg-[#CEE5FF80]  justify-center items-center rounded-sm hover:stroke-primary',
+                'hidden xl:flex w-[40px] h-[40px] p-[10px] hover:bg-[#CEE5FF80]  justify-center items-center rounded-sm hover:stroke-primary',
                 { 'bg-[#CEE5FF80]': isDesktopCollapsed }
               )}
               onClick={() => setIsDesktopCollapsed((prev) => !prev)}
