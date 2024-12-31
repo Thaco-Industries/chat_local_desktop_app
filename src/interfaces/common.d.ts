@@ -70,6 +70,7 @@ declare global {
       removeListener: (event: string, callback: (data: any) => void) => void;
       updateBadge: (count: number) => void;
       openUrl: (url: string) => Promise<{ success: boolean; error?: string }>;
+      saveFile: (url: string, file_name: string) => Promise<{ success: boolean; error?: string; filePath?: string }>;
     };
   }
 }

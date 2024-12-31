@@ -5,27 +5,19 @@ export const FileHandle = () => {
   const { apiRequest } = useFetchApi();
 
   const handleFileDownload = async (url: string, file_name?: string) => {
+    console.log(url)
     try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      // Tự động lấy phần mở rộng từ URL nếu không có trong file_name
-      const fileExtension = url.split('.').pop() || 'txt'; // Mặc định là txt nếu không tìm thấy
-      const finalFileName = file_name?.includes('.')
-        ? file_name
-        : `${file_name || 'file'}.${fileExtension}`;
-      const anchor = document.createElement('a');
-      anchor.href = downloadUrl;
-      anchor.download = finalFileName; // Đặt tên tệp
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      // Giải phóng URL Blob sau khi tải xuống
-      window.URL.revokeObjectURL(downloadUrl);
+      const result = await window.electronAPI.saveFile(url, file_name || 'download');
+      if (result.success) {
+        console.log('File đã được lưu tại:', result.filePath);
+      } else {
+        console.log('Người dùng đã hủy lưu file.');
+      }
     } catch (error) {
       console.error('Tải file thất bại:', error);
     }
   };
+
 
   const createThumbnail = async (file: File, seekTo = 0.0): Promise<string> => {
     return new Promise((resolve, reject) => {

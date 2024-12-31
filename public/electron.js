@@ -9,7 +9,9 @@ const {
   Tray,
   Menu,
   shell,
+  dialog,
 } = require('electron');
+const fs = require('fs');
 const dotenv = require('dotenv');
 const path = require('path');
 const Badge = require('electron-windows-badge');
@@ -312,3 +314,22 @@ autoUpdater.on('download-progress', (progress) =>
 autoUpdater.on('update-downloaded', (info) =>
   log.info('Update downloaded: ', info)
 );
+
+ipcMain.handle('save-file', async (event, { url, file_name }) => {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  const buffer = Buffer.from(await blob.arrayBuffer());
+
+  console.log('file_name: ' + file_name);
+
+  const { canceled, filePath } = await dialog.showSaveDialog({
+    title: 'Lưu file',
+    defaultPath: file_name,
+  });
+
+  if (canceled || !filePath) return { success: false };
+
+  // Ghi file bằng fs
+  fs.writeFileSync(filePath, buffer);
+  return { success: true, filePath };
+});

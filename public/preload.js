@@ -12,6 +12,14 @@ process.once('loaded', () => {
       });
     },
     // Các phương thức khác
+    saveFile: (url, file_name) => {
+      return new Promise((resolve, reject) => {
+        ipcRenderer
+          .invoke('save-file', { url, file_name })
+          .then((result) => resolve(result))
+          .catch((error) => reject(error));
+      });
+    },
     notificationClicked: () => ipcRenderer.invoke('notification-clicked'),
     onReplyNotification: (callback) => {
       ipcRenderer.on('send-reply-message', (_, data) => {
@@ -28,6 +36,9 @@ process.once('loaded', () => {
     closeNotificationWindow: () =>
       ipcRenderer.invoke('close-notification-window'),
     openUrl: (url) => ipcRenderer.invoke('open-url', url),
+    // saveFile: async (url, defaultFileName) => {
+    //   return ipcRenderer.invoke('save-file', { url, defaultFileName });
+    // },
   });
 });
 
