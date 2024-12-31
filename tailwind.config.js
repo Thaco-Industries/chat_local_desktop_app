@@ -8,9 +8,9 @@ module.exports = {
       sans: ['Nunito Sans', 'sans-serif'],
     },
     screens: {
-      tablet: '800px',
       sm: '640px',
       md: '768px',
+      tablet: '800px',
       lg: '1024px',
       xl: '1280px',
       '2xl': '1536px',

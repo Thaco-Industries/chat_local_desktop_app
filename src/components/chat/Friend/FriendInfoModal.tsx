@@ -123,11 +123,10 @@ function FriendInfoModal({
           'bg-black bg-opacity-50': overlay,
         }
       )}
-      aria-hidden="true"
       onClick={closeModal}
     >
       <div
-        className="relative w-[450px] h-[80vh]"
+        className="relative w-[80vw] md:w-[50vw] lg:w-[30vw] h-[80vh] transition-[width] duration-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal content */}
@@ -144,7 +143,6 @@ function FriendInfoModal({
             >
               <svg
                 className="w-3 h-3"
-                aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 14 14"

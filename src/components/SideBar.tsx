@@ -197,11 +197,14 @@ export const SideBar: React.FC = () => {
   ];
 
   const handleLogout = () => {
+    setUnreadRooms(0);
     deleteAuthCookie();
     setRoomList([]);
     setIsSearchMessage(false);
     setRoomId('');
-    navigate('/login');
+    setTimeout(() => {
+      navigate('/login');
+    }, 0);
   };
 
   const content = (

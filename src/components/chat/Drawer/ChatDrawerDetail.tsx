@@ -8,6 +8,9 @@ import moment from 'moment';
 import { IChatDrawerDetail, IInvitedInfor } from '../../../interfaces';
 import { useFileService } from '../../../services/FileService';
 import ViewAllMemberInRoom from '../ViewAllMemberInRoom';
+import ConfirmModal from '../../modal/ConfirmModal';
+import { notify } from '../../../helper/notify';
+import { useSocket } from '../../../context/SocketContext';
 
 const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
   setVisible,
@@ -21,6 +24,7 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
   friendStatus,
   setIsVideo,
 }) => {
+  const { socket } = useSocket();
   const { getAllFilesInRoom, deleteFileMessage } = useFileService();
   const [activeTab, setActiveTab] = useState<'image' | 'other' | 'video' | ''>(
     ''
@@ -33,6 +37,8 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
   const [videoList, setVideoList] = useState<IFileInfor[]>([]);
   const [otherFileList, setOtherFileList] = useState<IFileInfor[]>([]);
   const [invitedList, setInvitedList] = useState<IInvitedInfor[]>([]);
+  const [openConfirmDeleteModal, setOpenConfirmDeleteModal] =
+    useState<boolean>(false);
 
   const activeTabStyle = 'border-b-2 border-[#1890FF] text-[#1890FF]';
 
@@ -53,6 +59,25 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
     setOtherFileList([]);
   };
 
+  const handleListFileChanged = () => {
+    getMediaFiles('video');
+    getMediaFiles('image');
+    getMediaFiles('other');
+  };
+
+  useEffect(() => {
+    if (socket) {
+      socket.on(
+        `list-files-in-room-changed/${roomInfo.id}`,
+        handleListFileChanged
+      );
+
+      return () => {
+        socket.off(`list-files-in-room-changed/${roomInfo.id}`);
+      };
+    }
+  }, [socket, roomId, handleListFileChanged]);
+
   const getMediaFiles = async (type: 'image' | 'video' | 'other') => {
     try {
       const response = await getAllFilesInRoom(roomId, type);
@@ -62,6 +87,8 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
             setVideoList(response.data.data);
             break;
           case 'image':
+            console.log('render');
+
             setPhotoList(response.data.data);
             break;
           case 'other':
@@ -97,11 +124,20 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
   };
 
   const handleDeleteFile = async () => {
-    const response = await deleteFileMessage(roomId, fileSelected);
-    if (response.statusText === 'OK' && activeTab) {
-      setFileSelected([]);
-      setIsDelete(false);
-      getMediaFiles(activeTab);
+    try {
+      const response = await deleteFileMessage(roomId, fileSelected);
+      if (response.statusText === 'OK' && activeTab) {
+        setFileSelected([]);
+        setIsDelete(false);
+        getMediaFiles(activeTab);
+        setOpenConfirmDeleteModal(false);
+        notify('File đã được xóa thành công', 'success');
+      }
+    } catch (error: any) {
+      // Lấy thông tin lỗi chi tiết
+      const errorMessage = error?.response?.data?.message || error.message;
+      notify(errorMessage, 'error');
+      console.error('Error:', errorMessage);
     }
   };
 
@@ -221,12 +257,21 @@ const ChatDrawerDetail: React.FC<IChatDrawerDetail> = ({
         </button>
         <button
           className="border border-red-700 text-red-700 text-base rounded-3xl px-5 py-2 flex items-center justify-center gap-xxs"
-          onClick={handleDeleteFile}
+          onClick={() => setOpenConfirmDeleteModal(true)}
         >
           <DeleteIcon />
           Xóa
         </button>
       </div>
+      {openConfirmDeleteModal && (
+        <ConfirmModal
+          title="Thông báo"
+          content="Bạn có chắc chắn xóa file?"
+          handleConfirm={handleDeleteFile}
+          openModal={openConfirmDeleteModal}
+          setOpenModal={setOpenConfirmDeleteModal}
+        />
+      )}
     </div>
   );
 };

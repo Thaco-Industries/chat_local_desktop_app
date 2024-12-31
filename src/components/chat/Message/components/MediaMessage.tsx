@@ -29,7 +29,6 @@ const MediaMessage: React.FC<Props> = ({
   const [showMessageOption, setShowMessageOption] = useState(false);
 
   const { file_id } = message;
-
   if (!file_id) return null;
 
   const { file_name, file_size, url_display, thumbnail_url_display } = file_id;
@@ -41,100 +40,71 @@ const MediaMessage: React.FC<Props> = ({
   );
 
   const urlFile = `${process.env.REACT_APP_FILE_URL}/media/view/${url_display}`;
-
   const urlVideoThumbnail = `${process.env.REACT_APP_API_URL}/media/view/${thumbnail_url_display}`;
 
+  const renderSpinner = () => (
+    <div className="absolute inset-0 flex items-center justify-center z-10">
+      <Spinner size="xl" />
+    </div>
+  );
+
+  const renderPlaceholder = () => (
+    <div className="relative w-[220px] lg:w-[350px] h-[100px] bg-white rounded overflow-hidden flex items-center justify-center">
+      {renderSpinner()}
+    </div>
+  );
+
+  const renderFileSize = (size?: string) => {
+    if (!size) return '';
+    const mbSize = Number(size) / 1024 / 1024;
+    return mbSize < 1
+      ? `${(mbSize * 1024).toFixed(3)} KB`
+      : `${mbSize.toFixed(3)} MB`;
+  };
+
   if (message.status === 'DELIVERED' && isUserMessage) {
-    const convertFileSize = (fileSize: string | undefined) => {
-      if (!fileSize) return;
-      const changeFileSizeToNumber = Number(fileSize) / 1024 / 1024;
-
-      if (changeFileSizeToNumber < 1) {
-        return `${(changeFileSizeToNumber * 1024).toFixed(3)} KB`;
-      } else {
-        return `${changeFileSizeToNumber.toFixed(3)} MB`;
-      }
-    };
-
-    const getFileExtension = (fileName: string) => {
-      const index = fileName.lastIndexOf('.');
-      return index !== -1 ? fileName.slice(index + 1) : '';
-    };
-
-    const removeExtensionFileName = (fileName: string) => {
-      const index = fileName.lastIndexOf('.');
-      return index !== -1 ? fileName.slice(0, index) : '';
-    };
-
     return (
       <div className="flex justify-end">
-        {isVideo ? (
+        {isVideo || isImage ? (
           _.isEmpty(thumbnail_url_display) ? (
-            <div className="relative w-[220px] lg:w-[350px] h-[100px] bg-white rounded overflow-hidden flex items-center justify-center">
-              {/* Spinner hiển thị ở giữa */}
-              <div className="absolute inset-0 flex items-center justify-center z-10">
-                <Spinner size="xl" />
-              </div>
-            </div>
+            renderPlaceholder()
           ) : (
-            // Trường hợp không có `thumbnail_url_display` -> Background trắng và spinner
-            <div className="relative max-w-[220px] lg:max-w-[350px] max-h-[350px] bg-white rounded overflow-hidden flex items-center justify-center">
-              {/* Hình ảnh full nằm dưới spinner */}
+            <div className="relative max-w-[220px] lg:max-w-[350px] max-h-[350px] bg-white rounded overflow-hidden">
               <img
                 src={thumbnail_url_display}
                 className="w-full h-full object-contain rounded"
                 alt="uploading file"
               />
-              {/* Spinner hiển thị ở giữa */}
-              <div className="absolute inset-0 flex items-center justify-center z-10">
-                <Spinner size="xl" />
-              </div>
+              {renderSpinner()}
             </div>
           )
-        ) : isImage ? (
-          // Trường hợp có `thumbnail_url_display`
-          <div className="relative max-w-[220px] lg:max-w-[350px] max-h-[350px] bg-white rounded overflow-hidden flex items-center justify-center">
-            {/* Hình ảnh full nằm dưới spinner */}
-            <img
-              src={thumbnail_url_display}
-              className="w-full h-full object-contain rounded"
-              alt="uploading file"
-            />
-            {/* Spinner hiển thị ở giữa */}
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <Spinner size="xl" />
-            </div>
-          </div>
         ) : (
-          <div
-            title={file_name}
-            className="border rounded-lg bg-[#91CFFB80] p-xs relative min-w-0 flex-grow max-w-[220px] lg:max-w-[350px] max-h-[350px] box-border"
-          >
-            <div className="flex justify-between mb-1 gap-3">
-              <div className="flex justify-between">
-                <p
-                  className={clsx(
-                    'text-sm text-title truncate lg:max-w-[220px]'
-                  )}
-                >
-                  {removeExtensionFileName(file_name)}
-                </p>
-                <span>.{getFileExtension(file_name)}</span>
-              </div>
+          <div className="border rounded-lg bg-[#91CFFB80] p-xs relative max-w-[220px] lg:max-w-[350px]">
+            <div className="flex justify-between gap-3">
+              <p className="text-sm text-title truncate lg:max-w-[220px]">
+                {file_name.split('.').slice(0, -1).join('.')}
+              </p>
+              <span>.{fileExtension}</span>
             </div>
-            <div className="flex gap-3 flex-shrink-0 flex-grow-0">
+            <div className="flex gap-3">
               <p className="text-sm text-lightText">
-                {convertFileSize(file_size)}
+                {renderFileSize(file_size)}
               </p>
               <Spinner size="xl" />
             </div>
-
             <DownloadButton url={url_display} file_name={file_name} />
           </div>
         )}
       </div>
     );
   }
+
+  const renderDeletedMessage = (message: string, Icon: React.FC) => (
+    <div className="max-w-[220px] lg:max-w-[350px] h-[97px] flex flex-col justify-center items-center bg-white rounded-[10px] shadow">
+      <div className="text-lightText">{message}</div>
+      <Icon />
+    </div>
+  );
 
   return (
     <div
@@ -145,43 +115,35 @@ const MediaMessage: React.FC<Props> = ({
       onMouseLeave={() => setShowMessageOption(false)}
     >
       {isVideo ? (
-        message.file_id?.system_deleted ? (
-          <div className="max-w-[220px] lg:max-w-[350px] h-[97px] w-full flex flex-col justify-center items-center bg-white rounded-[10px] shadow">
-            Video đã bị xóa
-            <VideoSlash />
-          </div>
+        file_id.system_deleted ? (
+          renderDeletedMessage('Video đã bị xóa', VideoSlash)
         ) : (
           <div
-            className={clsx('flex', {
-              'justify-end': isUserMessage,
-            })}
+            className="relative"
             onClick={() => handleClickMedia(urlFile, isVideo)}
           >
-            <div className="relative">
-              <img
-                src={urlVideoThumbnail}
-                className="max-w-[220px] lg:max-w-[350px] max-h-[350px] object-contain rounded"
-                alt="video thumbnail"
-              />
-              <PlayButton />
-              <DownloadButton url={urlFile} file_name={file_name} />
-            </div>
+            <img
+              src={urlVideoThumbnail}
+              className="max-w-[220px] lg:max-w-[350px] max-h-[350px] object-contain rounded"
+              alt="video thumbnail"
+            />
+            <PlayButton />
+            <DownloadButton url={urlFile} file_name={file_name} />
           </div>
         )
       ) : isImage ? (
         url_display.includes('.svg') ? (
           <FileInfo
-            url={urlFile}
-            fileSize={file_size}
-            file_name={file_name}
-            isUserMessage={isUserMessage}
-            isDelete={message.file_id?.system_deleted}
+            {...{
+              url: urlFile,
+              fileSize: file_size,
+              file_name,
+              isUserMessage,
+              isDelete: file_id.system_deleted,
+            }}
           />
-        ) : message.file_id?.system_deleted ? (
-          <div className="max-w-[220px] lg:max-w-[350px] h-[97px] w-full flex flex-col justify-center items-center bg-white rounded-[10px] shadow">
-            <div className=" text-lightText">Ảnh đã bị xóa</div>
-            <GallerySlash />
-          </div>
+        ) : file_id.system_deleted ? (
+          renderDeletedMessage('Ảnh đã bị xóa', GallerySlash)
         ) : (
           <ImagePreview
             url={urlFile}
@@ -191,29 +153,27 @@ const MediaMessage: React.FC<Props> = ({
           />
         )
       ) : (
-        <div
-          className={clsx('flex items-center', {
-            'justify-end': isUserMessage,
-          })}
-        >
-          <FileInfo
-            url={urlFile}
-            fileSize={file_size}
-            file_name={file_name}
-            isUserMessage={isUserMessage}
-            isDelete={message.file_id?.system_deleted}
-          />
-        </div>
+        <FileInfo
+          {...{
+            url: urlFile,
+            fileSize: file_size,
+            file_name,
+            isUserMessage,
+            isDelete: file_id.system_deleted,
+          }}
+        />
       )}
 
-      {message.message_type !== 'RECALLED' &&
-        !message.file_id?.system_deleted && (
+      {!message.file_id?.system_deleted &&
+        message.message_type !== 'RECALLED' && (
           <ActionButton
-            handleRecallMessage={handleRecallMessage}
-            handleReplyMessage={handleReplyMessage}
-            message={message}
-            showMessageOption={showMessageOption}
-            isUserMessage={isUserMessage}
+            {...{
+              handleRecallMessage,
+              handleReplyMessage,
+              message,
+              showMessageOption,
+              isUserMessage,
+            }}
           />
         )}
     </div>

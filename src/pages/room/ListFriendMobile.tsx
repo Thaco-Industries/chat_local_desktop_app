@@ -141,9 +141,7 @@ const ListFriendMobile: React.FC<ListFriendMobileProps> = ({
                         )}
                       </div>
                       {/* name */}
-                      <span className="ml-[20px] text-[16px]">
-                        {item.full_name}
-                      </span>
+                      <span className="ml-[20px]">{item.full_name}</span>
                       {/* end name */}
                     </div>
                   );

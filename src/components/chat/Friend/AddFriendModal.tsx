@@ -74,11 +74,10 @@ function AddFriendModal({ openAddFriendModal, setOpenAddFriendModal }: Props) {
   return (
     <div
       className="fixed inset-0 z-[9999] flex items-center justify-center w-full h-full bg-black bg-opacity-50"
-      aria-hidden="true"
       onClick={closeModal}
     >
       <div
-        className="relative w-[450px] h-[80vh]"
+        className="relative w-[80vw] md:w-[50vw] lg:w-[30vw] h-[80vh] transition-[width] duration-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal content */}
@@ -95,7 +94,6 @@ function AddFriendModal({ openAddFriendModal, setOpenAddFriendModal }: Props) {
             >
               <svg
                 className="w-3 h-3"
-                aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 14 14"
@@ -126,7 +124,6 @@ function AddFriendModal({ openAddFriendModal, setOpenAddFriendModal }: Props) {
                       <div className="absolute inset-y-0 start-0 flex items-center pointer-events-none">
                         <svg
                           className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                          aria-hidden="true"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 20 20"

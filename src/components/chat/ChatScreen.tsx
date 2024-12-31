@@ -95,6 +95,8 @@ const ChatScreen: React.FC<IChatScreen> = ({
 
   const handleRecallMessage = useCallback(
     (message: IMessage) => {
+      console.log(message);
+
       if (messages && listMemberRef.current) {
         const currentListMember = listMemberRef.current;
         const senderInfo = currentListMember?.[message.sender_id] || null;
@@ -455,9 +457,6 @@ const ChatScreen: React.FC<IChatScreen> = ({
         return filterMessage;
       });
     }
-    getAllFilesInRoom(roomId, 'video');
-    getAllFilesInRoom(roomId, 'image');
-    getAllFilesInRoom(roomId, 'other');
   };
 
   useEffect(() => {

@@ -1,7 +1,6 @@
 export default function SpinnerIcon() {
   return (
     <svg
-      aria-hidden="true"
       className="inline w-8 h-8 text-gray-200 animate-spin fill-primary"
       viewBox="0 0 100 101"
       fill="none"

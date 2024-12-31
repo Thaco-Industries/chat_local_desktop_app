@@ -2,8 +2,6 @@ let autoCloseTimeout; // Biến lưu trữ bộ đếm tự động tắt
 let resetTimer; // Biến lưu trữ trạng thái thao tác
 
 window.electronAPI.receiveNotification((event, data) => {
-  console.log(data.sender);
-
   document.getElementById('sender').textContent = data.sender.infor.full_name;
   const contentElement = document.getElementById('message_display');
 

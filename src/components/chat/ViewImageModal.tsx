@@ -53,7 +53,6 @@ const ViewImageModal: React.FC<Props> = ({
       {visible && (
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center w-full h-full bg-black bg-opacity-50"
-          aria-hidden="true"
           onClick={closeModal}
         >
           <div
@@ -74,7 +73,6 @@ const ViewImageModal: React.FC<Props> = ({
                 >
                   <svg
                     className="w-3 h-3"
-                    aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 14 14"

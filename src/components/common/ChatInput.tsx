@@ -92,7 +92,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   } = FileHandle();
 
   useEffect(() => {
-    if (roomInfo.userRoom[0]?.friendStatus) {
+    if (roomInfo.userRoom[0]?.friendStatus || roomInfo.is_group) {
       // Mặc định là disable
       setDisabled(false);
 
@@ -158,7 +158,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
       try {
         // Upload tất cả các file cùng một lúc
         await Promise.all(validFiles.map((file) => handleUploadFile(file)));
-        notify('Upload tất cả các file thành công!', 'success');
       } catch (error) {
         console.error('Failed to upload files', error);
         notify('Đã xảy ra lỗi khi upload file.', 'error');
@@ -218,6 +217,24 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
       setMessages((prevMessages) => [tempMessage, ...prevMessages]);
 
+      if (file.type.startsWith('image/')) {
+        const imageUrl = URL.createObjectURL(file);
+
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg.id === tempMessageId
+              ? {
+                  ...msg,
+                  file_id: {
+                    ...msg.file_id!,
+                    thumbnail_url_display: imageUrl,
+                  },
+                }
+              : msg
+          )
+        );
+      }
+
       if (file.type.startsWith('video/')) {
         const thumbnailBase64 = await createThumbnail(file, 1.0); // Seek tại giây 1
         const compressedThumbnail = await compressThumbnail(thumbnailBase64);
@@ -261,7 +278,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
       }); // Gọi hàm upload từng file
     } catch (error) {
       console.error(`Failed to upload file ${file.name}`, error);
-      alert(`Error uploading file: ${file.name}`);
     }
   };
 

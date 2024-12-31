@@ -93,17 +93,11 @@ function createWindow() {
   }
 }
 
-function setupLocalFilesNormalizerProxy() {
-  protocol.registerHttpProtocol(
-    'file',
-    (request, callback) => {
-      const url = request.url.substr(8);
-      callback({ path: path.normalize(`${__dirname}/${url}`) });
-    },
-    (error) => {
-      if (error) console.error('Failed to register protocol');
-    }
-  );
+async function setupLocalFilesNormalizerProxy() {
+  protocol.registerHttpProtocol('file', (request) => {
+    const url = request.url.substr(8);
+    return { path: path.normalize(`${__dirname}/${url}`) };
+  });
 }
 
 if (!gotTheLock) {
@@ -121,7 +115,7 @@ if (!gotTheLock) {
   });
   app.whenReady().then(() => {
     createWindow();
-    autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.checkForUpdates();
     setupLocalFilesNormalizerProxy();
     // Tạo Tray Icon
     tray = new Tray(path.join(__dirname, 'icon.png')); // Thay bằng icon phù hợp
@@ -204,6 +198,8 @@ function initializeNotificationWindow(message) {
     height: 200,
     resizable: false,
     frame: false,
+    // parent: mainWindow,
+    // modal: true,
     alwaysOnTop: true,
     transparent: true,
     webPreferences: {
@@ -211,7 +207,7 @@ function initializeNotificationWindow(message) {
     },
     icon: path.join(__dirname, 'icon.png'),
     x: width - 400,
-    y: height - 230,
+    y: height - 200,
   });
 
   const appURL = app.isPackaged
@@ -220,6 +216,12 @@ function initializeNotificationWindow(message) {
 
   notificationWindow.setMenuBarVisibility(false);
   notificationWindow.loadURL(appURL);
+
+  notificationWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.type === 'mouseDown') {
+      event.preventDefault(); // Ngăn không cho sự kiện lan tới cửa sổ cha
+    }
+  });
 
   notificationWindow.on('closed', () => {
     notificationWindow = null;
@@ -252,6 +254,8 @@ function initializeRequestNotificationWindow(message) {
     width: 400,
     height: 140,
     resizable: false,
+    parent: mainWindow,
+    focusable: false,
     frame: false,
     alwaysOnTop: true,
     transparent: true,
