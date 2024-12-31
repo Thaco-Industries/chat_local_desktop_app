@@ -138,7 +138,7 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center w-full h-full bg-black bg-opacity-50">
       <div
-        className="relative w-[80vw] md:w-[50vw] lg:w-[30vw] h-[80vh] transition-[width] duration-300"
+        className="relative w-[80vw] md:w-[50vw] lg:w-[30vw] h-[80vh] transition-[width] duration-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal content */}
