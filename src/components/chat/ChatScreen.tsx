@@ -507,14 +507,47 @@ const ChatScreen: React.FC<IChatScreen> = ({
   }, [getMessageListData, hasMoreData]);
 
   useEffect(() => {
-    const checkScrollHeight = () => {
-      if (messageListRef.current && !_.isEmpty(messages)) {
+    const checkScrollHeight = async () => {
+      if (
+        messageListRef.current &&
+        !_.isEmpty(messages) &&
+        lastMessageIdRef.current
+      ) {
         const scrollHeight = messageListRef.current.scrollHeight;
         const clientHeight = messageListRef.current.clientHeight;
         // Nếu không có scrollbar và vẫn còn dữ liệu, tải thêm tin nhắn
 
         if (scrollHeight <= clientHeight && hasMoreData) {
-          getMessageListData();
+          const previousScrollTop = messageListRef.current?.scrollTop || 0;
+          const currentListMember = listMemberRef.current;
+          const response = await getMessageByRoom(
+            roomId,
+            15,
+            lastMessageIdRef.current
+          );
+          if (response.data) {
+            const messageLists = response.data;
+            lastMessageIdRef.current =
+              messageLists[messageLists.length - 1]?.id;
+            setLastMessageId(messageLists[messageLists.length - 1]?.id); // Cập nhật chính xác id mới nhất
+            const newMessages = messageLists.map((msg: IMessage) => ({
+              ...msg,
+              sender: currentListMember?.[msg.sender_id],
+            }));
+
+            setMessages((prev) => {
+              const map = new Map(
+                [...prev, ...newMessages].map((msg) => [msg.id, msg])
+              );
+              return Array.from(map.values());
+            });
+
+            setTimeout(() => {
+              if (messageListRef.current) {
+                messageListRef.current.scrollTop = previousScrollTop;
+              }
+            }, 0);
+          }
         }
       }
     };
