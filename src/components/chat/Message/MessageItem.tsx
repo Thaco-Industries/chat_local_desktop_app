@@ -82,7 +82,10 @@ const MessageItem: React.FC<IMessageItem> = ({
         return (
           <span
             key={index}
-            onClick={() => openLink(part)}
+            onClick={(e) => {
+              e.stopPropagation();
+              openLink(part);
+            }}
             className="cursor-pointer text-primary underline"
           >
             {part}

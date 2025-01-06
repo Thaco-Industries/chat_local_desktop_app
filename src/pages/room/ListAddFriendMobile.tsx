@@ -6,6 +6,7 @@ import { formatDate } from '../../util/formatDate';
 import { notify } from '../../helper/notify';
 import { useFriendService } from '../../services/FriendService';
 import { useMessageContext } from '../../context/MessageContext';
+import { useSocket } from '../../context/SocketContext';
 
 interface ListAddFriendMobileProps {
   setIsShowListAddFriends: React.Dispatch<React.SetStateAction<boolean>>;
@@ -20,11 +21,29 @@ const ListAddFriendMobile: React.FC<ListAddFriendMobileProps> = ({
   const { apiRequest } = useFetchApi();
   const [listAddFriends, setListAddFriends] = useState([]);
   const [listSendAddFriends, setListSendAddFriends] = useState([]);
+  const { socket } = useSocket();
 
   useEffect(() => {
-    getListAddFriends();
-    getListSendAddFriends();
+    handleChangeRequest();
   }, []);
+
+  const handleChangeRequest = () => {
+    getListSendAddFriends();
+    getListAddFriends();
+  };
+
+  useEffect(() => {
+    if (socket) {
+      socket.on(`recall-friend-request`, handleChangeRequest);
+      socket.on(`list-friend-request-change`, handleChangeRequest);
+      socket.on(`new-friend-request`, handleChangeRequest);
+      return () => {
+        socket.off(`list-friend-request-change`);
+        socket.off(`recall-friend-request`);
+        socket.off(`new-friend-request`);
+      };
+    }
+  }, [socket]);
 
   const getListAddFriends = async () => {
     try {

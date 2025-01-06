@@ -95,8 +95,6 @@ const ChatScreen: React.FC<IChatScreen> = ({
 
   const handleRecallMessage = useCallback(
     (message: IMessage) => {
-      console.log(message);
-
       if (messages && listMemberRef.current) {
         const currentListMember = listMemberRef.current;
         const senderInfo = currentListMember?.[message.sender_id] || null;
@@ -284,7 +282,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
         const response = await getMessageByRoom(
           roomId,
           15,
-          lastMessageIdRef.current
+          lastMessageIdRef.current || ''
         );
         if (response.data?.length) {
           const messageLists = response.data.map((msg: IMessage) => ({
@@ -329,7 +327,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
         const response = await getMessageByRoom(
           roomId,
           15,
-          lastMessageIdRef.current
+          lastMessageIdRef.current || ''
         );
         if (response.data?.length) {
           const messageLists = response.data;
@@ -372,7 +370,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
           roomId,
           15,
           false,
-          newerMessageId
+          newerMessageId || ''
         ); // Endpoint hỗ trợ tải mới
         if (response.data?.length) {
           const messageLists = response.data;
@@ -494,7 +492,9 @@ const ChatScreen: React.FC<IChatScreen> = ({
         const { scrollTop, scrollHeight, clientHeight } =
           messageListRef.current;
 
-        if (scrollTop <= clientHeight - scrollHeight + 10 && hasMoreData) {
+        if (scrollTop <= clientHeight - scrollHeight + 3 && hasMoreData) {
+          console.log('load old');
+
           getOldMessages();
         }
       }

@@ -27,6 +27,7 @@ function FriendItem({
       className="h-[70px] flex items-center gap-md cursor-pointer"
       onClick={(e) => {
         e.stopPropagation();
+        if (friendItem.isInRoom || friendItem.isInvited) return;
         toggleFriendSelection(friendItem.id);
       }}
     >
@@ -34,8 +35,11 @@ function FriendItem({
         <Checkbox
           checked={isSelected}
           onChange={handleSelection}
-          onClick={(e) => e.stopPropagation()}
-          className="focus:ring-0 focus:ring-offset-0 text-primary bg-white border-[#D9D9D9] cursor-pointer"
+          disabled={friendItem.isInRoom || friendItem.isInvited}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          className="focus:ring-0 focus:ring-offset-0 text-primary bg-white border-[#D9D9D9] cursor-pointer disabled:bg-[#F5F5F5]"
         />
       ) : (
         <Radio
@@ -50,7 +54,14 @@ function FriendItem({
         senderId={friendItem.id}
         url={friendItem.avt_url}
       />
-      <p className="flex-1">{friendItem.full_name}</p>
+      <div className="flex flex-col gap-xxs">
+        <p className="flex-1">{friendItem.full_name}</p>
+        {(friendItem.isInRoom || friendItem.isInvited) && (
+          <p className="flex-1 text-lightText text-sm">
+            {friendItem.isInRoom ? 'Đã tham gia' : 'Đang chờ duyệt'}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

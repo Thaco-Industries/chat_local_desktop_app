@@ -5,14 +5,32 @@ import { formatDate } from '../../util/formatDate';
 import { notify } from '../../helper/notify';
 import { useMessageContext } from '../../context/MessageContext';
 import AddGroupIcon from '../../assets/icons/add-group';
+import { useSocket } from '../../context/SocketContext';
 
 const ListAddGroup: React.FC = () => {
   const { setNumberOfInvitedRoom } = useMessageContext();
   const { apiRequest } = useFetchApi();
   const [listAddGroups, setListAddGroups] = useState([]);
+  const { socket } = useSocket();
+
   useEffect(() => {
     getListAddGroups();
   }, []);
+
+  const handleChangeRequest = () => {
+    getListAddGroups();
+  };
+
+  useEffect(() => {
+    if (socket) {
+      socket.on(`list-invitation-change`, handleChangeRequest);
+      socket.on(`new-invitation`, handleChangeRequest);
+      return () => {
+        socket.off(`list-invitation-change`);
+        socket.off(`new-invitation`);
+      };
+    }
+  }, [socket]);
 
   const getListAddGroups = async () => {
     try {

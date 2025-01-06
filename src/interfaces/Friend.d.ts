@@ -5,5 +5,7 @@ export interface IFriendInfo {
   full_name: string;
   status: 'FRIEND' | 'NOTFRIEND' | 'SENT_REQUEST' | 'RECEIVER_REQUEST';
   isOnline: boolean;
+  isInRoom: boolean;
+  isInvited: boolean;
   room_id: string;
 }

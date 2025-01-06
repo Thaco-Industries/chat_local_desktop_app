@@ -42,6 +42,7 @@ export const SideBar: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    if (currentPath === '/login') return;
     handleNewFriendRequest(null);
     handleNewInvitation(null);
     if (currentPath !== '/') {
@@ -69,6 +70,7 @@ export const SideBar: React.FC = () => {
   }, [unreadRooms]);
 
   useEffect(() => {
+    if (currentPath === '/login') return;
     updateUnreadRooms();
   }, [roomList]);
 
@@ -91,6 +93,12 @@ export const SideBar: React.FC = () => {
   }, [roomList]);
 
   const handleNewFriendRequest = async (message: any) => {
+    const response = await getFriendRequests();
+
+    if (response.data) {
+      setNumberOfFriendRequest(response.data.length);
+    }
+
     if (window.electronAPI) {
       if (!message) return;
       const notifyContent: INotificationRequest = {
@@ -101,10 +109,6 @@ export const SideBar: React.FC = () => {
       window.electronAPI.notifyRequest(notifyContent);
     } else {
       console.error('electronAPI.notifyRequest không được định nghĩa');
-    }
-    const response = await getFriendRequests();
-    if (response.data) {
-      setNumberOfFriendRequest(response.data.length);
     }
   };
 
@@ -133,6 +137,10 @@ export const SideBar: React.FC = () => {
   }, []);
 
   const handleNewInvitation = async (message: any) => {
+    const response = await getInvitedRoom();
+    if (response.data) {
+      setNumberOfInvitedRoom(response.data.length);
+    }
     if (window.electronAPI) {
       if (!message) return;
       const notifyContent: INotificationRequest = {
@@ -143,10 +151,6 @@ export const SideBar: React.FC = () => {
       window.electronAPI.notifyRequest(notifyContent);
     } else {
       console.error('electronAPI.notifyRequest không được định nghĩa');
-    }
-    const response = await getInvitedRoom();
-    if (response.data) {
-      setNumberOfInvitedRoom(response.data.length);
     }
   };
 
