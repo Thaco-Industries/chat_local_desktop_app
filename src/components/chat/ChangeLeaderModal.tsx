@@ -1,3 +1,4 @@
+// Import các component và hook cần thiết từ các thư viện
 import { Modal, Spinner } from 'flowbite-react';
 import { Field, Form, Formik } from 'formik';
 import React, {
@@ -12,6 +13,7 @@ import FriendList from './RoomList/FriendList';
 import { IFriendInfo } from '../../interfaces/Friend';
 import clsx from 'clsx';
 
+// Định nghĩa kiểu cho các props của component
 type Props = {
   roomId: string;
   openChangeLeaderModal: boolean;
@@ -19,13 +21,16 @@ type Props = {
   setOpenConfirmModal: Dispatch<SetStateAction<boolean>>;
 };
 
+// Định nghĩa component ChangeLeaderModal
 function ChangeLeaderModal({
   roomId,
   openChangeLeaderModal,
   setOpenChangeLeaderModal,
   setOpenConfirmModal,
 }: Props) {
+  // Lấy các hàm từ dịch vụ phòng
   const { changeRoomLeader, listCanGiveLeader } = useRoomService();
+  // Định nghĩa các biến trạng thái
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFetchingFriendList, setIsFetchingFriendList] =
     useState<boolean>(false);
@@ -33,37 +38,61 @@ function ChangeLeaderModal({
   const [searchQuery, setSearchQuery] = useState('');
   const [friendList, setFriendList] = useState<IFriendInfo[]>([]);
 
+  // Hàm lấy danh sách bạn bè có thể được chọn làm trưởng nhóm
   const fetchFriendList = useCallback(async () => {
     setIsFetchingFriendList(true);
     try {
       const { data } = await listCanGiveLeader(roomId, searchQuery);
       setFriendList(data || []);
     } catch (error) {
-      console.error('Error fetching friends:', error);
+      console.error('Lỗi khi lấy danh sách bạn bè:', error);
     } finally {
       setIsFetchingFriendList(false);
     }
   }, [roomId, searchQuery]);
 
+  // Lấy danh sách bạn bè khi component được mount hoặc khi searchQuery thay đổi
   useEffect(() => {
     fetchFriendList();
   }, [fetchFriendList]);
 
-  const handleSubmit = async () => {
+  /**
+   * Xử lý việc gửi yêu cầu thay đổi trưởng nhóm.
+   *
+   * Hàm này thực hiện các bước sau:
+   * 1. Đặt trạng thái loading thành true.
+   * 2. Cố gắng thay đổi trưởng nhóm bằng cách sử dụng thành viên đã chọn.
+   * 3. Đóng modal thay đổi trưởng nhóm nếu thành công.
+   * 4. Xử lý bất kỳ lỗi nào xảy ra trong quá trình thực hiện.
+   * 5. Đặt lại trạng thái loading và mở modal xác nhận.
+   *
+   * @async
+   * @returns {Promise<void>} Một promise được giải quyết khi quá trình gửi hoàn tất.
+   * @throws {Error} Nếu có lỗi khi thay đổi trưởng nhóm.
+   */
+  const handleSubmit = async (): Promise<void> => {
     setIsLoading(true);
     try {
+      // Tạo payload với roomId và id của thành viên được chọn
       const payload = { roomId, memberId: selectedFriends[0] };
+      // Gọi API để thay đổi trưởng nhóm
       const response = await changeRoomLeader(payload);
+      // Nếu thành công, đóng modal thay đổi trưởng nhóm
       if (response.statusTEXT === 'OK') setOpenChangeLeaderModal(false);
     } catch (error) {
-      console.error('Failed to add members:', error);
+      // Ghi log lỗi nếu có
+      console.error('Thay đổi trưởng nhóm thất bại:', error);
     } finally {
+      // Đặt lại trạng thái loading
       setIsLoading(false);
+      // Đóng modal thay đổi trưởng nhóm
       setOpenChangeLeaderModal(false);
+      // Mở modal xác nhận
       setOpenConfirmModal(true);
     }
   };
 
+  // Hàm để thay đổi lựa chọn bạn bè
   const toggleFriendSelection = (id: string) => {
     setSelectedFriends([id]); // Chỉ cho phép một lựa chọn
   };

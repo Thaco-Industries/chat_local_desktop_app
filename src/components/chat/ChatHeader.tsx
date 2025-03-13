@@ -18,6 +18,10 @@ import { useSocket } from '../../context/SocketContext';
 import { IUserInRoomInfo } from '../../interfaces';
 import ViewUserInforModal from './Message/components/ViewUserInforModal';
 
+/**
+ * Component ChatHeader hiển thị tiêu đề của phòng chat, bao gồm tên phòng, ảnh đại diện và trạng thái thành viên.
+ * @param {IChatHeader} props - Các props của component.
+ */
 const ChatHeader: React.FC<IChatHeader> = ({
   roomInfo,
   setRoomInfo,
@@ -43,6 +47,9 @@ const ChatHeader: React.FC<IChatHeader> = ({
 
   const listMemberRef = useRef<Record<string, IUserInRoomInfo> | null>(null);
 
+  /**
+   * Schema kiểm tra dữ liệu đầu vào khi cập nhật thông tin phòng.
+   */
   const validationSchema = Yup.object().shape({
     roomName: Yup.string()
       .required('Tên nhóm không được để trống')
@@ -51,7 +58,9 @@ const ChatHeader: React.FC<IChatHeader> = ({
   const userAuth = getAuthCookie();
   const [isLeader, setIsLeader] = useState(false);
 
-  //Lắng nghe sự kiện
+  /**
+   * Lắng nghe sự kiện thay đổi trạng thái online của thành viên trong phòng.
+   */
   useEffect(() => {
     if (socket) {
       socket.on(`user-onlines/${roomInfo.id}`, handleUserChangeStatus);
@@ -62,6 +71,10 @@ const ChatHeader: React.FC<IChatHeader> = ({
     }
   }, [socket, roomInfo.id]);
 
+  /**
+   * Xử lý cập nhật trạng thái online của thành viên.
+   * @param {any} message - Dữ liệu nhận từ socket về trạng thái online của thành viên.
+   */
   async function handleUserChangeStatus(message: any) {
     const status = Object.values(listMemberRef.current ?? {}).some((member) => {
       return (
@@ -72,6 +85,9 @@ const ChatHeader: React.FC<IChatHeader> = ({
     setIsFriendOnline(status);
   }
 
+  /**
+   * Cập nhật số lượng thành viên trong phòng và trạng thái online của bạn bè.
+   */
   useEffect(() => {
     if (!listMember) return;
     listMemberRef.current = listMember;
@@ -89,6 +105,9 @@ const ChatHeader: React.FC<IChatHeader> = ({
     );
   }, [listMember]);
 
+  /**
+   * Xác định người dùng có phải trưởng nhóm hay không.
+   */
   useEffect(() => {
     if (listMember && userAuth?.user?.id) {
       const isCurrentUserLeader = Object.keys(listMember).some((memberKey) => {
@@ -105,6 +124,11 @@ const ChatHeader: React.FC<IChatHeader> = ({
     setAvatar(roomInfo.avatar_url);
   }, [roomInfo]);
 
+  /**
+   * Xử lý upload ảnh đại diện cho nhóm.
+   * @param {File} file - Ảnh tải lên.
+   * @returns {Promise<string | undefined>} - Đường dẫn ảnh nếu tải lên thành công.
+   */
   const handleUploadImage = async (file: File) => {
     try {
       const response = await uploadRoomImage(file);
@@ -121,6 +145,10 @@ const ChatHeader: React.FC<IChatHeader> = ({
     }
   };
 
+  /**
+   * Xử lý cập nhật thông tin phòng chat.
+   * @param {Object} values - Giá trị nhập vào gồm tên phòng và avatar.
+   */
   const handleSubmit = async (values: { roomName: string; avatar: string }) => {
     try {
       const payload = { ...values, id: roomInfo.id };

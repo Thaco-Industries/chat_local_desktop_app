@@ -72,6 +72,9 @@ const ChatScreen: React.FC<IChatScreen> = ({
   const { getMemberInRoom } = useRoomService();
   const { socket } = useSocket();
 
+  /**
+   * Đánh dấu tất cả tin nhắn trong phòng hiện tại là đã đọc.
+   */
   const markAsRead = async () => {
     try {
       await markAsReadMessage(roomId);
@@ -80,6 +83,9 @@ const ChatScreen: React.FC<IChatScreen> = ({
     }
   };
 
+  /**
+   * Cuộn xuống cuối danh sách tin nhắn và đánh dấu các tin nhắn chưa đọc là đã đọc.
+   */
   const scrollToBottom = useCallback(async () => {
     // debugger;
     messageEndRef.current?.scrollIntoView({
@@ -93,6 +99,10 @@ const ChatScreen: React.FC<IChatScreen> = ({
     // Lấy danh sách tin nhắn
   }, [numberMessageUnread, roomId, markAsRead]);
 
+  /**
+   * Xử lý việc thu hồi tin nhắn, cập nhật tin nhắn và người gửi trong danh sách tin nhắn.
+   * @param {IMessage} message - Tin nhắn cần thu hồi.
+   */
   const handleRecallMessage = useCallback(
     (message: IMessage) => {
       if (messages && listMemberRef.current) {
@@ -253,6 +263,9 @@ const ChatScreen: React.FC<IChatScreen> = ({
     [listMember, showScrollToBottom, roomId]
   );
 
+  /**
+   * Cập nhật danh sách thành viên khi có thay đổi trong phòng chat.
+   */
   const handleUserJoinAndOutRoom = async () => {
     try {
       const response = await getMemberInRoom(roomId);
@@ -264,6 +277,10 @@ const ChatScreen: React.FC<IChatScreen> = ({
     }
   };
   const lastMessageIdRef = useRef<string>('');
+
+  /**
+   * Lấy danh sách tin nhắn trong phòng hiện tại, hỗ trợ phân trang.
+   */
   const getMessageListData = useCallback(async () => {
     if (
       isChangeRoomProcessing ||

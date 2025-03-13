@@ -1,0 +1,550 @@
+Folder PATH listing
+Volume serial number is C538-82A0
+D:.
+    .dockerignore
+    .editorconfig
+    .env
+    .env.example_i9
+    .gitignore
+    .prettierrc
+    docker-compose.yml
+    Dockerfile
+    Jenkinsfile
+    package-lock.json
+    package.json
+    README.md
+    tailwind.config.js
+    tree.txt
+    tsconfig.json
+    
++---.nginx
+        nginx.conf
+        
++---actions
+        ReplyMessageService.js
+        
++---build
+        asset-manifest.json
+        badge-icon.png
+        electron.js
+        electron.js-copy
+        icon.png
+        index.html
+        manifest.json
+        notification.css
+        notification.html
+        notification.js
+        preload.js
+        request-notification.html
+        request-notification.js
+        robots.txt
+        splash.html
+        
+    +---images
+            Close.svg
+            gallery.svg
+            paperclip.svg
+            send.svg
+            
+    +---static
+        +---css
+                main.b7d92cf3.css
+                main.b7d92cf3.css.map
+                
+        +---js
+                main.d9130316.js
+                main.d9130316.js.LICENSE.txt
+                main.d9130316.js.map
+                
++---dist
+        builder-debug.yml
+        builder-effective-config.yaml
+        Chat Local R&D open dev tool.rar
+        Chat Local R&D Setup 1.0.0.exe
+        Chat Local R&D Setup 1.0.0.exe.blockmap
+        Chat Local R&D Setup 1.0.1.exe
+        Chat Local R&D Setup 1.0.1.exe.blockmap
+        Chat Local R&D Setup 1.0.2.exe.blockmap
+        Chat Local R&D Setup 1.0.3.exe
+        Chat Local R&D Setup 1.0.3.exe.blockmap
+        Chat Local R&D Setup 1.0.4.exe
+        Chat Local R&D Setup 1.0.4.exe.blockmap
+        Chat Local R&D Setup 1.0.5.exe
+        Chat Local R&D Setup 1.0.5.exe.blockmap
+        Chat Local R&D Setup 1.0.6.exe
+        Chat Local R&D Setup 1.0.6.exe.blockmap
+        Chat Local R&D Setup 1.0.7.exe
+        Chat Local R&D Setup 1.0.7.exe.blockmap
+        Chat Local R&D Setup 1.0.8.exe
+        Chat Local R&D Setup 1.0.8.exe.blockmap
+        latest.yml
+        
+    +---.icon-ico
+            icon.ico
+            
+    +---win-unpacked
+            Chat Local R&D.exe
+            chrome_100_percent.pak
+            chrome_200_percent.pak
+            d3dcompiler_47.dll
+            ffmpeg.dll
+            icudtl.dat
+            libEGL.dll
+            libGLESv2.dll
+            LICENSE.electron.txt
+            LICENSES.chromium.html
+            resources.pak
+            snapshot_blob.bin
+            v8_context_snapshot.bin
+            vk_swiftshader.dll
+            vk_swiftshader_icd.json
+            vulkan-1.dll
+            
+        +---locales
+                af.pak
+                am.pak
+                ar.pak
+                bg.pak
+                bn.pak
+                ca.pak
+                cs.pak
+                da.pak
+                de.pak
+                el.pak
+                en-GB.pak
+                en-US.pak
+                es-419.pak
+                es.pak
+                et.pak
+                fa.pak
+                fi.pak
+                fil.pak
+                fr.pak
+                gu.pak
+                he.pak
+                hi.pak
+                hr.pak
+                hu.pak
+                id.pak
+                it.pak
+                ja.pak
+                kn.pak
+                ko.pak
+                lt.pak
+                lv.pak
+                ml.pak
+                mr.pak
+                ms.pak
+                nb.pak
+                nl.pak
+                pl.pak
+                pt-BR.pak
+                pt-PT.pak
+                ro.pak
+                ru.pak
+                sk.pak
+                sl.pak
+                sr.pak
+                sv.pak
+                sw.pak
+                ta.pak
+                te.pak
+                th.pak
+                tr.pak
+                uk.pak
+                ur.pak
+                vi.pak
+                zh-CN.pak
+                zh-TW.pak
+                
+        +---resources
+                .env
+                app-update.yml
+                app.asar
+                elevate.exe
+                
+            +---app.asar.unpacked
+                +---node_modules
+                    +---7zip
+                            index.js
+                            package.json
+                            test.js
+                            
+                        +---7zip-lite
+                                7-zip.dll
+                                7-zip32.dll
+                                7z.dll
+                                7z.exe
+                                7z.sfx
+                                7zCon.sfx
+                                descript.ion
+                                History.txt
+                                License.txt
+                                readme.txt
+                                
+                            +---Lang
+                                    en.ttt
+                                    
+                    +---electron-webpack
+                            package.json
+                            scheme.json
+                            tsconfig-base.json
+                            vue-renderer-entry.js
+                            webpack.app.config.js
+                            webpack.main.config.js
+                            webpack.renderer.config.js
+                            webpack.renderer.dll.config.js
+                            webpack.test.config.js
+                            
+                        +---out
+                                cli.js
+                                cli.js.map
+                                config.js
+                                config.js.map
+                                core.js
+                                core.js.map
+                                electron-builder.js
+                                electron-builder.js.map
+                                main.js
+                                main.js.map
+                                util.js
+                                util.js.map
+                                
+                            +---configurators
+                                    dll.js
+                                    dll.js.map
+                                    eslint.js
+                                    eslint.js.map
+                                    js.js
+                                    js.js.map
+                                    ts.js
+                                    ts.js.map
+                                    
+                                +---vue
+                                        vue-main-dev-entry.js
+                                        vue-main-dev-entry.js.map
+                                        vue.js
+                                        vue.js.map
+                                        
+                            +---dev
+                                    ChildProcessManager.js
+                                    ChildProcessManager.js.map
+                                    dev-runner.js
+                                    dev-runner.js.map
+                                    devUtil.js
+                                    devUtil.js.map
+                                    WebpackDevServerManager.js
+                                    WebpackDevServerManager.js.map
+                                    
+                            +---electron-main-hmr
+                                    HmrClient.js
+                                    HmrClient.js.map
+                                    HmrServer.js
+                                    HmrServer.js.map
+                                    main-hmr.js
+                                    main-hmr.js.map
+                                    
+                            +---plugins
+                                    WatchMatchPlugin.js
+                                    WatchMatchPlugin.js.map
+                                    WebpackRemoveOldAssetsPlugin.js
+                                    WebpackRemoveOldAssetsPlugin.js.map
+                                    
+                            +---targets
+                                    BaseTarget.js
+                                    BaseTarget.js.map
+                                    MainTarget.js
+                                    MainTarget.js.map
+                                    RendererTarget.js
+                                    RendererTarget.js.map
+                                    
+                        +---vendor
+                                runnerw.exe
+                                
+                    +---node-notifier
+                            .prettierrc
+                            index.js
+                            LICENSE
+                            package.json
+                            
+                        +---lib
+                                checkGrowl.js
+                                utils.js
+                                
+                        +---notifiers
+                                balloon.js
+                                growl.js
+                                notificationcenter.js
+                                notifysend.js
+                                toaster.js
+                                
+                        +---vendor
+                                terminal-notifier-LICENSE
+                                
+                            +---mac.noindex
+                                +---terminal-notifier.app
+                                    +---Contents
+                                            Info.plist
+                                            PkgInfo
+                                            
+                                        +---MacOS
+                                                terminal-notifier
+                                                
+                                        +---Resources
+                                                Terminal.icns
+                                                
+                                            +---en.lproj
+                                                    Credits.rtf
+                                                    InfoPlist.strings
+                                                    MainMenu.nib
+                                                    
+                            +---notifu
+                                    LICENSE
+                                    notifu.exe
+                                    notifu64.exe
+                                    
+                            +---snoreToast
+                                    LICENSE
+                                    snoretoast-x64.exe
+                                    snoretoast-x86.exe
+                                                 
++---public
+        badge-icon.png
+        electron.js
+        electron.js-copy
+        icon.png
+        index.html
+        manifest.json
+        notification.css
+        notification.html
+        notification.js
+        preload.js
+        request-notification.html
+        request-notification.js
+        robots.txt
+        splash.html
+        
+    +---images
+            Close.svg
+            gallery.svg
+            paperclip.svg
+            send.svg
+            
++---src
+        index.css
+        index.tsx
+        
+    +---actions
+            auth.action.ts
+            
+    +---assets
+        +---icons
+                add-friend.tsx
+                add-group.tsx
+                add.tsx
+                arrow-left.tsx
+                BlueLogo.tsx
+                call.tsx
+                camera.tsx
+                change-logo.tsx
+                close-icon.tsx
+                collapse-message.tsx
+                delete-icon.tsx
+                deleteMessage.tsx
+                download-outline.tsx
+                edit.tsx
+                empty-search.tsx
+                exit.tsx
+                eye-slash.tsx
+                eye.tsx
+                feedback.tsx
+                gallery-slash.tsx
+                gallery.tsx
+                logo-thacoID.tsx
+                message-search.tsx
+                message.tsx
+                more.tsx
+                paper-clip.tsx
+                people.tsx
+                play.tsx
+                position-icon.tsx
+                profile.tsx
+                reply-icon.tsx
+                reply-message.tsx
+                scroll-bottom.tsx
+                search.tsx
+                send.tsx
+                setting.tsx
+                smile.tsx
+                spinner.tsx
+                user-square.tsx
+                video-slash.tsx
+                VideoCamera.tsx
+                whiteLogo.tsx
+                
+        +---images
+                icon.png
+                ReleaseVersion.png
+                UpdateRelease.png
+                Version.png
+                
+    +---components
+            Layout.tsx
+            ProtectedRoute.tsx
+            PublicRoute.tsx
+            SideBar.tsx
+            
+        +---chat
+                ChangeLeaderModal.tsx
+                ChatHeader.tsx
+                ChatScreen.tsx
+                ConfirmRemoveMemberModal.tsx
+                ViewAllMemberInRoom.tsx
+                ViewImageModal.tsx
+                
+            +---Drawer
+                    AddNewMemberModal.tsx
+                    ChatDrawer.tsx
+                    ChatDrawerDetail.tsx
+                    ChatInformation.tsx
+                    
+                +---Components
+                        AvatarSection.tsx
+                        FileSection.tsx
+                        MediaSection.tsx
+                        RoomNameInput.tsx
+                        
+            +---Friend
+                    AddFriendModal.tsx
+                    FriendInfoModal.tsx
+                    FriendItem.tsx
+                    FriendList.tsx
+                    
+            +---Message
+                    MessageItem.tsx
+                    MessageList.tsx
+                    
+                +---components
+                        ActionButton.tsx
+                        DownloadButton.tsx
+                        FileInfor.tsx
+                        ImagePreview.tsx
+                        MediaMessage.tsx
+                        PlayButton.tsx
+                        ViewUserInforModal.tsx
+                        
+            +---RoomList
+                    AddRoomModal.tsx
+                    FriendItem.tsx
+                    FriendList.tsx
+                    RoomItem.tsx
+                    RoomList.tsx
+                    RoomListSkeleton.tsx
+                    
+            +---SearchMessage
+                    SearchMessage.tsx
+                    
+            +---Tab
+                    FileTabContent.tsx
+                    PhotoTabContent.tsx
+                    TabItems.tsx
+                    TabList.tsx
+                    
+        +---common
+                Button.tsx
+                ChatInput.tsx
+                customField.tsx
+                EmojiPickerPopover.tsx
+                Heading.tsx
+                MemberActionPopover.tsx
+                SearchAndAddToolbar.tsx
+                TextField.tsx
+                UserAvatar.tsx
+                
+        +---forms
+                LoginForm.tsx
+                TodoForm.tsx
+                
+        +---list
+        +---modal
+                ConfirmModal.tsx
+                
+        +---skeleton
+                SkeletonFriendItem.tsx
+                
+        +---welcome
+                WelcomeScreen.tsx
+                
+    +---context
+            ApiContext.tsx
+            ChatContext.tsx
+            MessageContext.tsx
+            SocketContext.tsx
+            
+    +---events
+            EventEmitter.ts
+            
+    +---helper
+            notificationHelper.jsx
+            notify.ts
+            notifyMessageHelper.tsx
+            
+    +---hook
+            useRefreshToken.ts
+            
+    +---interfaces
+            ChatDrawer.d.ts
+            ChatInformation.d.ts
+            ChatScreen.d.ts
+            common.d.ts
+            Friend.d.ts
+            index.d.ts
+            lodash.d.ts
+            media.d.ts
+            Message.d.ts
+            Room.d.ts
+            SocketContextType.d.ts
+            TabItems.d.ts
+            User.d.ts
+            
+    +---pages
+        +---group
+                Group.tsx
+                ListAddGroup.tsx
+                ListAddGroupMobile.tsx
+                ListGroup.tsx
+                ListGroupMobile.tsx
+                
+        +---login
+                Login.tsx
+                
+        +---message
+                Message.tsx
+                
+        +---profile
+                Profile.tsx
+                
+        +---room
+                ListAddFriend.tsx
+                ListAddFriendMobile.tsx
+                ListFriend.tsx
+                ListFriendMobile.tsx
+                Room.tsx
+                
+        +---setting
+                Setting.tsx
+                
+    +---services
+            ConfigSystemService.ts
+            FileService.ts
+            FriendService.ts
+            MessageService.ts
+            RoomService.ts
+            
+    +---util
+            downloadFile.ts
+            formatDate.tsx
+            getColorBackground.ts
+            getDateLabel.ts
+            getUserShortName.ts
+            

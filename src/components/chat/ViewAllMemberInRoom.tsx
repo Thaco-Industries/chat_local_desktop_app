@@ -21,22 +21,30 @@ function ViewAllMemberInRoom({ roomInfo, invitedList, setInvitedList }: Props) {
   const { socket } = useSocket();
   const { setListMember } = useChatContext();
 
+  // Lọc danh sách thành viên, chỉ giữ lại những thành viên chưa bị xóa
   const filteredMembers = Object.values(listMember ?? {}).filter(
     (member) => member.userRoom[0].deleted_at === null
   );
 
+  // Kiểm tra xem người dùng hiện tại có phải là trưởng nhóm (LEADER) hay khôn
   const isLeader = !!(
     userAuth?.user?.id &&
     listMember?.[userAuth.user.id]?.userRoom?.[0]?.permission === 'LEADER'
   );
 
-  // Số lượng thành viên
+  // Đếm số lượng thành viên hợp lệ trong danh sách
   const memberCount = filteredMembers.length;
 
+  /**
+   * Xử lý hành động chấp nhận hoặc từ chối lời mời vào phòng
+   * @param id - ID của lời mời
+   * @param status - Trạng thái lời mời ('ACCEPTED' hoặc 'REJECTED')
+   */
   const invitedAction = async (id: string, status: 'ACCEPTED' | 'REJECTED') => {
     const response = await leaderActionInvited(id, status);
     if (response.statusText === 'OK') {
       const data = response.data;
+      // Cập nhật danh sách lời mời, loại bỏ lời mời đã xử lý
       setInvitedList((prevInvitedList) =>
         prevInvitedList.filter(
           (invited) => invited.invitedUserInfo.id !== data.invited_user_id
@@ -45,6 +53,9 @@ function ViewAllMemberInRoom({ roomInfo, invitedList, setInvitedList }: Props) {
     }
   };
 
+  /**
+   * Lấy danh sách lời mời vào phòng từ server
+   */
   const handleGetInvitedList = async () => {
     const response = await invitedRoomList(roomInfo.id);
     if (response.data) {
@@ -52,6 +63,9 @@ function ViewAllMemberInRoom({ roomInfo, invitedList, setInvitedList }: Props) {
     }
   };
 
+  /**
+   * Lấy danh sách thành viên trong phòng từ server
+   */
   const getListMember = async () => {
     const response = await getMemberInRoom(roomInfo.id);
     if (response.status === 200) {
@@ -60,11 +74,15 @@ function ViewAllMemberInRoom({ roomInfo, invitedList, setInvitedList }: Props) {
     }
   };
 
+  /**
+   * Cập nhật danh sách thành viên và lời mời khi có sự thay đổi trưởng nhóm
+   */
   const handleChangeRoomLeader = () => {
     handleGetInvitedList();
     getListMember();
   };
 
+  // Lắng nghe sự kiện từ socket để cập nhật danh sách khi có lời mời mới hoặc thay đổi trưởng nhóm
   useEffect(() => {
     if (socket) {
       socket.on(`new-invitation/${roomInfo.id}`, handleGetInvitedList);
