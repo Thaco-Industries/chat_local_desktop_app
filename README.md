@@ -214,24 +214,6 @@ Chat Local R&D Setup 1.0.8.exe
 
 ---
 
-## 💡 Đề Xuất Cải Thiện & Tính Năng Mở Rộng
-
-- Tích hợp chat video/voice call.
-- Thêm dark mode và custom theme.
-- Mã hóa toàn bộ nội dung tin nhắn lưu local.
-- Tối ưu bộ nhớ cho file history room/message lớn.
-
----
-
-## ✉️ Thông Tin Liên Hệ
-
-| Người bàn giao      | [Tên bạn]                               |
-| ------------------- | --------------------------------------- |
-| Email/Zalo/Slack    | [Thông tin liên hệ]                     |
-| Hỗ trợ sau bàn giao | Trong vòng [x] ngày kể từ ngày bàn giao |
-
----
-
 ## 📎 Các Tệp Đính Kèm Trong Bàn Giao
 
 - `tree.txt`: Cây thư mục đầy đủ
