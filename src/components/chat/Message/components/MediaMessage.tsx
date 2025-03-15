@@ -42,11 +42,25 @@ const MediaMessage: React.FC<Props> = ({
   const urlFile = `${process.env.REACT_APP_FILE_URL}/media/view/${url_display}`;
   const urlVideoThumbnail = `${process.env.REACT_APP_API_URL}/media/view/${thumbnail_url_display}`;
 
-  const renderSpinner = () => (
-    <div className="absolute inset-0 flex items-center justify-center z-10">
-      <Spinner size="xl" />
-    </div>
-  );
+  const renderSpinner = () => {
+    console.log('abc');
+
+    return (
+      <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-white bg-opacity-80 rounded-lg">
+        <div className="w-48 mt-4">
+          <div className="h-2 bg-gray-300 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-500 transition-all duration-300"
+              style={{ width: `${message.progress || 0}%` }}
+            />
+          </div>
+          <div className="mt-2 text-center text-sm text-gray-700">
+            {message.progress || 0}%
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderPlaceholder = () => (
     <div className="relative w-[220px] lg:w-[350px] h-[100px] bg-white rounded overflow-hidden flex items-center justify-center">
@@ -91,6 +105,9 @@ const MediaMessage: React.FC<Props> = ({
                 {renderFileSize(file_size)}
               </p>
               <Spinner size="xl" />
+              <div className="mt-2 text-center text-sm text-gray-700 pe-10">
+                {message.progress || 0}%
+              </div>
             </div>
             <DownloadButton url={url_display} file_name={file_name} />
           </div>

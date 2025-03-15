@@ -23,6 +23,7 @@ export interface IMessage {
   reactions: [];
   message_display: string;
   id: string;
+  progress?: number;
 }
 
 export interface IMessageReply {

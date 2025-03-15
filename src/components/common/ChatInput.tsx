@@ -213,6 +213,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         status: 'DELIVERED',
         reactions: [],
         message_display: 'Đang xử lý...',
+        progress: 0,
       };
 
       setMessages((prevMessages) => [tempMessage, ...prevMessages]);
@@ -259,7 +260,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
         setMessages((prevMessages) =>
           prevMessages.map((msg) =>
             msg.id === tempMessageId
-              ? { ...msg, message_display: `Đang tải lên... ${progress}%` }
+              ? {
+                  ...msg,
+                  progress,
+                  message_display: `Đang tải lên... ${progress}%`,
+                }
               : msg
           )
         );
