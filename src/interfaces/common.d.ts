@@ -1,4 +1,4 @@
-import { INotificationNewMessage } from './Message';
+import { INotificationNewMessage, INotificationRequest } from './Message';
 import { IInvitedInfor, IRoom } from './Room';
 
 export interface Item {
@@ -56,13 +56,20 @@ declare global {
     electronAPI: {
       // Gửi thông báo
       notifyMessage: (message: INotificationNewMessage) => void;
+      notifyRequest: (message: INotificationRequest) => void;
       // Nhận thông báo
       receiveNotification: (
         callback: (event: unknown, data: INotificationNewMessage) => void
       ) => void;
+      receiveRequestNotification: (
+        callback: (event: unknown, data: INotificationRequest) => void
+      ) => void;
       // Lắng nghe sự kiện khi thông báo được nhấp
       onNotificationClicked: (
         callback: (message: INotificationNewMessage) => void
+      ) => void;
+      onRequestNotificationClicked: (
+        callback: (message: INotificationRequest) => void
       ) => void;
       // Lắng nghe sự kiện trả lời tin nhắn được gọi
       onReplyNotification: (callback: (message: string) => void) => void;

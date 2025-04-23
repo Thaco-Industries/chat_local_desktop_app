@@ -23,6 +23,7 @@ export interface IMessage {
   reactions: [];
   message_display: string;
   id: string;
+  progress?: number;
 }
 
 export interface IMessageReply {
@@ -79,4 +80,9 @@ export interface INotificationNewMessage {
     };
     position_infor: IPositionInfo[];
   };
+}
+export interface INotificationRequest {
+  title: string;
+  description: string;
+  type: string;
 }

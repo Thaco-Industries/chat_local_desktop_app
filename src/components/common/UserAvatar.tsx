@@ -57,14 +57,15 @@ function UserAvatar({
   return (
     <div>
       {validImageUrl ? (
-        <img
-          style={logoSize}
-          src={validImageUrl}
-          className={clsx('rounded-full object-cover', {
-            'opacity-0': !showSenderInfo,
-          })}
-          alt="user-avatar"
-        />
+        <div style={logoSize}>
+          <img
+            src={validImageUrl}
+            className={clsx('rounded-full object-cover w-full h-full', {
+              'opacity-0': !showSenderInfo,
+            })}
+            alt="user-avatar"
+          />
+        </div>
       ) : (
         <div
           style={{

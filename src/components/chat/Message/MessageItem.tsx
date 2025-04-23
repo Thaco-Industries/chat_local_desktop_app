@@ -73,6 +73,41 @@ const MessageItem: React.FC<IMessageItem> = ({
     textareaRef.current?.focus();
   };
 
+  const renderIfUrl = (message: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = message.split(urlRegex);
+
+    return parts.map((part, index) => {
+      if (urlRegex.test(part)) {
+        return (
+          <span
+            key={index}
+            onClick={(e) => {
+              e.stopPropagation();
+              openLink(part);
+            }}
+            className="cursor-pointer text-primary underline"
+          >
+            {part}
+          </span>
+        );
+      }
+      return <span key={index}>{part}</span>;
+    });
+  };
+
+  const openLink = (url: string) => {
+    window.electronAPI
+      .openUrl(url)
+      .then((response: { success: boolean; error?: string }) => {
+        if (response.success) {
+          console.log('URL opened successfully');
+        } else {
+          console.error('Failed to open URL:', response.error);
+        }
+      });
+  };
+
   if (message.message_type === 'NOTIFICATION') {
     return (
       <div className="text-center text-textBody px-4 py-2 w-[350px] tablet:w-[300px] lg:w-max break-words self-center">
@@ -92,7 +127,7 @@ const MessageItem: React.FC<IMessageItem> = ({
     if (isImage && url_display && message.message_type !== 'RECALLED') {
       return (
         <img
-          src={`${process.env.REACT_APP_API_URL}/media/view/${url_display}`}
+          src={`${process.env.REACT_APP_FILE_URL}${url_display}`}
           alt="reply image"
           className="w-[120px] h-[120px] object-cover"
         />
@@ -203,8 +238,11 @@ const MessageItem: React.FC<IMessageItem> = ({
                     className={clsx('whitespace-pre-wrap', {
                       'text-lightText': message.message_type === 'RECALLED',
                     })}
+                    // dangerouslySetInnerHTML={{
+                    //   __html: renderIfUrl(message.message_display),
+                    // }}
                   >
-                    {message.message_display}
+                    {renderIfUrl(message.message_display)}
                   </p>
                 </div>
               )}

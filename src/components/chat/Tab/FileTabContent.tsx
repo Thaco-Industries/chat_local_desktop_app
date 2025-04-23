@@ -27,7 +27,7 @@ export const FileTabContent: React.FC<IFileTabContentProps> = ({
     if (!fileSize) return;
     const changeFileSizeToNumber = fileSize;
     if (changeFileSizeToNumber < 1) {
-      return `${(changeFileSizeToNumber * 1024).toFixed(0)} KB`;
+      return `${(changeFileSizeToNumber * 1024).toFixed(3)} KB`;
     } else {
       return `${changeFileSizeToNumber} MB`;
     }
@@ -67,7 +67,7 @@ export const FileTabContent: React.FC<IFileTabContentProps> = ({
                   onClick={(e) =>
                     handleFileClick(
                       e,
-                      `${process.env.REACT_APP_API_URL}/media/view/${url_display}`,
+                      `${process.env.REACT_APP_FILE_URL}${url_display}`,
                       file_name,
                       file.id
                     )

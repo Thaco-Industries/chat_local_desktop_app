@@ -30,7 +30,9 @@ let notificationWindow = null;
 let mainWindow;
 let tray;
 let lastNotificationMessage = null;
+let requestNotificationMessage = null;
 let badge;
+let requestNotificationWindow;
 
 const baseDir = path.resolve(__dirname, '..');
 const dotenvPath = isDev
@@ -38,7 +40,7 @@ const dotenvPath = isDev
   : path.join(process.resourcesPath, '.env');
 dotenv.config({ path: dotenvPath });
 
-const productUrl = process.env.REACT_APP_PRODUCT_URL;
+// const productUrl = process.env.REACT_APP_PRODUCT_URL;
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1500,
@@ -54,13 +56,27 @@ function createWindow() {
     icon: path.join(__dirname, 'icon.png'),
   });
 
-  const appURL = !isDev ? productUrl : 'http://localhost:3000/';
+  const appURL = !isDev
+    ? `file://${path.join(__dirname, '../build/index.html')}#/`
+    : 'http://localhost:3000/';
   // `file://${path.join(__dirname, '../build/index.html')}#/`;
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL(appURL);
 
   badge = new Badge(mainWindow, {
     font: '8px', // Thêm đơn vị px
+  });
+
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    // Kiểm tra nếu tổ hợp phím bị cấm
+    if (isDev) return;
+    if (
+      (input.control && input.key.toLowerCase() === 'r') || // Ctrl+R
+      (input.control && input.shift && input.key.toLowerCase() === 'i') || // Ctrl+Shift+I
+      input.key.toLowerCase() === 'f12' // F12
+    ) {
+      event.preventDefault(); // Ngăn chặn hành động mặc định
+    }
   });
 
   mainWindow.on('close', (event) => {
@@ -72,22 +88,16 @@ function createWindow() {
   });
 
   // Automatically open Chrome's DevTools in development mode.
-  if (!app.isPackaged) {
+  if (isDev) {
     mainWindow.webContents.openDevTools();
   }
 }
 
-function setupLocalFilesNormalizerProxy() {
-  protocol.registerHttpProtocol(
-    'file',
-    (request, callback) => {
-      const url = request.url.substr(8);
-      callback({ path: path.normalize(`${__dirname}/${url}`) });
-    },
-    (error) => {
-      if (error) console.error('Failed to register protocol');
-    }
-  );
+async function setupLocalFilesNormalizerProxy() {
+  protocol.registerHttpProtocol('file', (request) => {
+    const url = request.url.substr(8);
+    return { path: path.normalize(`${__dirname}/${url}`) };
+  });
 }
 
 if (!gotTheLock) {
@@ -105,7 +115,7 @@ if (!gotTheLock) {
   });
   app.whenReady().then(() => {
     createWindow();
-    autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.checkForUpdates();
     setupLocalFilesNormalizerProxy();
     // Tạo Tray Icon
     tray = new Tray(path.join(__dirname, 'icon.png')); // Thay bằng icon phù hợp
@@ -188,6 +198,8 @@ function initializeNotificationWindow(message) {
     height: 200,
     resizable: false,
     frame: false,
+    // parent: mainWindow,
+    // modal: true,
     alwaysOnTop: true,
     transparent: true,
     webPreferences: {
@@ -205,6 +217,12 @@ function initializeNotificationWindow(message) {
   notificationWindow.setMenuBarVisibility(false);
   notificationWindow.loadURL(appURL);
 
+  notificationWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.type === 'mouseDown') {
+      event.preventDefault(); // Ngăn không cho sự kiện lan tới cửa sổ cha
+    }
+  });
+
   notificationWindow.on('closed', () => {
     notificationWindow = null;
   });
@@ -216,10 +234,84 @@ function initializeNotificationWindow(message) {
   });
 }
 
+function createRequestNotificationWindow(message) {
+  requestNotificationMessage = message;
+  if (requestNotificationWindow && !requestNotificationWindow.isDestroyed()) {
+    requestNotificationWindow.close();
+    requestNotificationWindow.once('closed', () => {
+      initializeRequestNotificationWindow(message);
+    });
+  } else {
+    initializeRequestNotificationWindow(message);
+  }
+}
+
+function initializeRequestNotificationWindow(message) {
+  const display = screen.getPrimaryDisplay();
+  const { width, height } = display.workAreaSize;
+
+  requestNotificationWindow = new BrowserWindow({
+    width: 400,
+    height: 140,
+    resizable: false,
+    parent: mainWindow,
+    focusable: false,
+    frame: false,
+    alwaysOnTop: true,
+    transparent: true,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+    },
+    icon: path.join(__dirname, 'icon.png'),
+    x: width - 400,
+    y: height - 170,
+  });
+
+  const appURL = app.isPackaged
+    ? `file://${path.join(__dirname, '../build/request-notification.html')}#/`
+    : `file://${path.join(__dirname, 'request-notification.html')}`;
+
+  requestNotificationWindow.setMenuBarVisibility(false);
+  requestNotificationWindow.loadURL(appURL);
+
+  requestNotificationWindow.on('closed', () => {
+    requestNotificationWindow = null;
+  });
+
+  requestNotificationWindow.webContents.once('did-finish-load', () => {
+    if (requestNotificationWindow && !requestNotificationWindow.isDestroyed()) {
+      requestNotificationWindow.webContents.send(
+        'request-notification',
+        message
+      );
+    }
+  });
+}
+
 ipcMain.on('display-custom-notification', (event, message) => {
   //Kiểm tra trạng thái của mainWindow
-  if (mainWindow && (!mainWindow.isVisible() || mainWindow.isMinimized())) {
+  const shouldCreateNotification = [
+    mainWindow.isMinimized(),
+    !mainWindow.isVisible(),
+    !mainWindow.isFocused(),
+  ].some(Boolean);
+
+  if (shouldCreateNotification) {
     createNotificationWindow(message);
+    mainWindow.flashFrame(true);
+  }
+});
+
+ipcMain.on('display-request-notification', (event, message) => {
+  const shouldCreateNotification = [
+    mainWindow.isMinimized(),
+    !mainWindow.isVisible(),
+    !mainWindow.isFocused(),
+  ].some(Boolean);
+
+  if (shouldCreateNotification) {
+    createRequestNotificationWindow(message);
+    mainWindow.flashFrame(true);
   }
 });
 
@@ -249,6 +341,35 @@ ipcMain.handle('notification-clicked', async () => {
       notificationWindow = null; // Đảm bảo cửa sổ được giải phóng bộ nhớ
     }
     return lastNotificationMessage;
+  }
+  return null;
+});
+
+ipcMain.handle('request-notification-clicked', async () => {
+  if (requestNotificationMessage) {
+    const allWindows = BrowserWindow.getAllWindows();
+
+    const mainWindow = allWindows.find((win) => win.title === 'Chat Local R&D');
+
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore(); // Khôi phục nếu cửa sổ đang bị thu nhỏ
+      }
+      mainWindow.show(); // Hiển thị cửa sổ
+      mainWindow.focus(); // Đưa cửa sổ lên foreground
+
+      mainWindow.webContents.send(
+        'request-notification-clicked',
+        requestNotificationMessage
+      );
+    } else {
+      // Nếu không tìm thấy cửa sổ chính, tạo cửa sổ mới
+      createWindow();
+    }
+    if (requestNotificationWindow && !requestNotificationWindow.isDestroyed()) {
+      requestNotificationWindow.close();
+      requestNotificationWindow = null; // Đảm bảo cửa sổ được giải phóng bộ nhớ
+    }
   }
   return null;
 });

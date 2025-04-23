@@ -66,7 +66,7 @@ const RoomItem: React.FC<IRoomItem> = ({ room, keyword }) => {
             : room.userRoom[senderIndex]?.user.infor.full_name || '';
         return (
           <div className="flex gap-1 items-center">
-            <p>{senderName}</p>
+            <p>{senderName}: </p>
             <span>
               <PaperClipIcon size="16" color="#7B87A1" />
             </span>

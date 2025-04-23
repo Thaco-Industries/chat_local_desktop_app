@@ -15,6 +15,8 @@ import { useRoomService } from '../../services/RoomService';
 import { notify } from '../../helper/notify';
 import { useFriendService } from '../../services/FriendService';
 import { useFileService } from '../../services/FileService';
+import { useMessageContext } from '../../context/MessageContext';
+import _ from 'lodash';
 
 const ChatScreen: React.FC<IChatScreen> = ({
   roomId,
@@ -58,6 +60,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
     isSearching,
     setIsSearching,
   } = useChatContext();
+  const { isChangeRoomProcessing } = useMessageContext();
   const {
     markAsReadMessage,
     getMessageByRoom,
@@ -69,6 +72,9 @@ const ChatScreen: React.FC<IChatScreen> = ({
   const { getMemberInRoom } = useRoomService();
   const { socket } = useSocket();
 
+  /**
+   * Đánh dấu tất cả tin nhắn trong phòng hiện tại là đã đọc.
+   */
   const markAsRead = async () => {
     try {
       await markAsReadMessage(roomId);
@@ -77,22 +83,26 @@ const ChatScreen: React.FC<IChatScreen> = ({
     }
   };
 
-  const scrollToBottom = useCallback(
-    async (smooth = false) => {
-      // debugger;
-      messageEndRef.current?.scrollIntoView({
-        behavior: smooth ? 'smooth' : 'auto',
-      });
-      if (numberMessageUnread > 0) {
-        await markAsRead(); // Gọi API đánh dấu đã đọc
-        setNumberMessageUnread(0);
-      }
-      setShowScrollToBottom(false);
-      // Lấy danh sách tin nhắn
-    },
-    [numberMessageUnread, roomId, markAsRead]
-  );
+  /**
+   * Cuộn xuống cuối danh sách tin nhắn và đánh dấu các tin nhắn chưa đọc là đã đọc.
+   */
+  const scrollToBottom = useCallback(async () => {
+    // debugger;
+    messageEndRef.current?.scrollIntoView({
+      behavior: 'auto',
+    });
+    if (numberMessageUnread > 0) {
+      await markAsRead(); // Gọi API đánh dấu đã đọc
+      setNumberMessageUnread(0);
+    }
+    setShowScrollToBottom(false);
+    // Lấy danh sách tin nhắn
+  }, [numberMessageUnread, roomId, markAsRead]);
 
+  /**
+   * Xử lý việc thu hồi tin nhắn, cập nhật tin nhắn và người gửi trong danh sách tin nhắn.
+   * @param {IMessage} message - Tin nhắn cần thu hồi.
+   */
   const handleRecallMessage = useCallback(
     (message: IMessage) => {
       if (messages && listMemberRef.current) {
@@ -253,6 +263,9 @@ const ChatScreen: React.FC<IChatScreen> = ({
     [listMember, showScrollToBottom, roomId]
   );
 
+  /**
+   * Cập nhật danh sách thành viên khi có thay đổi trong phòng chat.
+   */
   const handleUserJoinAndOutRoom = async () => {
     try {
       const response = await getMemberInRoom(roomId);
@@ -263,53 +276,107 @@ const ChatScreen: React.FC<IChatScreen> = ({
       console.error('API call failed: ', error);
     }
   };
+  const lastMessageIdRef = useRef<string>('');
 
-  const getMessageListData = useCallback(
-    async (customLastMessageId = lastMessageId) => {
-      if (!hasMoreData || !listMember || isAutoScrolling) return;
-      const previousScrollTop = messageListRef.current?.scrollTop || 0;
+  /**
+   * Lấy danh sách tin nhắn trong phòng hiện tại, hỗ trợ phân trang.
+   */
+  const getMessageListData = useCallback(async () => {
+    if (
+      isChangeRoomProcessing ||
+      !hasMoreData ||
+      !listMember ||
+      isAutoScrolling
+    )
+      return;
+    setIsLoading(true);
+    const previousScrollTop = messageListRef.current?.scrollTop || 0;
 
-      try {
-        if (listMemberRef.current) {
-          const currentListMember = listMemberRef.current;
+    try {
+      if (listMemberRef.current) {
+        const currentListMember = listMemberRef.current;
 
-          const response = await getMessageByRoom(
-            roomId,
-            15,
-            customLastMessageId
-          );
-          if (response.data?.length) {
-            const messageLists = response.data;
-            setLastMessageId(messageLists[messageLists.length - 1]?.id); // Cập nhật chính xác id mới nhất
-            const newMessages = messageLists.map((msg: IMessage) => ({
-              ...msg,
-              sender: currentListMember?.[msg.sender_id],
-            }));
+        const response = await getMessageByRoom(
+          roomId,
+          15,
+          lastMessageIdRef.current || ''
+        );
+        if (response.data?.length) {
+          const messageLists = response.data.map((msg: IMessage) => ({
+            ...msg,
+            sender: currentListMember?.[msg.sender_id],
+          }));
+          lastMessageIdRef.current = messageLists[messageLists.length - 1]?.id;
+          setLastMessageId(messageLists[messageLists.length - 1]?.id);
 
-            setMessages((prev) => {
-              const map = new Map(
-                [...prev, ...newMessages].map((msg) => [msg.id, msg])
-              );
-              return Array.from(map.values());
-            });
+          setMessages(messageLists);
 
-            setTimeout(() => {
-              if (messageListRef.current) {
-                messageListRef.current.scrollTop = previousScrollTop;
-              }
-            }, 0);
-          } else {
-            setHasMoreData(false);
-          }
+          setTimeout(() => {
+            if (messageListRef.current) {
+              messageListRef.current.scrollTop = previousScrollTop;
+            }
+          }, 0);
+        } else {
+          setHasMoreData(false);
         }
-      } catch (error) {
-        console.error(error);
       }
-    },
-    [roomId, lastMessageId, listMember]
-  );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [roomId, lastMessageId, listMember, isChangeRoomProcessing]);
 
-  const getNewMessages = useCallback(async () => {
+  const getOldMessages = async () => {
+    if (
+      isChangeRoomProcessing ||
+      !hasMoreData ||
+      !listMember ||
+      isAutoScrolling
+    )
+      return;
+    const previousScrollTop = messageListRef.current?.scrollTop || 0;
+
+    try {
+      if (listMemberRef.current) {
+        const currentListMember = listMemberRef.current;
+
+        const response = await getMessageByRoom(
+          roomId,
+          15,
+          lastMessageIdRef.current || ''
+        );
+        if (response.data?.length) {
+          const messageLists = response.data;
+          lastMessageIdRef.current = messageLists[messageLists.length - 1]?.id;
+          setLastMessageId(messageLists[messageLists.length - 1]?.id); // Cập nhật chính xác id mới nhất
+          const newMessages = messageLists.map((msg: IMessage) => ({
+            ...msg,
+            sender: currentListMember?.[msg.sender_id],
+          }));
+
+          setMessages((prev) => {
+            const map = new Map(
+              [...prev, ...newMessages].map((msg) => [msg.id, msg])
+            );
+            return Array.from(map.values());
+          });
+
+          setTimeout(() => {
+            if (messageListRef.current) {
+              messageListRef.current.scrollTop = previousScrollTop;
+            }
+          }, 0);
+        } else {
+          setHasMoreData(false);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getNewMessages = async () => {
     if (!hasMoreMessages) return;
     const previousScrollHeight = messageListRef.current?.scrollHeight || 0;
 
@@ -320,7 +387,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
           roomId,
           15,
           false,
-          newerMessageId
+          newerMessageId || ''
         ); // Endpoint hỗ trợ tải mới
         if (response.data?.length) {
           const messageLists = response.data;
@@ -352,7 +419,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
         console.error('Error fetching new messages:', error);
       }
     }
-  }, [hasMoreMessages, roomId, newerMessageId]);
+  };
 
   useEffect(() => {
     if (roomInfo.is_group) return;
@@ -371,22 +438,12 @@ const ChatScreen: React.FC<IChatScreen> = ({
   }, [roomId]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (messages.length < 10 && listMember) {
-        setIsLoading(true); // Bật loading khi bắt đầu gọi getMessageListData
-        try {
-          await getMessageListData(); // Gọi getMessageListData và đợi cho đến khi hoàn thành
-        } catch (error) {
-          console.error('Error fetching messages:', error);
-        } finally {
-          setIsLoading(false); // Tắt loading khi dữ liệu đã được tải xong (hoặc có lỗi)
-        }
-      }
-    };
-
-    fetchData();
-    // if (messages.length < 10) getMessageListData();
-  }, [roomId, listMember, getMessageListData]);
+    lastMessageIdRef.current = '';
+    // Chỉ gọi getMessageListData sau khi lastMessageId đã được reset
+    if (!isChangeRoomProcessing && roomId) {
+      getMessageListData();
+    }
+  }, [isChangeRoomProcessing, roomId]);
 
   useEffect(() => {
     //Xóa tin nhắn reply khi thay đổi phòng
@@ -415,9 +472,6 @@ const ChatScreen: React.FC<IChatScreen> = ({
         return filterMessage;
       });
     }
-    getAllFilesInRoom(roomId, 'video');
-    getAllFilesInRoom(roomId, 'image');
-    getAllFilesInRoom(roomId, 'other');
   };
 
   useEffect(() => {
@@ -455,8 +509,10 @@ const ChatScreen: React.FC<IChatScreen> = ({
         const { scrollTop, scrollHeight, clientHeight } =
           messageListRef.current;
 
-        if (scrollTop <= clientHeight - scrollHeight + 10 && hasMoreData) {
-          getMessageListData();
+        if (scrollTop <= clientHeight - scrollHeight + 3 && hasMoreData) {
+          console.log('load old');
+
+          getOldMessages();
         }
       }
     };
@@ -468,21 +524,54 @@ const ChatScreen: React.FC<IChatScreen> = ({
   }, [getMessageListData, hasMoreData]);
 
   useEffect(() => {
-    const checkScrollHeight = () => {
-      if (messageListRef.current) {
+    const checkScrollHeight = async () => {
+      if (
+        messageListRef.current &&
+        !_.isEmpty(messages) &&
+        lastMessageIdRef.current
+      ) {
         const scrollHeight = messageListRef.current.scrollHeight;
         const clientHeight = messageListRef.current.clientHeight;
-
         // Nếu không có scrollbar và vẫn còn dữ liệu, tải thêm tin nhắn
+
         if (scrollHeight <= clientHeight && hasMoreData) {
-          getMessageListData();
+          const previousScrollTop = messageListRef.current?.scrollTop || 0;
+          const currentListMember = listMemberRef.current;
+          const response = await getMessageByRoom(
+            roomId,
+            15,
+            lastMessageIdRef.current
+          );
+          if (response.data) {
+            const messageLists = response.data;
+            lastMessageIdRef.current =
+              messageLists[messageLists.length - 1]?.id;
+            setLastMessageId(messageLists[messageLists.length - 1]?.id); // Cập nhật chính xác id mới nhất
+            const newMessages = messageLists.map((msg: IMessage) => ({
+              ...msg,
+              sender: currentListMember?.[msg.sender_id],
+            }));
+
+            setMessages((prev) => {
+              const map = new Map(
+                [...prev, ...newMessages].map((msg) => [msg.id, msg])
+              );
+              return Array.from(map.values());
+            });
+
+            setTimeout(() => {
+              if (messageListRef.current) {
+                messageListRef.current.scrollTop = previousScrollTop;
+              }
+            }, 0);
+          }
         }
       }
     };
 
     // Kiểm tra ngay khi render hoặc khi danh sách tin nhắn thay đổi
     checkScrollHeight();
-  }, [messages, hasMoreData, getMessageListData]);
+  }, [messages, hasMoreData]);
 
   useEffect(() => {
     if (isSearching) {
@@ -612,9 +701,9 @@ const ChatScreen: React.FC<IChatScreen> = ({
               setMessages([]);
               setLastMessageId('');
               await new Promise((resolve) => setTimeout(resolve, 0)); // Đảm bảo cập nhật state xong
-              getMessageListData('');
+              getMessageListData();
             }
-            scrollToBottom(true);
+            scrollToBottom();
             setTimeout(() => {
               setIsAutoScrolling(false);
               setIsSearching(false);

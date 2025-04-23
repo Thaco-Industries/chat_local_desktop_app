@@ -29,6 +29,26 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
     getFriendList(searchQuery);
   }, [searchQuery]);
 
+  const closeModal = () => {
+    setOpenAddRoomModal(false);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    };
+
+    if (openAddRoomModal) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [openAddRoomModal, closeModal]);
+
   const getFriendList = async (query: string) => {
     setIsFetchingFriendList(true);
     try {
@@ -42,10 +62,6 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
     } finally {
       setIsFetchingFriendList(false);
     }
-  };
-
-  const closeModal = () => {
-    setOpenAddRoomModal(false);
   };
 
   const initialValues = {
@@ -120,13 +136,9 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
   if (!openAddRoomModal) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center w-full h-full bg-black bg-opacity-50"
-      aria-hidden="true"
-      onClick={closeModal}
-    >
+    <div className="fixed inset-0 z-[100] flex items-center justify-center w-full h-full bg-black bg-opacity-50">
       <div
-        className="relative w-[450px] h-[80vh]"
+        className="relative w-[80vw] md:w-[50vw] lg:w-[30vw] h-[80vh] transition-[width] duration-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal content */}
@@ -141,7 +153,6 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
             >
               <svg
                 className="w-3 h-3"
-                aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 14 14"
@@ -215,7 +226,6 @@ function AddRoomModal({ openAddRoomModal, setOpenAddRoomModal }: Props) {
                     <div className="absolute inset-y-0 start-md flex items-center pointer-events-none">
                       <svg
                         className="w-4 h-4 text-gray-500"
-                        aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 20 20"

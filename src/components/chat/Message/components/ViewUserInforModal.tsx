@@ -47,7 +47,7 @@ function ViewUserInforModal({
   useEffect(() => {
     if (friendInfor) {
       // Cập nhật isRequest và isShowButton dựa trên friendInfor
-      setIsRequest(friendInfor.status !== 'FRIEND');
+      setIsRequest(friendInfor.status === 'SENT_REQUEST');
       setIsShowButton(friendInfor.status !== 'FRIEND');
     }
   }, [friendInfor]);
@@ -190,7 +190,6 @@ function ViewUserInforModal({
           'bg-black bg-opacity-50': overlay,
         }
       )}
-      aria-hidden="true"
       onClick={closeModal}
     >
       <div
@@ -211,7 +210,6 @@ function ViewUserInforModal({
             >
               <svg
                 className="w-3 h-3"
-                aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 14 14"

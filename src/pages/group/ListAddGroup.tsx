@@ -5,14 +5,32 @@ import { formatDate } from '../../util/formatDate';
 import { notify } from '../../helper/notify';
 import { useMessageContext } from '../../context/MessageContext';
 import AddGroupIcon from '../../assets/icons/add-group';
+import { useSocket } from '../../context/SocketContext';
 
 const ListAddGroup: React.FC = () => {
   const { setNumberOfInvitedRoom } = useMessageContext();
   const { apiRequest } = useFetchApi();
   const [listAddGroups, setListAddGroups] = useState([]);
+  const { socket } = useSocket();
+
   useEffect(() => {
     getListAddGroups();
   }, []);
+
+  const handleChangeRequest = () => {
+    getListAddGroups();
+  };
+
+  useEffect(() => {
+    if (socket) {
+      socket.on(`list-invitation-change`, handleChangeRequest);
+      socket.on(`new-invitation`, handleChangeRequest);
+      return () => {
+        socket.off(`list-invitation-change`);
+        socket.off(`new-invitation`);
+      };
+    }
+  }, [socket]);
 
   const getListAddGroups = async () => {
     try {
@@ -29,7 +47,7 @@ const ListAddGroup: React.FC = () => {
     if (mode === 'REJECTED') urlHandle = 'invited-rooms/reject-invited-room/';
     try {
       const response = await apiRequest('PUT', urlHandle + id);
-      if (response.status == 200) {
+      if (response.status == 200 || response.status == 204) {
         notify(
           mode === 'REJECTED'
             ? 'Từ chối lời mời tham gia nhom thành công'

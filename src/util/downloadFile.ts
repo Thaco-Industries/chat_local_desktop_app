@@ -1,29 +1,59 @@
+import axios from 'axios';
 import { useFetchApi } from '../context/ApiContext';
 import { notify } from '../helper/notify';
+import { getAuthCookie, getClientId } from '../actions/auth.action';
 
 export const FileHandle = () => {
   const { apiRequest } = useFetchApi();
+  const fileUrl = process.env.REACT_APP_FILE_URL;
+  const clientId = getClientId();
+  const userAuth = getAuthCookie();
 
   const handleFileDownload = async (url: string, file_name?: string) => {
     try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      // Tự động lấy phần mở rộng từ URL nếu không có trong file_name
-      const fileExtension = url.split('.').pop() || 'txt'; // Mặc định là txt nếu không tìm thấy
+      const response = await axios.get(url, {
+        responseType: 'blob', // Trả về blob để xử lý file
+      });
+
+      if (response.status !== 200) {
+        throw new Error(`HTTP Status ${response.status}: Không thể tải file`);
+      }
+
+      const blob = response.data; // Blob của file trả về
+      const contentDisposition = response.headers['content-disposition'];
+      const contentType = response.headers['content-type'];
+
+      // Lấy tên file từ Content-Disposition nếu có
+      let fileName = 'file';
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (fileNameMatch && fileNameMatch.length > 1) {
+          fileName = fileNameMatch[1];
+        }
+      }
+
+      // Nếu không có file_name trong content-disposition, lấy từ URL
+      const fileExtension = url.split('.').pop() || 'txt'; // Mặc định txt nếu không tìm thấy
       const finalFileName = file_name?.includes('.')
         ? file_name
-        : `${file_name || 'file'}.${fileExtension}`;
+        : `${fileName || 'file'}.${fileExtension}`;
+
+      // Tạo link để tải xuống
+      const downloadUrl = window.URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = downloadUrl;
-      anchor.download = finalFileName; // Đặt tên tệp
+      anchor.download = finalFileName;
       document.body.appendChild(anchor);
       anchor.click();
       document.body.removeChild(anchor);
+
       // Giải phóng URL Blob sau khi tải xuống
       window.URL.revokeObjectURL(downloadUrl);
+
+      console.log('Tải file thành công:', finalFileName);
     } catch (error) {
       console.error('Tải file thất bại:', error);
+      // Thêm thông báo UI hoặc xử lý logic khi lỗi (nếu cần)
     }
   };
 
@@ -186,9 +216,20 @@ export const FileHandle = () => {
       }
 
       try {
-        const response = await apiRequest('POST', 'upload/chunk', formData, {
-          'Content-Type': 'multipart/form-data; charset=utf-8',
+        const response = await axios({
+          method: 'POST',
+          url: `${fileUrl}/upload/chunk`,
+          data: formData,
+          headers: {
+            'Content-Type': 'multipart/form-data; charset=utf-8',
+            'x-client-id': clientId,
+            'x-type-device': 'desktop',
+            Authorization: `Bearer ${userAuth?.token.accessToken}`,
+          },
         });
+        // apiRequest('POST', 'upload/chunk', formData, {
+        //   'Content-Type': 'multipart/form-data; charset=utf-8',
+        // });
 
         if (response.status !== 201) {
           throw new Error(
@@ -228,7 +269,17 @@ export const FileHandle = () => {
       fileSize,
     };
 
-    const response = await apiRequest('POST', 'upload/check', payload);
+    const response = axios({
+      method: 'POST',
+      url: `${fileUrl}/upload/check`,
+      data: payload,
+      headers: {
+        'x-client-id': clientId,
+        'x-type-device': 'desktop',
+        Authorization: `Bearer ${userAuth?.token.accessToken}`,
+      },
+    });
+    // await apiRequest('POST', 'upload/check', payload);
     return response;
   }
 
