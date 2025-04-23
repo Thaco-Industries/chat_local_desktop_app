@@ -127,7 +127,7 @@ const MessageItem: React.FC<IMessageItem> = ({
     if (isImage && url_display && message.message_type !== 'RECALLED') {
       return (
         <img
-          src={`${process.env.REACT_APP_FILE_URL}/media/view/${url_display}`}
+          src={`${process.env.REACT_APP_FILE_URL}${url_display}`}
           alt="reply image"
           className="w-[120px] h-[120px] object-cover"
         />

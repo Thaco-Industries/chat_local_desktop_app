@@ -349,7 +349,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     if (isImage && url_display) {
       return (
         <img
-          src={`${process.env.REACT_APP_FILE_URL}/media/view/${url_display}`}
+          src={`${process.env.REACT_APP_FILE_URL}${url_display}`}
           alt="reply"
           className="w-[120px] h-[120px] object-cover"
         />

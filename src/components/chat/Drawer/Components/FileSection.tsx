@@ -37,7 +37,7 @@ export const FileSection: React.FC<{
             className="rounded-[2px] border border-primary p-xs relative cursor-pointer"
             onClick={() =>
               handleFileDownload(
-                `${process.env.REACT_APP_FILE_URL}/media/view/${url_display}`,
+                `${process.env.REACT_APP_FILE_URL}${url_display}`,
                 file_name
               )
             }
@@ -89,7 +89,7 @@ export const FileSection: React.FC<{
             )}
             {!system_deleted && (
               <DownloadButton
-                url={`${process.env.REACT_APP_FILE_URL}/media/view/${url_display}`}
+                url={`${process.env.REACT_APP_FILE_URL}${url_display}`}
                 file_name={file_name}
               />
             )}

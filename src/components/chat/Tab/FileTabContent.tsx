@@ -67,7 +67,7 @@ export const FileTabContent: React.FC<IFileTabContentProps> = ({
                   onClick={(e) =>
                     handleFileClick(
                       e,
-                      `${process.env.REACT_APP_FILE_URL}/media/view/${url_display}`,
+                      `${process.env.REACT_APP_FILE_URL}${url_display}`,
                       file_name,
                       file.id
                     )

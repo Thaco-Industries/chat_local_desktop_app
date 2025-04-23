@@ -39,7 +39,7 @@ const MediaMessage: React.FC<Props> = ({
     fileExtension || ''
   );
 
-  const urlFile = `${process.env.REACT_APP_FILE_URL}/media/view/${url_display}`;
+  const urlFile = `${process.env.REACT_APP_FILE_URL}${url_display}`;
   const urlVideoThumbnail = `${process.env.REACT_APP_API_URL}/media/view/${thumbnail_url_display}`;
 
   const renderSpinner = () => {

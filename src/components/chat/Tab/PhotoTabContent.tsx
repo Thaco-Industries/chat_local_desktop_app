@@ -24,8 +24,8 @@ export const PhotoTabContent: React.FC<IPhotoTabContentProps> = ({
           <h2 className="px-md pt-md font-semibold mb-4">Ngày {date}</h2>
           <div className="px-md pb-md grid grid-cols-4 gap-xxs">
             {groupedPhotos[date].map((photo, index) => {
-              const urlFile = `${process.env.REACT_APP_FILE_URL}/media/view/${photo.url_display}`;
-              const urlThumbnail = `${process.env.REACT_APP_FILE_URL}/media/view/${photo.thumbnail_url_display}`;
+              const urlFile = `${process.env.REACT_APP_FILE_URL}${photo.url_display}`;
+              const urlThumbnail = `${process.env.REACT_APP_FILE_URL}${photo.thumbnail_url_display}`;
 
               return (
                 <div
