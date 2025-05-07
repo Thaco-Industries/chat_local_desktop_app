@@ -434,25 +434,6 @@ autoUpdater.on('checking-for-update', () =>
 );
 autoUpdater.on('update-available', (info) => {
   log.info('Có bản cập nhật mới:', info);
-
-  const options = {
-    type: 'question',
-    buttons: ['Tải về ngay', 'Để lần sau'],
-    defaultId: 0,
-    title: 'Có bản cập nhật mới',
-    message: `Phiên bản mới ${info.version} đã sẵn sàng.`,
-    detail: 'Bạn có muốn tải bản cập nhật này ngay bây giờ không?',
-  };
-
-  dialog.showMessageBox(null, options).then((result) => {
-    if (result.response === 0) {
-      // Bắt đầu tải về
-      log.info('Người dùng chọn tải về bản mới');
-      autoUpdater.downloadUpdate();
-    } else {
-      log.info('Người dùng chọn để lần sau');
-    }
-  });
 });
 autoUpdater.on('update-not-available', () => log.info('No updates available.'));
 autoUpdater.on('error', (err) =>
@@ -463,4 +444,21 @@ autoUpdater.on('download-progress', (progress) =>
 );
 autoUpdater.on('update-downloaded', (info) => {
   log.info('Update downloaded: ', info);
+  const options = {
+    type: 'question',
+    buttons: ['Cài đặt lần sau', 'Cài đặt ngay'],
+    defaultId: 1,
+    title: 'Có bản cập nhật mới',
+    message: `Phiên bản ${info.version} đã sẵn sàng`,
+    detail: 'Bạn có muốn đóng app và cập nhật ngay không?',
+  };
+
+  dialog.showMessageBox(null, options).then((result) => {
+    if (result.response === 1) {
+      log.info('Người dùng chọn cài đặt ngay');
+      autoUpdater.quitAndInstall();
+    } else {
+      log.info('Người dùng chọn cài lần sau');
+    }
+  });
 });
