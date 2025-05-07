@@ -161,6 +161,11 @@ if (!gotTheLock) {
     });
 
     // autoUpdater.checkForUpdates();
+    // Đặt lịch 1 tiếng check 1 lần (1 tiếng = 3600000ms)
+    setInterval(() => {
+      log.info('Đang kiểm tra cập nhật định kỳ...');
+      autoUpdater.checkForUpdates();
+    }, 3600000);
   });
 }
 
