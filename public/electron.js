@@ -119,7 +119,6 @@ if (!gotTheLock) {
   app.whenReady().then(() => {
     createWindow();
     autoUpdater.checkForUpdates();
-    autoUpdater.checkForUpdatesAndNotify();
     setupLocalFilesNormalizerProxy();
     // Tạo Tray Icon
     tray = new Tray(path.join(__dirname, 'icon.png')); // Thay bằng icon phù hợp
