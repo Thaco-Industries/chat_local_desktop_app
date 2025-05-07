@@ -22,7 +22,7 @@ const isDev = !app.isPackaged;
 const gotTheLock = app.requestSingleInstanceLock();
 
 log.transports.file.resolvePath = () =>
-  path.join(app.getPath('userData'), 'logs', 'main.log');
+  path.join(app.getPath('userData'), 'logs', 'chat-local-main.log');
 log.info('Log file path: ', log.transports.file.getFile().path);
 log.log('Application version: ', app.getVersion());
 
@@ -432,7 +432,28 @@ ipcMain.handle('open-url', async (event, url) => {
 autoUpdater.on('checking-for-update', () =>
   log.info('Checking for updates...')
 );
-autoUpdater.on('update-available', () => log.info('Update available.'));
+autoUpdater.on('update-available', (info) => {
+  log.info('Có bản cập nhật mới:', info);
+
+  const options = {
+    type: 'question',
+    buttons: ['Tải về ngay', 'Để lần sau'],
+    defaultId: 0,
+    title: 'Có bản cập nhật mới',
+    message: `Phiên bản mới ${info.version} đã sẵn sàng.`,
+    detail: 'Bạn có muốn tải bản cập nhật này ngay bây giờ không?',
+  };
+
+  dialog.showMessageBox(null, options).then((result) => {
+    if (result.response === 0) {
+      // Bắt đầu tải về
+      log.info('Người dùng chọn tải về bản mới');
+      autoUpdater.downloadUpdate();
+    } else {
+      log.info('Người dùng chọn để lần sau');
+    }
+  });
+});
 autoUpdater.on('update-not-available', () => log.info('No updates available.'));
 autoUpdater.on('error', (err) =>
   log.error('Error checking for updates: ', err)
@@ -442,22 +463,4 @@ autoUpdater.on('download-progress', (progress) =>
 );
 autoUpdater.on('update-downloaded', (info) => {
   log.info('Update downloaded: ', info);
-  const options = {
-    type: 'question',
-    buttons: ['Cài đặt vào lần tới', 'Cài đặt ngay bây giờ'],
-    defaultId: 1,
-    title: 'Có bản cập nhật mới',
-    message: 'Bản cập nhật mới đã được tải xuống',
-    detail: 'Bạn có muốn cài đặt ngay bây giờ không?',
-  };
-
-  dialog.showMessageBox(null, options).then((result) => {
-    if (result.response === 1) {
-      // Install now
-      autoUpdater.quitAndInstall();
-    } else {
-      // Install on next launch — không làm gì
-      log.info('Will install on next launch.');
-    }
-  });
 });
