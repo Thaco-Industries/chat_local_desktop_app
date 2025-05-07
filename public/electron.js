@@ -17,6 +17,7 @@ const badgeIcon = path.join(__dirname, 'badge-icon.png');
 const defaultIcon = path.join(__dirname, 'icon.png');
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log');
+const { dialog } = require('electron');
 
 const isDev = !app.isPackaged;
 const gotTheLock = app.requestSingleInstanceLock();
