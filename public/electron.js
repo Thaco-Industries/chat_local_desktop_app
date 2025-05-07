@@ -62,6 +62,9 @@ function createWindow() {
   // `file://${path.join(__dirname, '../build/index.html')}#/`;
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL(appURL);
+  mainWindow.setTitle(
+    'Phần Mềm Trao Đổi Thông Tin Nội Bộ' + ' - ' + app.getVersion()
+  ); // Đặt tiêu đề cho cửa sổ
 
   badge = new Badge(mainWindow, {
     font: '8px', // Thêm đơn vị px
@@ -116,6 +119,7 @@ if (!gotTheLock) {
   app.whenReady().then(() => {
     createWindow();
     autoUpdater.checkForUpdates();
+    autoUpdater.checkForUpdatesAndNotify();
     setupLocalFilesNormalizerProxy();
     // Tạo Tray Icon
     tray = new Tray(path.join(__dirname, 'icon.png')); // Thay bằng icon phù hợp
@@ -138,7 +142,7 @@ if (!gotTheLock) {
     ]);
 
     tray.setContextMenu(trayMenu);
-    tray.setToolTip('Chat Local R&D');
+    tray.setToolTip('Phần Mềm Trao Đổi Thông Tin Nội Bộ');
 
     tray.on('click', () => {
       mainWindow.show();
@@ -319,7 +323,9 @@ ipcMain.handle('notification-clicked', async () => {
   if (lastNotificationMessage) {
     const allWindows = BrowserWindow.getAllWindows();
 
-    const mainWindow = allWindows.find((win) => win.title === 'Chat Local R&D');
+    const mainWindow = allWindows.find(
+      (win) => win.title === 'Phần Mềm Trao Đổi Thông Tin Nội Bộ'
+    );
 
     if (mainWindow) {
       if (mainWindow.isMinimized()) {
@@ -349,7 +355,9 @@ ipcMain.handle('request-notification-clicked', async () => {
   if (requestNotificationMessage) {
     const allWindows = BrowserWindow.getAllWindows();
 
-    const mainWindow = allWindows.find((win) => win.title === 'Chat Local R&D');
+    const mainWindow = allWindows.find(
+      (win) => win.title === 'Phần Mềm Trao Đổi Thông Tin Nội Bộ'
+    );
 
     if (mainWindow) {
       if (mainWindow.isMinimized()) {
@@ -378,7 +386,9 @@ ipcMain.handle('send-reply-message', async (event, message) => {
   // Gửi message tới React component (mainWindow)
   const allWindows = BrowserWindow.getAllWindows();
 
-  const mainWindow = allWindows.find((win) => win.title === 'Chat Local R&D');
+  const mainWindow = allWindows.find(
+    (win) => win.title === 'Phần Mềm Trao Đổi Thông Tin Nội Bộ'
+  );
 
   if (mainWindow) {
     mainWindow.webContents.send('send-reply-message', message);
@@ -430,6 +440,24 @@ autoUpdater.on('error', (err) =>
 autoUpdater.on('download-progress', (progress) =>
   log.info('Download progress: ', progress)
 );
-autoUpdater.on('update-downloaded', (info) =>
-  log.info('Update downloaded: ', info)
-);
+autoUpdater.on('update-downloaded', (info) => {
+  log.info('Update downloaded: ', info);
+  const options = {
+    type: 'question',
+    buttons: ['Cài đặt vào lần tới', 'Cài đặt ngay bây giờ'],
+    defaultId: 1,
+    title: 'Có bản cập nhật mới',
+    message: 'Bản cập nhật mới đã được tải xuống',
+    detail: 'Bạn có muốn cài đặt ngay bây giờ không?',
+  };
+
+  dialog.showMessageBox(null, options).then((result) => {
+    if (result.response === 1) {
+      // Install now
+      autoUpdater.quitAndInstall();
+    } else {
+      // Install on next launch — không làm gì
+      log.info('Will install on next launch.');
+    }
+  });
+});
