@@ -16,4 +16,5 @@ export interface IChatScreen extends IChatDrawerDetail {
   isDesktopCollapsed: boolean;
   setIsDesktopCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
   isVideo: boolean;
+  setIsRightSideLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }

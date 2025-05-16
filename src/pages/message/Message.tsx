@@ -23,6 +23,7 @@ const Message: React.FC = () => {
 
   const [imageView, setImageView] = useState<string>('');
   const [isVideo, setIsVideo] = useState<boolean>(false);
+  const [isRightSideLoading, setIsRightSideLoading] = useState(false);
 
   const { apiRequest } = useFetchApi();
 
@@ -46,7 +47,15 @@ const Message: React.FC = () => {
       >
         {!isSearchMessage ? (
           <RoomList
-            setRoomId={setRoomId}
+            setRoomId={(roomKey) => {
+              if (isRightSideLoading) {
+                console.log(
+                  'Thông tin phòng chat chưa load xong, vui lòng chờ!'
+                );
+                return;
+              }
+              setRoomId(roomKey);
+            }}
             roomId={roomId}
             setRoomList={setRoomList}
             roomList={roomList}
@@ -73,6 +82,7 @@ const Message: React.FC = () => {
             setImageView={setImageView}
             setIsVideo={setIsVideo}
             isVideo={isVideo}
+            setIsRightSideLoading={setIsRightSideLoading}
           />
         ) : (
           <WelcomeScreen />

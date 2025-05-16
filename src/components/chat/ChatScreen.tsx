@@ -31,6 +31,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
   setImageView,
   isVideo,
   setIsVideo,
+  setIsRightSideLoading,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
@@ -290,6 +291,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
     )
       return;
     setIsLoading(true);
+    setIsRightSideLoading(true);
     const previousScrollTop = messageListRef.current?.scrollTop || 0;
 
     try {
@@ -324,6 +326,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
       console.error(error);
     } finally {
       setIsLoading(false);
+      setIsRightSideLoading(false);
     }
   }, [roomId, lastMessageId, listMember, isChangeRoomProcessing]);
 
@@ -676,6 +679,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
         listMember={listMember}
         isVideo={isVideo}
         setIsVideo={setIsVideo}
+        setIsRightSideLoading={setIsRightSideLoading}
       />
       <div
         className="flex flex-col-reverse flex-1 overflow-y-auto scrollbar"

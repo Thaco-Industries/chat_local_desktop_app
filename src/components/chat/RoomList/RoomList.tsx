@@ -452,7 +452,13 @@ export const RoomList: React.FC<IRoomList> = ({
                 className={clsx('cursor-pointer', {
                   'bg-[#91CFFB33]': room.id === roomId,
                 })}
-                onClick={() => handleRoomClick(room)}
+                onClick={() => {
+                  if (isChangeRoomProcessing) {
+                    console.log('Đang xử lý');
+                    return;
+                  }
+                  handleRoomClick(room);
+                }}
               >
                 <RoomItem room={room} keyword={keyword} />
               </li>
