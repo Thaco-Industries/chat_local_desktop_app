@@ -64,7 +64,7 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL(appURL);
   mainWindow.setTitle(
-    'Phần Mềm Trao Đổi Thông Tin Nội Bộ' + ' - ' + app.getVersion()
+    'Chat Local R&D' + ' - ' + app.getVersion()
   ); // Đặt tiêu đề cho cửa sổ
 
   badge = new Badge(mainWindow, {
@@ -142,7 +142,7 @@ if (!gotTheLock) {
     ]);
 
     tray.setContextMenu(trayMenu);
-    tray.setToolTip('Phần Mềm Trao Đổi Thông Tin Nội Bộ');
+    tray.setToolTip('Chat Local R&D');
 
     tray.on('click', () => {
       mainWindow.show();
@@ -329,7 +329,7 @@ ipcMain.handle('notification-clicked', async () => {
     const allWindows = BrowserWindow.getAllWindows();
 
     const mainWindow = allWindows.find(
-      (win) => win.title === 'Phần Mềm Trao Đổi Thông Tin Nội Bộ'
+      (win) => win.title === 'Chat Local R&D'
     );
 
     if (mainWindow) {
@@ -361,7 +361,7 @@ ipcMain.handle('request-notification-clicked', async () => {
     const allWindows = BrowserWindow.getAllWindows();
 
     const mainWindow = allWindows.find(
-      (win) => win.title === 'Phần Mềm Trao Đổi Thông Tin Nội Bộ'
+      (win) => win.title === 'Chat Local R&D'
     );
 
     if (mainWindow) {
@@ -392,7 +392,7 @@ ipcMain.handle('send-reply-message', async (event, message) => {
   const allWindows = BrowserWindow.getAllWindows();
 
   const mainWindow = allWindows.find(
-    (win) => win.title === 'Phần Mềm Trao Đổi Thông Tin Nội Bộ'
+    (win) => win.title === 'Chat Local R&D'
   );
 
   if (mainWindow) {
