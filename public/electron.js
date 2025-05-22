@@ -142,7 +142,7 @@ if (!gotTheLock) {
     ]);
 
     tray.setContextMenu(trayMenu);
-    tray.setToolTip('Chat Local R&D');
+    tray.setToolTip('Chat Local R&D'  + ' - ' + app.getVersion());
 
     tray.on('click', () => {
       mainWindow.show();
@@ -329,7 +329,7 @@ ipcMain.handle('notification-clicked', async () => {
     const allWindows = BrowserWindow.getAllWindows();
 
     const mainWindow = allWindows.find(
-      (win) => win.title === 'Chat Local R&D'
+      (win) => win.title === 'Chat Local R&D'  + ' - ' + app.getVersion()
     );
 
     if (mainWindow) {
@@ -361,7 +361,7 @@ ipcMain.handle('request-notification-clicked', async () => {
     const allWindows = BrowserWindow.getAllWindows();
 
     const mainWindow = allWindows.find(
-      (win) => win.title === 'Chat Local R&D'
+      (win) => win.title === 'Chat Local R&D'  + ' - ' + app.getVersion()
     );
 
     if (mainWindow) {
@@ -392,7 +392,7 @@ ipcMain.handle('send-reply-message', async (event, message) => {
   const allWindows = BrowserWindow.getAllWindows();
 
   const mainWindow = allWindows.find(
-    (win) => win.title === 'Chat Local R&D'
+    (win) => win.title === 'Chat Local R&D'  + ' - ' + app.getVersion()
   );
 
   if (mainWindow) {
