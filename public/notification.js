@@ -8,8 +8,8 @@ window.electronAPI.receiveNotification((event, data) => {
   const notificationContainer = document.querySelector(
     '.notification-container'
   );
-  const replyInput = document.querySelector('.notification-reply input');
-  const replyButton = document.querySelector('.reply-btn');
+  // const replyInput = document.querySelector('.notification-reply input');
+  // const replyButton = document.querySelector('.reply-btn');
   const closeButton = document.querySelector('.close-btn');
 
   // Đặt nội dung thông báo
@@ -66,28 +66,28 @@ window.electronAPI.receiveNotification((event, data) => {
     });
   });
 
-  // Dừng bộ đếm khi focus vào input
-  replyInput.addEventListener('focus', () => {
-    clearTimeout(autoCloseTimeout); // Dừng đếm
-    clearTimeout(resetTimer); // Xóa reset thao tác
-  });
+  // // Dừng bộ đếm khi focus vào input
+  // replyInput.addEventListener('focus', () => {
+  //   clearTimeout(autoCloseTimeout); // Dừng đếm
+  //   clearTimeout(resetTimer); // Xóa reset thao tác
+  // });
 
-  // Khởi động lại bộ đếm khi blur khỏi input
-  replyInput.addEventListener('blur', () => {
-    startAutoCloseTimer();
-  });
+  // // Khởi động lại bộ đếm khi blur khỏi input
+  // replyInput.addEventListener('blur', () => {
+  //   startAutoCloseTimer();
+  // });
 
-  // Gửi phản hồi khi click nút gửi
-  replyButton.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const message = replyInput.value.trim();
-    if (message) {
-      // Gửi tin nhắn tới Main Process
-      window.electronAPI.sendReplyMessage(message);
-      replyInput.value = ''; // Xóa nội dung input
-    }
-    closeNotification();
-  });
+  // // Gửi phản hồi khi click nút gửi
+  // replyButton.addEventListener('click', (e) => {
+  //   e.stopPropagation();
+  //   const message = replyInput.value.trim();
+  //   if (message) {
+  //     // Gửi tin nhắn tới Main Process
+  //     window.electronAPI.sendReplyMessage(message);
+  //     replyInput.value = ''; // Xóa nội dung input
+  //   }
+  //   closeNotification();
+  // });
 
   // Xử lý nút đóng thông báo
   if (closeButton) {
