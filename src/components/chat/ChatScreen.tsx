@@ -661,6 +661,40 @@ const ChatScreen: React.FC<IChatScreen> = ({
     }
   };
 
+  const messagesRef = useRef<IMessage[]>(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  const loadMoreMessagesUntil = async (messageId: string, maxTries = 20) => {
+    let tries = 0;
+    let found = messagesRef.current.some((msg) => msg.id === messageId);
+
+    while (!found && hasMoreData && tries < maxTries) {
+      await getOldMessages();
+      tries++;
+      // Đợi state cập nhật
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      found = messagesRef.current.some((msg) => msg.id === messageId);
+      if (found) break;
+    }
+
+    // Sau khi load xong, scroll tới tin nhắn nếu đã có
+    setTimeout(() => {
+      const el = document.getElementById(`message-${messageId}`);
+      if (el && messageListRef.current) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      const target = el?.querySelector(
+        '.join.join-vertical.inline-flex.items-start.rounded-lg'
+      );
+      if (target) {
+        target.classList.add('highlight-message');
+        setTimeout(() => target.classList.remove('highlight-message'), 1500);
+      }
+    }, 100);
+  };
+
   return (
     <div className="flex flex-col bg-background-500 h-full relative">
       <ChatHeader
@@ -693,6 +727,7 @@ const ChatScreen: React.FC<IChatScreen> = ({
             setImageView={setImageView}
             setVisible={setVisible}
             setIsVideo={setIsVideo}
+            loadMoreMessagesUntil={loadMoreMessagesUntil}
           />
           <div ref={messageEndRef} />
         </div>

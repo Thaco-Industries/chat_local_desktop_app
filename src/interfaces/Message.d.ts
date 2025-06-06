@@ -57,11 +57,14 @@ export interface IFileMessage {
 export interface IMessageItem extends IModalImageSetData {
   message: IMessage;
   showSenderInfo: boolean;
+  scrollToMessage?: (messageId: string) => void;
+  loadMoreMessagesUntil?: (messageId: string) => Promise<void>;
 }
 
 export interface IMessageList extends IModalImageSetData {
   messages: IMessage[];
   isLoading: boolean;
+  loadMoreMessagesUntil?: (messageId: string) => Promise<void>;
 }
 
 export interface INotificationNewMessage {

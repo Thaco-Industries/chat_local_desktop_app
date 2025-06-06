@@ -456,8 +456,9 @@ export const RoomList: React.FC<IRoomList> = ({
                   if (isChangeRoomProcessing) {
                     console.log('Đang xử lý');
                     return;
+                  }else{
+                    handleRoomClick(room);
                   }
-                  handleRoomClick(room);
                 }}
               >
                 <RoomItem room={room} keyword={keyword} />

@@ -20,6 +20,7 @@ const MessageItem: React.FC<IMessageItem> = ({
   setVisible,
   showSenderInfo,
   setIsVideo,
+  loadMoreMessagesUntil,
 }) => {
   const userId = getAuthCookie()?.user.id || '';
   const { recallMessage } = useMessageService();
@@ -33,6 +34,7 @@ const MessageItem: React.FC<IMessageItem> = ({
   const [openFriendInfoModal, setOpenFriendInfoModal] =
     useState<boolean>(false);
   const [friendId, setFriendId] = useState<string>('');
+  const [idHighlight, setIdHighLight] = useState<string>('');
 
   useEffect(() => {
     if (listMember && message.message_display) {
@@ -165,7 +167,7 @@ const MessageItem: React.FC<IMessageItem> = ({
   };
 
   return (
-    <div className={`flex gap-xs my-[2.5px]`}>
+    <div className={`flex gap-xs my-[2.5px]`} id={`message-${message.id}`}>
       {!isUserMessage && (
         <div
           className={clsx(showSenderInfo ? 'cursor-pointer' : 'cursor-default')}
@@ -213,13 +215,41 @@ const MessageItem: React.FC<IMessageItem> = ({
             })}
           >
             <div
-              className={`join join-vertical inline-flex items-start rounded-lg ${
+              className={`join join-vertical inline-flex items-start rounded-lg box-border ${
                 isUserMessage ? 'bg-[#91CFFB80]' : 'bg-white'
-              }`}
+              } ${message.id == idHighlight ? 'highlight-message' : ''}`}
               style={{ wordBreak: 'break-word' }}
             >
               {message.reply_id && message.message_type !== 'RECALLED' && (
-                <div className="join-item p-3 rounded-lg text-textBody italic gap-5 border-b border-border grid grid-cols-[20px_auto] items-start">
+                <div
+                  className="join-item p-3 rounded-lg text-textBody italic gap-5 border-b border-border grid grid-cols-[20px_auto] items-start cursor-pointer"
+                  onClick={async () => {
+                    const replyMessageId = message.reply_id?.id;
+                    if (!replyMessageId) return;
+                    const el = document.getElementById(
+                      `message-${replyMessageId}`
+                    );
+                    if (el) {
+                      el.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                      });
+                      const target = el.querySelector(
+                        '.join.join-vertical.inline-flex.items-start.rounded-lg'
+                      );
+                      if (target) {
+                        target.classList.add('highlight-message');
+                        setTimeout(
+                          () => target.classList.remove('highlight-message'),
+                          1500
+                        );
+                      }
+                    } else if (loadMoreMessagesUntil) {
+                      await loadMoreMessagesUntil(replyMessageId);
+                    }
+                  }}
+                  title="Nhấn để chuyển tới tin nhắn gốc"
+                >
                   <ReplyMessageIcon fill="#7B87A1" />
                   {renderReplyMedia()}
                 </div>
